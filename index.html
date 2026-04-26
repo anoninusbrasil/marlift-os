@@ -318,7 +318,7 @@
         <h2 class="font-display text-xl mb-3"><i class="fas fa-calendar-alt"></i> Gerenciar Agendamentos</h2>
         <div class="grid md:grid-cols-2 gap-4 mb-4">
           <div><label class="block text-xs text-[var(--muted)] mb-1">Cliente</label><input type="text" id="ag_cliente" class="form-input" list="clientesList" placeholder="Selecione ou digite"><datalist id="clientesList"></datalist></div>
-          <div><label class="block text-xs text-[var(--muted)] mb-1">Equipamento</label><input type="text" id="ag_equipamento" class="form-input" placeholder="Marca/Modelo"></div>
+          <div><label class="block text-xs text-[var(--muted)] mb-1">O.S para o Tecnico</label><select id="ag_os_select" class="form-input"><option value="">Selecione a OS</option></select></div>
           <div><label class="block text-xs text-[var(--muted)] mb-1">Data</label><input type="date" id="ag_data" class="form-input"></div>
           <div><label class="block text-xs text-[var(--muted)] mb-1">Horario</label><input type="time" id="ag_horario" class="form-input"></div>
           <div><label class="block text-xs text-[var(--muted)] mb-1">Tecnico</label><select id="ag_tecnico" class="form-input"><option value="">Selecione</option></select></div>
@@ -715,16 +715,145 @@ var UserManager={
 
 /* ==================== AGENDAMENTOS ==================== */
 var Agendamentos = {
-  carregar:function(){State.agendamentos=Storage.loadAgendamentos();this.atualizarLista();this.atualizarSelectTecnicos();this.atualizarDatalistClientes()},
-  atualizarSelectTecnicos:function(){var s=document.getElementById('ag_tecnico');if(!s)return;var u=Auth.getUsers().filter(function(u){return u.nivel==='tecnico'});s.innerHTML='<option value="">Selecione</option>';u.forEach(function(t){s.innerHTML+='<option value="'+t.login+'">'+t.nome+'</option>'})},
-  atualizarDatalistClientes:function(){var dl=document.getElementById('clientesList');if(!dl)return;dl.innerHTML='';State.clients.forEach(function(c){var o=document.createElement('option');o.value=c.nome;dl.appendChild(o)})},
-  salvar:async function(){if(!Auth.isAdmin()){showToast('Apenas administrador',true);return}var cl=document.getElementById('ag_cliente').value.trim(),eq=document.getElementById('ag_equipamento').value.trim(),dt=document.getElementById('ag_data').value,hr=document.getElementById('ag_horario').value,tc=document.getElementById('ag_tecnico').value,ds=document.getElementById('ag_descricao').value,editId=document.getElementById('ag_editId').value;if(!cl||!dt||!tc){showToast('Cliente, data e tecnico obrigatorios',true);return}if(!hr){showToast('Horario obrigatorio',true);return}var agendamento;if(editId){var idx=State.agendamentos.findIndex(function(a){return a.id==editId});if(idx!==-1){State.agendamentos[idx]={id:parseInt(editId),cliente:cl,equipamento:eq,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};agendamento=State.agendamentos[idx];showToast('Agendamento atualizado')}}else{agendamento={id:Date.now(),cliente:cl,equipamento:eq,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};State.agendamentos.push(agendamento);showToast('Agendamento salvo')}Storage.saveAgendamentos();this.limparForm();this.atualizarLista();try{var ok=await GoogleSheetsSync.syncSingleAgendamento(agendamento);if(ok)console.log('Agendamento sincronizado com Google');else throw new Error('Falha na sincronização');}catch(e){SyncQueue.add('upsert','agendamento',agendamento);showToast('Salvo localmente, pendente sincronização',true);}},
-  limparForm:function(){['ag_cliente','ag_equipamento','ag_data','ag_horario','ag_descricao'].forEach(function(id){document.getElementById(id).value=''});document.getElementById('ag_tecnico').value='';document.getElementById('ag_editId').value=''},
-  atualizarLista:function(){var c=document.getElementById('agendamentosLista');if(!c)return;var p=State.agendamentos.filter(function(a){return a.status!=='concluido'}).sort(function(a,b){return(a.data+''+a.horario).localeCompare(b.data+''+b.horario)});if(!p.length){c.innerHTML='<div class="text-center p-4 text-[var(--muted)]">Nenhum agendamento pendente</div>';return}var h='';p.forEach(function(a){h+='<div class="schedule-card"><div class="flex justify-between items-start flex-wrap"><div><strong>'+a.cliente+'</strong> - '+(a.equipamento||'Nao informado')+'<br><small><i class="fas fa-calendar"></i> '+a.data+' '+a.horario+' | <i class="fas fa-user-cog"></i> '+a.tecnico+'</small><br><small>'+(a.descricao||'')+'</small></div><div><button onclick="Agendamentos.concluir('+a.id+')" class="btn btn-success text-xs py-1 px-2"><i class="fas fa-check"></i></button> <button onclick="Agendamentos.editar('+a.id+')" class="btn btn-info text-xs py-1 px-2"><i class="fas fa-edit"></i></button> <button onclick="Agendamentos.excluir('+a.id+')" class="btn btn-danger text-xs py-1 px-2"><i class="fas fa-trash"></i></button></div></div></div>'});c.innerHTML=h},
-  editar:function(id){var a=State.agendamentos.find(function(a){return a.id===id});if(!a)return;document.getElementById('ag_cliente').value=a.cliente;document.getElementById('ag_equipamento').value=a.equipamento||'';document.getElementById('ag_data').value=a.data;document.getElementById('ag_horario').value=a.horario;document.getElementById('ag_tecnico').value=a.tecnico;document.getElementById('ag_descricao').value=a.descricao||'';document.getElementById('ag_editId').value=a.id;showToast('Editando agendamento')},
-  concluir:async function(id){var i=State.agendamentos.findIndex(function(a){return a.id===id});if(i!==-1){State.agendamentos[i].status='concluido';Storage.saveAgendamentos();this.atualizarLista();showToast('Concluido');try{await GoogleSheetsSync.syncSingleAgendamento(State.agendamentos[i]);}catch(e){SyncQueue.add('upsert','agendamento',State.agendamentos[i]);}}},
-  excluir:async function(id){if(!confirm('Excluir?'))return;var r=State.agendamentos.find(function(a){return a.id===id});State.agendamentos=State.agendamentos.filter(function(a){return a.id!==id});Storage.saveAgendamentos();this.atualizarLista();showToast('Excluido');if(r){try{await GoogleSheetsSync.syncSingleAgendamento(Object.assign({},r,{_deleted:true}));}catch(e){SyncQueue.add('delete','agendamento',{id:id})}}},
-  obterAgendamentosDoDia:function(tl){var h=new Date().toISOString().split('T')[0];return State.agendamentos.filter(function(a){return a.tecnico===tl&&a.data===h&&a.status!=='concluido'})}
+  carregar:function(){
+    State.agendamentos=Storage.loadAgendamentos();
+    this.atualizarLista();
+    this.atualizarSelectTecnicos();
+    this.atualizarDatalistClientes();
+    this.carregarOSDisponiveis('');
+  },
+  atualizarSelectTecnicos:function(){
+    var s=document.getElementById('ag_tecnico');
+    if(!s)return;
+    var u=Auth.getUsers().filter(function(u){return u.nivel==='tecnico'});
+    s.innerHTML='<option value="">Selecione</option>';
+    u.forEach(function(t){s.innerHTML+='<option value="'+t.login+'">'+t.nome+'</option>'});
+  },
+  atualizarDatalistClientes:function(){
+    var dl=document.getElementById('clientesList');
+    if(!dl)return;
+    dl.innerHTML='';
+    State.clients.forEach(function(c){var o=document.createElement('option');o.value=c.nome;dl.appendChild(o)})
+  },
+  carregarOSDisponiveis:function(tecnicoLogin){
+    var s=document.getElementById('ag_os_select');
+    if(!s)return;
+    s.innerHTML='<option value="">Selecione a OS</option>';
+    var osDisponiveis=State.osHistory.filter(function(o){
+      return o.status==='abertura';
+    });
+    if(!osDisponiveis.length){
+      s.innerHTML='<option value="">Nenhuma OS em abertura</option>';
+      return;
+    }
+    osDisponiveis.forEach(function(o){
+      var cliente=(o.cliente||'Sem cliente').toUpperCase();
+      var marca=o.marca||'';
+      var opt=document.createElement('option');
+      opt.value=o.numeroOS;
+      opt.textContent=o.numeroOS+' — '+cliente+(marca?' — '+marca:'');
+      s.appendChild(opt);
+    });
+  },
+  salvar:async function(){
+    if(!Auth.isAdmin()){showToast('Apenas administrador',true);return}
+    var cl=document.getElementById('ag_cliente').value.trim();
+    var osSelect=document.getElementById('ag_os_select').value.trim();
+    var dt=document.getElementById('ag_data').value;
+    var hr=document.getElementById('ag_horario').value;
+    var tc=document.getElementById('ag_tecnico').value;
+    var ds=document.getElementById('ag_descricao').value;
+    var editId=document.getElementById('ag_editId').value;
+    if(!cl||!dt||!tc){showToast('Cliente, data e tecnico obrigatorios',true);return}
+    if(!hr){showToast('Horario obrigatorio',true);return}
+    if(!osSelect){showToast('Selecione uma OS',true);return}
+    var agendamento;
+    if(editId){
+      var idx=State.agendamentos.findIndex(function(a){return a.id==editId});
+      if(idx!==-1){
+        State.agendamentos[idx]={id:parseInt(editId),cliente:cl,equipamento:osSelect,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};
+        agendamento=State.agendamentos[idx];
+        showToast('Agendamento atualizado')
+      }
+    }else{
+      agendamento={id:Date.now(),cliente:cl,equipamento:osSelect,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};
+      State.agendamentos.push(agendamento);
+      showToast('Agendamento salvo')
+    }
+    Storage.saveAgendamentos();
+    this.limparForm();
+    this.atualizarLista();
+    try{await GoogleSheetsSync.syncSingleAgendamento(agendamento)}catch(e){SyncQueue.add('upsert','agendamento',agendamento);showToast('Salvo localmente, pendente sincronização',true)}
+  },
+  limparForm:function(){
+    ['ag_cliente','ag_descricao'].forEach(function(id){document.getElementById(id).value=''});
+    document.getElementById('ag_data').value='';
+    document.getElementById('ag_horario').value='';
+    document.getElementById('ag_tecnico').value='';
+    document.getElementById('ag_editId').value='';
+    this.carregarOSDisponiveis('');
+  },
+  atualizarLista:function(){
+    var c=document.getElementById('agendamentosLista');
+    if(!c)return;
+    var p=State.agendamentos.filter(function(a){return a.status!=='concluido'}).sort(function(a,b){return(a.data+''+a.horario).localeCompare(b.data+''+b.horario)});
+    if(!p.length){c.innerHTML='<div class="text-center p-4 text-[var(--muted)]">Nenhum agendamento pendente</div>';return}
+    var h='';
+    p.forEach(function(a){
+      var osNum=a.equipamento||'Sem OS';
+      var osInfo='';
+      var osObj=State.osHistory.find(function(o){return o.numeroOS===osNum});
+      if(osObj){osInfo=' — '+(osObj.marca||'')+' '+(osObj.modelo||'')}
+      h+='<div class="schedule-card"><div class="flex justify-between items-start flex-wrap"><div>';
+      h+='<div style="font-size:.75rem;color:var(--muted);margin-bottom:2px"><i class="fas fa-clipboard-list"></i> '+osNum+osInfo+'</div>';
+      h+='<strong>'+a.cliente+'</strong>';
+      h+='<br><small><i class="fas fa-calendar"></i> '+a.data+' '+a.horario+' HS | <i class="fas fa-user-cog"></i> '+a.tecnico+'</small>';
+      if(a.descricao)h+='<br><small class="text-[var(--muted)]">'+a.descricao+'</small>';
+      h+='</div><div class="flex gap-1 flex-wrap">';
+      h+='<button onclick="Agendamentos.irParaOS(\''+osNum+'\')" class="btn btn-info text-xs py-1 px-2" title="Abrir OS"><i class="fas fa-external-link-alt"></i></button>';
+      h+='<button onclick="Agendamentos.concluir('+a.id+')" class="btn btn-success text-xs py-1 px-2"><i class="fas fa-check"></i></button>';
+      h+='<button onclick="Agendamentos.editar('+a.id+')" class="btn btn-info text-xs py-1 px-2"><i class="fas fa-edit"></i></button>';
+      h+='<button onclick="Agendamentos.excluir('+a.id+')" class="btn btn-danger text-xs py-1 px-2"><i class="fas fa-trash"></i></button>';
+      h+='</div></div></div>';
+    });
+    c.innerHTML=h
+  },
+  irParaOS:function(numOS){
+    var osObj=State.osHistory.find(function(o){return o.numeroOS===numOS});
+    if(osObj){Historico.view(numOS)}
+    else{showToast('OS '+numOS+' nao encontrada no historico local. Clique em Baixar primeiro.',true)}
+  },
+  editar:function(id){
+    var a=State.agendamentos.find(function(a){return a.id===id});
+    if(!a)return;
+    document.getElementById('ag_cliente').value=a.cliente;
+    document.getElementById('ag_data').value=a.data;
+    document.getElementById('ag_horario').value=a.horario;
+    document.getElementById('ag_tecnico').value=a.tecnico;
+    document.getElementById('ag_descricao').value=a.descricao||'';
+    document.getElementById('ag_editId').value=a.id;
+    this.carregarOSDisponiveis(a.tecnico);
+    setTimeout(function(){
+      var sel=document.getElementById('ag_os_select');
+      if(sel)sel.value=a.equipamento||'';
+    },100);
+    showToast('Editando agendamento')
+  },
+  concluir:async function(id){
+    var i=State.agendamentos.findIndex(function(a){return a.id===id});
+    if(i!==-1){State.agendamentos[i].status='concluido';Storage.saveAgendamentos();this.atualizarLista();showToast('Concluido');try{await GoogleSheetsSync.syncSingleAgendamento(State.agendamentos[i])}catch(e){SyncQueue.add('upsert','agendamento',State.agendamentos[i])}}
+  },
+  excluir:async function(id){
+    if(!confirm('Excluir?'))return;
+    var r=State.agendamentos.find(function(a){return a.id===id});
+    State.agendamentos=State.agendamentos.filter(function(a){return a.id!==id});
+    Storage.saveAgendamentos();this.atualizarLista();showToast('Excluido');
+    if(r){try{await GoogleSheetsSync.syncSingleAgendamento(Object.assign({},r,{_deleted:true}))}catch(e){SyncQueue.add('delete','agendamento',{id:id})}}
+  },
+  obterAgendamentosDoDia:function(tl){
+    var h=new Date().toISOString().split('T')[0];
+    return State.agendamentos.filter(function(a){return a.tecnico===tl&&a.data===h&&a.status!=='concluido'})
+  }
 };
 
 /* ==================== JORNADA ==================== */
@@ -742,7 +871,9 @@ var Agendamentos = {
     var ah=Agendamentos.obterAgendamentosDoDia(Auth.currentUser.login);
     if(ah.length){
       var lista=ah.map(function(a){
-        return '<span style="display:inline-block;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.5);color:#fca5a5;padding:6px 14px;border-radius:10px;margin:4px;font-size:1rem;font-weight:600"><i class="fas fa-clock" style="color:#ef4444;margin-right:6px"></i>'+a.horario+' HS — <strong style="color:#f8fafc">'+a.cliente+'</strong>'+(a.equipamento?' <span style="color:#6b7280;font-size:.85rem">('+a.equipamento+')</span>':'')+'</span>';
+        var osNum=a.equipamento||'';
+var osTag=osNum?' <span style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:6px;font-size:.8rem;font-weight:700">'+osNum+'</span>':'';
+return '<span style="display:inline-block;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.5);color:#fca5a5;padding:6px 14px;border-radius:10px;margin:4px;font-size:1rem;font-weight:600"><i class="fas fa-clock" style="color:#ef4444;margin-right:6px"></i>'+a.horario+' HS'+osTag+' — <strong style="color:#f8fafc">'+a.cliente+'</strong></span>';
       }).join('');
       sd.innerHTML='<div style="font-size:1.1rem;font-weight:700;color:#fbbf24;margin-bottom:8px"><i class="fas fa-exclamation-triangle" style="margin-right:6px"></i>'+ah.length+' agendamento(s) pendente(s) hoje:</div>'+lista;
     }else{
@@ -903,12 +1034,20 @@ var Fotos = {
 var App={
   init:function(){
     Storage.loadCounter();Clientes.load();Historico.load();Agendamentos.carregar();
-    this.populateMarcas();Checklist.render();Signature.init();Fotos.init();Horas.initListeners();Utils.setDefaultDate();this.setupTabs();this.setupMarcaSelect();this.setupSearch();
+    this.populateMarcas();Checklist.render();Signature.init();Fotos.init();Horas.initListeners();Utils.setDefaultDate();this.setupTabs();this.setupMarcaSelect();this.setupSearch();this.setupAgendamentoOS();
     State.currentStatus='abertura';this.updateUI();UserManager.render();
     var pc=document.getElementById('permissoesContainer');
     if(pc&&Auth.isAdmin()){var h='';for(var k in Permissoes.padrao)h+='<div class="permission-item"><label><input type="checkbox" id="perm_'+k+'"> '+k.replace(/_/g,' ').toUpperCase()+'</label></div>';pc.innerHTML=h;Permissoes.carregarNaInterface()}
-    window.addEventListener('online', () => { showToast('Conexão restaurada, sincronizando...'); SyncQueue.forceSync(); });
+    window.addEventListener('online', function() { showToast('Conexao restaurada, sincronizando...'); SyncQueue.forceSync(); });
     setTimeout(function(){GoogleSheetsSync.fetchFromSheet()},2000)
+  },
+  setupAgendamentoOS:function(){
+    var selTec=document.getElementById('ag_tecnico');
+    if(selTec){
+      selTec.addEventListener('change',function(){
+        Agendamentos.carregarOSDisponiveis(selTec.value);
+      });
+    }
   },
   populateMarcas:function(){var s=$('marcaSelect');if(!s)return;s.innerHTML='<option value="">Selecione</option>';Config.marcas.forEach(function(m){if(m!=='OUTRA')s.innerHTML+='<option value="'+m+'">'+m+'</option>'});s.innerHTML+='<option value="OUTRA">OUTRA</option>'},
   setupMarcaSelect:function(){var s=$('marcaSelect'),d=$('marcaOutraDiv'),i=$('marcaOutra');if(s&&d&&i){s.addEventListener('change',function(){d.style.display=s.value==='OUTRA'?'block':'none';Utils.setVal('marca',s.value==='OUTRA'?i.value.toUpperCase():s.value)});i.addEventListener('input',function(){Utils.setVal('marca',i.value.toUpperCase())})}},
