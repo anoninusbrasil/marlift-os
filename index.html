@@ -474,6 +474,7 @@ var SyncQueue = {
         else if (item.entity === 'usuario') ok = await GoogleSheetsSync.syncUsuarios(item.data);
         else if (item.entity === 'permissao') ok = await GoogleSheetsSync.syncPermissoes(item.data);
         else if (item.entity === 'jornada') ok = await GoogleSheetsSync.syncJornada(item.data);
+        else if (item.entity === 'heartbeat') ok = await GoogleSheetsSync.syncHeartbeat(item.data);
         if (ok) successItems.push(i);
       } catch(e) { console.warn('[SyncQueue] Erro sync item', e); }
     }
