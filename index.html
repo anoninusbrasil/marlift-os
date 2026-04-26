@@ -490,17 +490,28 @@ var SyncQueue = {
 };
 
 /* ==================== GOOGLE SHEETS SYNC ==================== */
-var GoogleSheetsSync = {
-  webAppUrl:'https://script.google.com/macros/s/AKfycbyOTYC0Ig9gG4I8BOAP2ABP3yjiVzpz01ejI4GC9yQxEUoumuj-Z19aUcGZ2yRTnYS5Iw/exec',
+    var GoogleSheetsSync = {
+  webAppUrl:'https://script.google.com/macros/s/AKfycbw93krTUihixpFLslbNByw1ltnBSivUvE6td7t-A4mNyfGIP7dC6fcWzpGYLjisUQ8b/exec',
   setStatus:function(m){var s=document.getElementById('syncStatusText');if(s)s.textContent=m},
   hasValidData:function(arr,req){if(!arr||!Array.isArray(arr)||arr.length===0)return false;if(req)return arr.some(function(i){if(typeof i!=='object'||i===null)return false;var v=i[req];return v!==null&&v!==undefined&&String(v).trim()!==''});return arr.some(function(i){if(typeof i!=='object'||i===null)return false;return Object.values(i).some(function(v){if(v===null||v===undefined)return false;if(typeof v==='string'&&v.trim()==='')return false;if(Array.isArray(v)&&v.length===0)return false;if(typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length===0)return false;return true})})},
   hasValidPermissions:function(o){if(!o||typeof o!=='object'||Array.isArray(o))return false;return Object.keys(o).some(function(k){return o[k]===true})},
-  async postData(action,data){try{var r=await fetch(this.webAppUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:action,data:data})});var j=await r.json();return j.success}catch(e){console.error('postData ['+action+']:',e);return false}},
-  async syncSingleAgendamento(a){if(!a) return false; return await this.postData('syncAgendamento', a);},
-  async syncPermissoes(p){return await this.postData('syncPermissoes',p);},
-  async syncUsuarios(u){return await this.postData('syncUsuarios',u);},
-  async syncSingleOS(o){return await this.postData('syncOS',o);},
-  async syncSingleCliente(c){return await this.postData('syncCliente',c);},
+  async postData(action,data){
+    try{
+      var r=await fetch(this.webAppUrl,{
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({action:action,data:data}),
+        redirect:'follow'
+      });
+      var text=await r.text();
+      try{var j=JSON.parse(text);return j.success===true}catch(e){console.warn('Resposta nao era JSON:',text.substring(0,100));return false}
+    }catch(e){console.error('postData ['+action+']:',e);return false}
+  },
+  async syncSingleAgendamento(a){if(!a)return false;return await this.postData('syncAgendamento',a)},
+  async syncPermissoes(p){return await this.postData('syncPermissoes',p)},
+  async syncUsuarios(u){return await this.postData('syncUsuarios',u)},
+  async syncSingleOS(o){return await this.postData('syncOS',o)},
+  async syncSingleCliente(c){return await this.postData('syncCliente',c)},
   async fetchFromSheet(){
     try{
       this.setStatus('Baixando...');
@@ -509,52 +520,30 @@ var GoogleSheetsSync = {
       if(!data.success)throw new Error(data.error||'Erro na planilha');
       var mudancas=[], ignoradas=[];
       if(this.hasValidData(data.clientes,'nome')){
-        var cv=data.clientes.filter(function(c){return(c.nome||c.NOME||'').trim()!==''});
+        var cv=data.clientes.filter(function(c){return(c.nome||'').trim()!==''});
         if(cv.length>0){
-          State.clients=cv.map(function(c){return{id:c.id||c.ID||Date.now(),nome:(c.nome||c.NOME||'').trim(),cnpj:(c.cnpj||c.CNPJ||'').trim(),endereco:(c.endereco||c.ENDERECO||'').trim(),cidade:(c.cidade||c.CIDADE||'').trim(),telefone:(c.telefone||c.TELEFONE||'').trim(),whatsapp:(c.whatsapp||c.WHATSAPP||'').trim(),email:(c.email||c.EMAIL||'').trim(),responsavel_nome:(c.responsavel_nome||c.RESPONSAVEL_NOME||'').trim(),responsavel_telefone:(c.responsavel_telefone||c.RESPONSAVEL_TELEFONE||'').trim(),equipamentos:function(){try{var e=c.equipamentos||c.EQUIPAMENTOS;if(typeof e==='string'){var p=JSON.parse(e);if(Array.isArray(p)&&p.length>0)return p.filter(function(q){return q.marca||q.Marca}).map(function(q){return{marca:(q.marca||q.Marca||'').trim(),modelo:(q.modelo||q.Modelo||'').trim(),serie:(q.serie||q.Serie||'').trim(),qtd:q.qtd||1,combustivel:(q.combustivel||q.Combustivel||'').trim()}});return[]}if(Array.isArray(e))return e.filter(function(q){return q.marca||q.Marca})}catch(x){}return[]}()}});
+          State.clients=cv.map(function(c){return{id:c.id||Date.now(),nome:(c.nome||'').trim(),cnpj:(c.cnpj||'').trim(),endereco:(c.endereco||'').trim(),cidade:(c.cidade||'').trim(),telefone:(c.telefone||'').trim(),whatsapp:(c.whatsapp||'').trim(),email:(c.email||'').trim(),responsavel_nome:(c.responsavel_nome||'').trim(),responsavel_telefone:(c.responsavel_telefone||'').trim(),equipamentos:function(){try{var e=c.equipamentos;if(typeof e==='string'){var p=JSON.parse(e);if(Array.isArray(p)&&p.length>0)return p.filter(function(q){return q.marca}).map(function(q){return{marca:(q.marca||'').trim(),modelo:(q.modelo||'').trim(),serie:(q.serie||'').trim(),qtd:q.qtd||1,combustivel:(q.combustivel||'').trim()}});return[]}if(Array.isArray(e))return e.filter(function(q){return q.marca})}catch(x){}return[]}()}});
           Storage.saveClients();mudancas.push('Clientes ('+State.clients.length+')')
-        }else ignoradas.push('Clientes (nomes vazios)')
+        }else ignoradas.push('Clientes (vazios)')
       }else ignoradas.push('Clientes (sem dados)');
-      if(this.hasValidData(data.os,'numeroOS')){
-        var ov=data.os.filter(function(o){return(o.numeroOS||o.NUMEROOS||o.NUMERO_OS||'').trim()!==''});
+      if(this.hasValidData(data.os,'numeroos')){
+        var ov=data.os.filter(function(o){return(o.numeroos||'').trim()!==''});
         if(ov.length>0){
-          State.osHistory=ov.map(function(o){return{numeroOS:(o.numeroOS||o.NUMEROOS||o.NUMERO_OS||'').trim(),dataOS:normalizeDate(o.dataOS||o.DATAOS||o.DATA_OS||''),cliente:(o.cliente||o.CLIENTE||'').trim(),status:(o.status||o.STATUS||'abertura').toLowerCase().trim(),tipoChamado:(o.tipoChamado||o.TIPOCHAMADO||'normal').toLowerCase().trim(),horasTotais:o.horasTotais||o.HORASTOTAIS||'0h',totalGeral:o.totalGeral||o.TOTALGERAL||'00:00',descricaoServico:o.descricaoServico||o.DESCRICAOSERVICO||'',pecasAplicadas:o.pecasAplicadas||o.PECASAPLICADAS||'',pendencias:o.pendencias||o.PENDENCIAS||'',relatoCliente:o.relatoCliente||o.RELATOCLIENTE||'',marca:o.marca||o.MARCA||'',modelo:o.modelo||o.MODELO||'',numSerie:o.numSerie||o.NUMSERIE||'',horimetro:o.horimetro||o.HORIMETRO||'',combustivel:o.combustivel||o.COMBUSTIVEL||'',whatsappCliente:o.whatsappCliente||o.WHATSAPPCLIENTE||'',cnpj:o.cnpj||o.CNPJ||'',cidadeCliente:o.cidadeCliente||o.CIDADECLIENTE||'',endereco:o.endereco||o.ENDERECO||'',tecnico:o.tecnico||o.TECNICO||'MARLIFT',recebedor:o.recebedor||o.RECEBEDOR||'',fotosBase64:function(){try{var f=o.fotosBase64;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),fotoHorimetro:o.fotoHorimetro||null,fotosPendencias:function(){try{var f=o.fotosPendencias;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),assinaturaTecnico:o.assinaturaTecnico||'',assinaturaCliente:o.assinaturaCliente||'',checklistData:function(){try{var c=o.checklistData;if(typeof c==='string')return JSON.parse(c);if(typeof c==='object'&&c!==null&&!Array.isArray(c))return c}catch(e){}return{}}()}});
+          State.osHistory=ov.map(function(o){return{numeroOS:(o.numeroos||'').trim(),dataOS:normalizeDate(o.dataos||''),cliente:(o.cliente||'').trim(),status:(o.status||'abertura').toLowerCase().trim(),tipoChamado:(o.tipochamado||'normal').toLowerCase().trim(),horasTotais:o.horastotais||'0h',totalGeral:o.totalgeral||'00:00',descricaoServico:o.descricaoservico||'',pecasAplicadas:o.pecasaplicadas||'',pendencias:o.pendencias||'',relatoCliente:o.relatocliente||'',marca:o.marca||'',modelo:o.modelo||'',numSerie:o.numserie||'',horimetro:o.horimetro||'',combustivel:o.combustivel||'',whatsappCliente:o.whatsappcliente||'',cnpj:o.cnpj||'',cidadeCliente:o.cidadecliente||'',endereco:o.endereco||'',tecnico:o.tecnico||'MARLIFT',recebedor:o.recebedor||'',fotosBase64:function(){try{var f=o.fotosbase64;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),fotoHorimetro:o.fotohorimetro||null,fotosPendencias:function(){try{var f=o.fotospendencias;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),assinaturaTecnico:o.assinaturatecnico||'',assinaturaCliente:o.assinaturacliente||'',checklistData:function(){try{var c=o.checklistdata;if(typeof c==='string')return JSON.parse(c);if(typeof c==='object'&&c!==null&&!Array.isArray(c))return c}catch(e){}return{}}()}});
           Storage.saveOSHistory();mudancas.push('OS ('+State.osHistory.length+')')
-        }else ignoradas.push('OS (numeros vazios)')
+        }else ignoradas.push('OS (vazios)')
       }else ignoradas.push('OS (sem dados)');
       if(this.hasValidData(data.agendamentos,'cliente')){
-        var av=data.agendamentos.filter(function(a){return(a.cliente||a.CLIENTE||'').trim()!==''});
+        var av=data.agendamentos.filter(function(a){return(a.cliente||'').trim()!==''});
         if(av.length>0){
-          State.agendamentos=av.map(function(a){
-            var rawData = a.data || a.DATA || '';
-            var rawHorario = a.horario || a.HORARIO || '';
-            var dataStr = normalizeDate(rawData);
-            var horarioStr = extractTimeFromDate(rawHorario);
-            if (!horarioStr && rawHorario && typeof rawHorario === 'string' && rawHorario.includes(':')) {
-              var parts = rawHorario.split(':');
-              if (parts.length >= 2) horarioStr = parts[0].padStart(2,'0') + ':' + parts[1].padStart(2,'0');
-            }
-            if (!horarioStr && rawData && typeof rawData === 'string' && rawData.includes('T')) {
-              horarioStr = extractTimeFromDate(rawData);
-            }
-            return {
-              id:a.id||Date.now(),
-              cliente:(a.cliente||a.CLIENTE||'').trim(),
-              equipamento:(a.equipamento||a.EQUIPAMENTO||'').trim(),
-              data:dataStr,
-              horario:horarioStr,
-              tecnico:(a.tecnico||a.TECNICO||'').trim(),
-              descricao:(a.descricao||a.DESCRICAO||'').trim(),
-              status:(a.status||a.STATUS||'pendente').toLowerCase().trim()
-            };
-          });
+          State.agendamentos=av.map(function(a){return{id:a.id||Date.now(),cliente:(a.cliente||'').trim(),equipamento:(a.equipamento||'').trim(),data:normalizeDate(a.data||''),horario:extractTimeFromDate(a.horario||''),tecnico:(a.tecnico||'').trim(),descricao:(a.descricao||'').trim(),status:(a.status||'pendente').toLowerCase().trim()}});
           Storage.saveAgendamentos();mudancas.push('Agendamentos ('+State.agendamentos.length+')')
         }else ignoradas.push('Agendamentos (vazios)')
       }else ignoradas.push('Agendamentos (sem dados)');
       if(this.hasValidPermissions(data.permissoes)){localStorage.setItem('marlift_permissoes_tecnico',JSON.stringify(data.permissoes));mudancas.push('Permissoes')}else ignoradas.push('Permissoes (sem dados)');
       if(this.hasValidData(data.usuarios,'login')){
-        var uv=data.usuarios.filter(function(u){return(u.login||u.LOGIN||'').trim()!==''});
-        if(uv.length>0){Auth.saveUsers(uv);mudancas.push('Usuarios ('+uv.length+')')}else ignoradas.push('Usuarios (logins vazios)')
+        var uv=data.usuarios.filter(function(u){return(u.login||'').trim()!==''});
+        if(uv.length>0){Auth.saveUsers(uv);mudancas.push('Usuarios ('+uv.length+')')}else ignoradas.push('Usuarios (vazios)')
       }else ignoradas.push('Usuarios (sem dados)');
       if(mudancas.length>0){Clientes.renderTable();Clientes.updateStats();Historico.render();Historico.updateStats();Agendamentos.atualizarLista();Agendamentos.atualizarSelectTecnicos();if(Permissoes.carregarNaInterface)Permissoes.carregarNaInterface();UserManager.render()}
       var msg='';
@@ -564,7 +553,7 @@ var GoogleSheetsSync = {
       showToast(msg);this.setStatus('OK')
     }catch(err){console.error('[SYNC]',err);this.setStatus('Erro');showToast('Erro: '+err.message,true)}
   },
-  async fullSync(){await this.fetchFromSheet();await SyncQueue.process();}
+  async fullSync(){await this.fetchFromSheet();await SyncQueue.process()}
 };
 
 /* ==================== AUTH ==================== */
