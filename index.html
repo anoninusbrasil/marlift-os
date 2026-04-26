@@ -515,6 +515,23 @@ var SyncQueue = {
   async syncSingleOS(o){return await this.postData('syncOS',o)},
   async syncSingleCliente(c){return await this.postData('syncCliente',c)},
     async syncJornada(j){return await this.postData('syncJornada',j)},
+    async syncHeartbeat(user) {
+  return await this.postData('heartbeat', user);
+},
+async getOnlineUsers() {
+  try {
+    const response = await fetch(this.webAppUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({ action: 'getOnlineUsers', data: {} })
+    });
+    const text = await response.text();
+    return JSON.parse(text);
+  } catch(e) {
+    console.error('Erro ao buscar online users', e);
+    return { success: false, onlineUsers: {} };
+  }
+},
   async fetchFromSheet(){
     try{
       this.setStatus('Baixando...');
@@ -995,52 +1012,63 @@ var App={
     this.iniciarHeartbeat();
     this.iniciarPainelOnline();
   },
-  iniciarHeartbeat:function(){
-    if(!Auth.currentUser)return;
-    var self=this;
-    async function enviar(){
-      if(!Auth.currentUser)return;
-      var u={login:Auth.currentUser.login,nome:Auth.currentUser.nome,nivel:Auth.currentUser.nivel};
-      try{await GoogleSheetsSync.syncHeartbeat(u)}catch(e){}
+iniciarHeartbeat: function() {
+  if (!Auth.currentUser) return;
+  const enviar = async () => {
+    if (!Auth.currentUser) return;
+    const user = {
+      login: Auth.currentUser.login,
+      nome: Auth.currentUser.nome,
+      nivel: Auth.currentUser.nivel
+    };
+    try {
+      await GoogleSheetsSync.syncHeartbeat(user);
+    } catch(e) { /* ignora falhas da rede */ }
+  };
+  enviar();
+  setInterval(enviar, 60000); // a cada 1 minuto
+},
+iniciarPainelOnline: function() {
+  if (!Auth.isAdmin()) return;
+  let panel = document.getElementById('onlineUsersPanel');
+  if (!panel) {
+    const div = document.createElement('div');
+    div.id = 'onlineUsersPanel';
+    div.style.cssText = 'position:fixed;top:70px;right:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;z-index:90;min-width:180px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.3)';
+    div.innerHTML = '<div style="font-weight:700;color:var(--accent);margin-bottom:8px;font-size:11px"><i class="fas fa-wifi"></i> USUÁRIOS ONLINE</div><div id="onlineUsersList"><div style="color:var(--muted)">Carregando...</div></div>';
+    document.body.appendChild(div);
+    panel = div;
+  }
+  
+  const atualizar = async () => {
+    if (!Auth.isAdmin()) return;
+    try {
+      const result = await GoogleSheetsSync.getOnlineUsers();
+      const users = result.onlineUsers || {};
+      const listDiv = document.getElementById('onlineUsersList');
+      if (!listDiv) return;
+      const keys = Object.keys(users);
+      if (keys.length === 0) {
+        listDiv.innerHTML = '<div style="color:var(--muted)">Nenhum usuário online</div>';
+        return;
+      }
+      let html = '';
+      keys.forEach(login => {
+        const u = users[login];
+        const diffMin = (new Date() - new Date(u.ultimo)) / 60000;
+        const status = diffMin < 1 ? '🟢' : '🟡';
+        const tempo = diffMin < 1 ? 'Agora' : Math.floor(diffMin) + ' min';
+        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)"><div>${status} <strong>${u.nome}</strong></div><div style="color:var(--muted);font-size:10px">${tempo}</div></div>`;
+      });
+      listDiv.innerHTML = html;
+    } catch(e) {
+      console.warn('Erro ao atualizar painel online', e);
     }
-    enviar();
-    setInterval(enviar,60000);
-  },
-  iniciarPainelOnline:function(){
-    if(!Auth.isAdmin())return;
-    var existing=document.getElementById('onlineUsersPanel');
-    if(!existing){
-      var div=document.createElement('div');
-      div.id='onlineUsersPanel';
-      div.style.cssText='position:fixed;top:70px;right:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;z-index:90;min-width:180px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.3)';
-      div.innerHTML='<div style="font-weight:700;color:var(--accent);margin-bottom:8px;font-size:11px"><i class="fas fa-wifi"></i> USUARIOS ONLINE</div><div id="onlineUsersList"><div style="color:var(--muted)">Verificando...</div></div>';
-      document.body.appendChild(div);
-    }
-    var self=this;
-    async function verificar(){
-      if(!Auth.isAdmin())return;
-      try{
-        var r=await fetch(GoogleSheetsSync.webAppUrl);
-        var data=await r.json();
-        var list=document.getElementById('onlineUsersList');
-        if(!list)return;
-        var users=data.usuariosOnline||{};
-        var keys=Object.keys(users);
-        if(!keys.length){list.innerHTML='<div style="color:var(--muted)">Nenhum usuario online</div>';return}
-        var h='';
-        keys.forEach(function(k){
-          var u=users[k];
-          var diff=(new Date()-new Date(u.ultimo))/1000/60;
-          var status=diff<1?'🟢':'🟡';
-          var tempo=diff<1?'Agora':Math.floor(diff)+' min';
-          h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)"><div>'+status+' <strong>'+u.nome+'</strong></div><div style="color:var(--muted);font-size:10px">'+tempo+'</div></div>';
-        });
-        list.innerHTML=h;
-      }catch(e){}
-    }
-    verificar();
-    setInterval(verificar,30000);
-  },
+  };
+  
+  atualizar();
+  setInterval(atualizar, 30000); // a cada 30 segundos
+},
   setupAgendamentoOS:function(){
     var selTec=document.getElementById('ag_tecnico');
     if(selTec){
