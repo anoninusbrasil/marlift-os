@@ -453,7 +453,7 @@ var GoogleSheetsSync = {
   async syncHeartbeat(u){return await this.postData('heartbeat',u)},
   async fetchFromSheet(){
     try{
-      this.setStatus('Baixando...');var response=await fetch(this.webAppUrl);var data=await response.json();
+      this.setStatus('Baixando...');var response=await fetch(this.webAppUrl+'?_t='+Date.now());var data=await response.json();
       if(!data.success)throw new Error(data.error||'Erro na planilha');
       var mudancas=[],ignoradas=[];
       if(this.hasValidData(data.clientes,'nome')){
@@ -1198,7 +1198,7 @@ var App={
       var list=document.getElementById('onlineUsersList');
       if(!list)return;
       try{
-        var r=await fetch(GoogleSheetsSync.webAppUrl);
+        var r=await fetch(GoogleSheetsSync.webAppUrl+'?_t='+Date.now());
         var data=await r.json();
         var users=data.usuariosOnline||{};
         var keys=Object.keys(users);
