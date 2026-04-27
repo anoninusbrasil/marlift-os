@@ -1200,7 +1200,27 @@ var App={
       try{
         var r=await fetch(GoogleSheetsSync.webAppUrl+'?_t='+Date.now());
         var data=await r.json();
-        var users=data.usuariosOnline||{};list.innerHTML='<div style="color:var(--muted)">Erro ao verificar</div>'}
+        var users=data.usuariosOnline||{};
+        var keys=Object.keys(users);
+        if(!keys.length){list.innerHTML='<div style="color:var(--muted)"><i class="fas fa-user-slash"></i> Nenhum usuario online</div>';return}
+        var h='';
+        var agora=new Date();
+        keys.forEach(function(k){
+          var u=users[k];
+          if(u.status==='offline')return;
+          var diff=999;
+          if(u.ultimo){
+            var t=new Date(u.ultimo);
+            if(!isNaN(t.getTime()))diff=(agora-t)/1000/60;
+          }
+          if(diff>5)return;
+          var status=diff<2?'🟢':(diff<4?'🟡':'⚫');
+          var tempo=diff<1?'Agora':Math.floor(diff)+' min';
+          h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:6px">'+status+' <strong style="font-size:12px">'+u.nome+'</strong></div><div style="color:var(--muted);font-size:10px">'+tempo+'</div></div>';
+        });
+        if(!h)h='<div style="color:var(--muted)"><i class="fas fa-user-slash"></i> Nenhum usuario online</div>';
+        list.innerHTML=h;
+      }catch(e){list.innerHTML='<div style="color:var(--muted)">Erro ao verificar</div>'}
     }
     verificar();
     this._panelInterval=setInterval(verificar,15000);
