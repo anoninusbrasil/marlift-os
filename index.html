@@ -136,7 +136,6 @@
         <button onclick="App.novaOS()" id="btnNovaOS" class="btn btn-yellow text-sm"><i class="fas fa-plus"></i> Nova O.S</button>
         <button onclick="SyncQueue.forceSync()" id="btnSync" class="btn btn-secondary text-sm"><i class="fas fa-cloud-upload-alt"></i> Sincronizar</button>
         <button onclick="GoogleSheetsSync.fetchFromSheet()" id="btnDownload" class="btn btn-secondary text-sm"><i class="fas fa-cloud-download-alt"></i> Baixar</button>
-        <!-- BOTÃO LIMPAR FILA -->
         <button onclick="SyncQueue.limparFila()" class="btn btn-purple text-sm"><i class="fas fa-broom"></i> Limpar Fila</button>
       </div>
     </div>
@@ -398,7 +397,7 @@ var Storage = {
   loadJornada:function(login){var a=localStorage.getItem('marlift_jornadas');var o=a?JSON.parse(a):{};return o[login]||null}
 };
 
-/* ==================== FUNÇÕES DE NORMALIZAÇÃO DATA/HORA ==================== */
+/* ==================== FUNCOES DE NORMALIZACAO DATA/HORA ==================== */
 function normalizeDate(dateValue) {
   if (!dateValue) return '';
   if (typeof dateValue === 'string' && dateValue.includes('T')) {
@@ -448,10 +447,7 @@ var SyncQueue = {
   limparFila: function() {
     var queue = this.getQueue();
     var total = queue.length;
-    if (total === 0) {
-      showToast('Fila ja esta vazia');
-      return;
-    }
+    if (total === 0) { showToast('Fila ja esta vazia'); return; }
     if (!confirm('Limpar ' + total + ' item(ns) da fila?')) return;
     this.clearQueue();
     document.getElementById('syncStatusText').innerText = 'Pronto';
@@ -474,26 +470,26 @@ var SyncQueue = {
         else if (item.entity === 'usuario') ok = await GoogleSheetsSync.syncUsuarios(item.data);
         else if (item.entity === 'permissao') ok = await GoogleSheetsSync.syncPermissoes(item.data);
         else if (item.entity === 'jornada') ok = await GoogleSheetsSync.syncJornada(item.data);
-        else if (item.entity === 'heartbeat') ok = await GoogleSheetsSync.syncHeartbeat(item.data);
+        else if (item.entity === 'heartbeat') { var r = await GoogleSheetsSync.syncHeartbeat(item.data); ok = r && r.success; }
         if (ok) successItems.push(i);
       } catch(e) { console.warn('[SyncQueue] Erro sync item', e); }
     }
-    var newQueue = queue.filter((_, idx) => !successItems.includes(idx));
+    var newQueue = queue.filter(function(_, idx) { return successItems.indexOf(idx) === -1; });
     localStorage.setItem(this.key, JSON.stringify(newQueue));
     if (syncStatus) syncStatus.innerText = newQueue.length ? 'Fila: ' + newQueue.length : 'Sincronizado';
     if (newQueue.length === 0) this.clearQueue();
-    else setTimeout(() => this.process(), 5000);
+    else setTimeout(function() { SyncQueue.process(); }, 5000);
   },
   forceSync: async function() {
-    showToast('Forçando sincronização...');
+    showToast('Forcando sincronizacao...');
     await this.process();
     await GoogleSheetsSync.fullSync();
   }
 };
 
 /* ==================== GOOGLE SHEETS SYNC ==================== */
-    var GoogleSheetsSync = {
-  webAppUrl:'https://script.google.com/macros/s/AKfycbzS_d09U9aSFXTMHUBEB4y-Rq8E1fMi1YyHyz4tht9mKJime_AArR_dihqJwZ0-dSY/exec',
+var GoogleSheetsSync = {
+  webAppUrl:'https://script.google.com/macros/s/AKfycbwqr5b1UuphtsvHeR8BYG2rEihXqdC-y2V81VNQGt73LFObBWDutNdpGvofPe-mssA2/exec',
   setStatus:function(m){var s=document.getElementById('syncStatusText');if(s)s.textContent=m},
   hasValidData:function(arr,req){if(!arr||!Array.isArray(arr)||arr.length===0)return false;if(req)return arr.some(function(i){if(typeof i!=='object'||i===null)return false;var v=i[req];return v!==null&&v!==undefined&&String(v).trim()!==''});return arr.some(function(i){if(typeof i!=='object'||i===null)return false;return Object.values(i).some(function(v){if(v===null||v===undefined)return false;if(typeof v==='string'&&v.trim()==='')return false;if(Array.isArray(v)&&v.length===0)return false;if(typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length===0)return false;return true})})},
   hasValidPermissions:function(o){if(!o||typeof o!=='object'||Array.isArray(o))return false;return Object.keys(o).some(function(k){return o[k]===true})},
@@ -509,29 +505,28 @@ var SyncQueue = {
       try{var j=JSON.parse(text);return j.success===true}catch(e){console.warn('Resposta nao era JSON:',text.substring(0,100));return false}
     }catch(e){console.error('postData ['+action+']:',e);return false}
   },
+  async postDataRaw(action,data){
+    try{
+      var r=await fetch(this.webAppUrl,{
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({action:action,data:data}),
+        redirect:'follow'
+      });
+      var text=await r.text();
+      try{return JSON.parse(text)}catch(e){console.warn('Resposta nao era JSON:',text.substring(0,100));return{success:false,error:'parse error'}}
+    }catch(e){console.error('postDataRaw ['+action+']:',e);return{success:false,error:e.message}}
+  },
   async syncSingleAgendamento(a){if(!a)return false;return await this.postData('syncAgendamento',a)},
   async syncPermissoes(p){return await this.postData('syncPermissoes',p)},
   async syncUsuarios(u){return await this.postData('syncUsuarios',u)},
   async syncSingleOS(o){return await this.postData('syncOS',o)},
   async syncSingleCliente(c){return await this.postData('syncCliente',c)},
-    async syncJornada(j){return await this.postData('syncJornada',j)},
-    async syncHeartbeat(user) {
-  return await this.postData('heartbeat', user);
-},
-async getOnlineUsers() {
-  try {
-    const response = await fetch(this.webAppUrl, {
-      method: 'POST',
-      headers: {'Content-Type': 'text/plain;charset=utf-8'},
-      body: JSON.stringify({ action: 'getOnlineUsers', data: {} })
-    });
-    const text = await response.text();
-    return JSON.parse(text);
-  } catch(e) {
-    console.error('Erro ao buscar online users', e);
-    return { success: false, onlineUsers: {} };
-  }
-},
+  async syncJornada(j){return await this.postData('syncJornada',j)},
+  /* === CORRIGIDO: action 'syncHeartbeat' (nao 'heartbeat') e retorna objeto completo === */
+  async syncHeartbeat(user){
+    return await this.postDataRaw('syncHeartbeat', user);
+  },
   async fetchFromSheet(){
     try{
       this.setStatus('Baixando...');
@@ -565,6 +560,12 @@ async getOnlineUsers() {
         var uv=data.usuarios.filter(function(u){return(u.login||'').trim()!==''});
         if(uv.length>0){Auth.saveUsers(uv);mudancas.push('Usuarios ('+uv.length+')')}else ignoradas.push('Usuarios (vazios)')
       }else ignoradas.push('Usuarios (sem dados)');
+      /* === CORRIGIDO: Captura usuariosOnline do doGet === */
+      if(data.usuariosOnline && typeof data.usuariosOnline === 'object' && Object.keys(data.usuariosOnline).length > 0){
+        App._onlineUsers = data.usuariosOnline;
+        App._heartbeatMode = 'nuvem';
+        localStorage.setItem('marlift_online_users', JSON.stringify(data.usuariosOnline));
+      }
       if(mudancas.length>0){Clientes.renderTable();Clientes.updateStats();Historico.render();Historico.updateStats();Agendamentos.atualizarLista();Agendamentos.atualizarSelectTecnicos();if(Permissoes.carregarNaInterface)Permissoes.carregarNaInterface();UserManager.render()}
       var msg='';
       if(mudancas.length>0)msg='Sincronizado: '+mudancas.join(', ');
@@ -583,7 +584,7 @@ var Auth = {
   resetInactivityTimer: function() {
     if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
     if (this.currentUser) {
-      this.inactivityTimer = setTimeout(() => { this.logout('inactivity'); }, Config.inactivityTimeout);
+      this.inactivityTimer = setTimeout(function() { Auth.logout('inactivity'); }, Config.inactivityTimeout);
     }
   },
   getUsers:function(){var u=localStorage.getItem('marlift_users');if(u)return JSON.parse(u);var d=[{id:1,nome:'Administrador',login:'admin',senha:'admin123',nivel:'admin'},{id:2,nome:'Tecnico Principal',login:'tecnico',senha:'123456',nivel:'tecnico'}];localStorage.setItem('marlift_users',JSON.stringify(d));return d},
@@ -615,17 +616,17 @@ var Auth = {
   },
   startInactivityTimer:function(){
     var events = ['mousedown','mousemove','keypress','scroll','touchstart'];
-    var reset = () => this.resetInactivityTimer();
-    events.forEach(ev => document.addEventListener(ev, reset));
+    var reset = function() { Auth.resetInactivityTimer(); };
+    events.forEach(function(ev) { document.addEventListener(ev, reset); });
     this.resetInactivityTimer();
   },
   recoverPassword:function(){
     var login = prompt('Digite seu login de usuario:');
     if(!login) return;
     var users = this.getUsers();
-    var user = users.find(u => u.login === login);
+    var user = users.find(function(u) { return u.login === login; });
     if(!user) { alert('Usuario nao encontrado!'); return; }
-    alert('Sua senha é: ' + user.senha + '\nRecomendamos alterar no proximo acesso.');
+    alert('Sua senha e: ' + user.senha + '\nRecomendamos alterar no proximo acesso.');
   },
   checkSession:function(){var s=localStorage.getItem('marlift_current_user');if(s){this.currentUser=JSON.parse(s);document.getElementById('loginScreen').style.display='none';document.getElementById('appContainer').style.display='block';document.getElementById('currentUserName').innerHTML=this.currentUser.nome;this.updatePermissions();this.startInactivityTimer();return true}return false},
   updatePermissions:function(){if(!this.currentUser)return;var a=this.currentUser.nivel==='admin',t=this.currentUser.nivel==='tecnico';var ta=document.getElementById('tabAgendamentosBtn'),tj=document.getElementById('tabJornadaBtn'),tp=document.getElementById('tabPermissoesBtn'),tu=document.getElementById('tabUsuariosBtn');if(ta)ta.style.display=a?'inline-flex':'none';if(tj)tj.style.display=t?'inline-flex':'none';if(tp)tp.style.display=a?'inline-flex':'none';if(tu)tu.style.display=a?'inline-flex':'none';},
@@ -688,7 +689,7 @@ var Clientes={
   updateStats:function(){var tc=State.clients.length,tm=0;State.clients.forEach(function(c){tm+=(c.equipamentos||[]).length});var cc=new Set(),to=0,oa=0,op=0;State.osHistory.forEach(function(o){if(o.cliente){cc.add(o.cliente);to++}if(o.status==='abertura'||o.status==='execucao'||o.status==='finalizacao')oa++;if(o.status==='aprovada')op++});$('statTotalClientes').innerText=tc;$('statTotalMarcas').innerText=tm;$('statClientesComOS').innerText=cc.size;$('statTotalOSClientes').innerText=to;$('statOSAbertasCliente').innerText=oa;$('statOSAprovadasCliente').innerText=op},
   renderTable:function(){var tb=$('cad_tableBody');if(!tb)return;tb.innerHTML='';if(!State.clients.length){tb.innerHTML='<tr><td colspan="4" class="text-center p-4 text-[var(--muted)]">Nenhum cliente cadastrado</td></tr>';return}State.clients.forEach(function(c){var r=tb.insertRow();var ml=(c.equipamentos||[]).map(function(e){return e.marca}).join(', ');r.innerHTML='<td class="p-2 font-medium">'+(c.nome||'-')+'</td><td class="p-2">'+(c.cidade||'-')+'</td><td class="p-2">'+(ml||'-')+'</td><td class="p-2"><button onclick="Clientes.select('+c.id+')" class="btn btn-primary text-xs py-1 px-2">Selecionar</button> <i class="fas fa-edit text-blue-400 cursor-pointer ml-2" onclick="Clientes.edit('+c.id+')"></i> <i class="fas fa-trash text-red-400 cursor-pointer ml-2" onclick="Clientes.delete('+c.id+')"></i></td>'})},
   addEquipField:function(m,mo,s,q,co){adicionarCampoEquipamento(m,mo,s,q,co)},
-  save:async function(){var nm=Utils.getVal('cad_nome').trim();if(!nm){showToast('Nome obrigatorio',true);return}var eq=[];var ct=$('equipamentosList');if(ct)ct.querySelectorAll('.equip-item').forEach(function(it){var ms=it.querySelector('.equip-marca').value,oi=it.querySelector('.outra-marca'),mk=ms==='OUTRA'?(oi?oi.value.toUpperCase():''):ms;if(mk)eq.push({marca:mk,modelo:it.querySelector('.equip-modelo').value||'',serie:it.querySelector('.equip-serie').value||'',qtd:parseInt(it.querySelector('.equip-qtd').value)||1,combustivel:it.querySelector('.equip-combustivel').value||''})});var cl={id:State.editingClientId||Date.now(),nome:nm,cnpj:Utils.getVal('cad_cnpj'),endereco:Utils.getVal('cad_endereco'),cidade:Utils.getVal('cad_cidade'),telefone:Utils.getVal('cad_telefone'),whatsapp:Utils.getVal('cad_whatsapp'),email:Utils.getVal('cad_email'),responsavel_nome:Utils.getVal('cad_responsavel_nome'),responsavel_telefone:Utils.getVal('cad_responsavel_telefone'),equipamentos:eq};if(State.editingClientId){var idx=State.clients.findIndex(function(c){return c.id===State.editingClientId});if(idx>=0)State.clients[idx]=cl;State.editingClientId=null;var cb=$('cad_btnCancelar');if(cb)cb.style.display='none'}else State.clients.push(cl);Storage.saveClients();this.renderTable();this.clearForm();this.updateStats();showToast('Cliente salvo');try{await GoogleSheetsSync.syncSingleCliente(cl);}catch(e){SyncQueue.add('upsert','cliente',cl);showToast('Salvo localmente, pendente sincronização',true);}},
+  save:async function(){var nm=Utils.getVal('cad_nome').trim();if(!nm){showToast('Nome obrigatorio',true);return}var eq=[];var ct=$('equipamentosList');if(ct)ct.querySelectorAll('.equip-item').forEach(function(it){var ms=it.querySelector('.equip-marca').value,oi=it.querySelector('.outra-marca'),mk=ms==='OUTRA'?(oi?oi.value.toUpperCase():''):ms;if(mk)eq.push({marca:mk,modelo:it.querySelector('.equip-modelo').value||'',serie:it.querySelector('.equip-serie').value||'',qtd:parseInt(it.querySelector('.equip-qtd').value)||1,combustivel:it.querySelector('.equip-combustivel').value||''})});var cl={id:State.editingClientId||Date.now(),nome:nm,cnpj:Utils.getVal('cad_cnpj'),endereco:Utils.getVal('cad_endereco'),cidade:Utils.getVal('cad_cidade'),telefone:Utils.getVal('cad_telefone'),whatsapp:Utils.getVal('cad_whatsapp'),email:Utils.getVal('cad_email'),responsavel_nome:Utils.getVal('cad_responsavel_nome'),responsavel_telefone:Utils.getVal('cad_responsavel_telefone'),equipamentos:eq};if(State.editingClientId){var idx=State.clients.findIndex(function(c){return c.id===State.editingClientId});if(idx>=0)State.clients[idx]=cl;State.editingClientId=null;var cb=$('cad_btnCancelar');if(cb)cb.style.display='none'}else State.clients.push(cl);Storage.saveClients();this.renderTable();this.clearForm();this.updateStats();showToast('Cliente salvo');try{await GoogleSheetsSync.syncSingleCliente(cl);}catch(e){SyncQueue.add('upsert','cliente',cl);showToast('Salvo localmente, pendente sincronizacao',true);}},
   select:function(id){var c=State.clients.find(function(c){return c.id===id});if(!c)return;if(c.equipamentos&&c.equipamentos.length>0){App.mostrarModalEquipamentos(c)}else{Utils.setVal('cliente',c.nome);Utils.setVal('cnpj',c.cnpj);Utils.setVal('cidadeCliente',c.cidade);Utils.setVal('endereco',c.endereco);Utils.setVal('whatsappCliente',c.whatsapp);showToast('Cliente carregado');var tb=document.querySelector('.tab-button[data-tab="tab-os"]');if(tb)tb.click()}},
   edit:function(id){var c=State.clients.find(function(c){return c.id===id});if(!c)return;State.editingClientId=id;Utils.setVal('cad_nome',c.nome);Utils.setVal('cad_cnpj',c.cnpj);Utils.setVal('cad_endereco',c.endereco);Utils.setVal('cad_cidade',c.cidade);Utils.setVal('cad_telefone',c.telefone);Utils.setVal('cad_whatsapp',c.whatsapp);Utils.setVal('cad_email',c.email||'');Utils.setVal('cad_responsavel_nome',c.responsavel_nome||'');Utils.setVal('cad_responsavel_telefone',c.responsavel_telefone||'');var ct=$('equipamentosList');if(ct)ct.innerHTML='';if(c.equipamentos&&c.equipamentos.length)c.equipamentos.forEach(function(e){adicionarCampoEquipamento(e.marca,e.modelo,e.serie,e.qtd,e.combustivel)});var cb=$('cad_btnCancelar');if(cb)cb.style.display='inline-flex';showToast('Editando cliente')},
   delete:function(id){if(!confirm('Excluir?'))return;State.clients=State.clients.filter(function(c){return c.id!==id});Storage.saveClients();this.renderTable();this.updateStats();showToast('Excluido');SyncQueue.add('delete','cliente',{id:id})},
@@ -735,91 +736,58 @@ var UserManager={
 var Agendamentos = {
   carregar:function(){
     State.agendamentos=Storage.loadAgendamentos();
-    this.atualizarLista();
-    this.atualizarSelectTecnicos();
-    this.atualizarDatalistClientes();
-    this.carregarOSDisponiveis('');
+    this.atualizarLista();this.atualizarSelectTecnicos();this.atualizarDatalistClientes();this.carregarOSDisponiveis('');
   },
   atualizarSelectTecnicos:function(){
-    var s=document.getElementById('ag_tecnico');
-    if(!s)return;
+    var s=document.getElementById('ag_tecnico');if(!s)return;
     var u=Auth.getUsers().filter(function(u){return u.nivel==='tecnico'});
     s.innerHTML='<option value="">Selecione</option>';
     u.forEach(function(t){s.innerHTML+='<option value="'+t.login+'">'+t.nome+'</option>'})
   },
   atualizarDatalistClientes:function(){
-    var dl=document.getElementById('clientesList');
-    if(!dl)return;
-    dl.innerHTML='';
+    var dl=document.getElementById('clientesList');if(!dl)return;dl.innerHTML='';
     State.clients.forEach(function(c){var o=document.createElement('option');o.value=c.nome;dl.appendChild(o)})
   },
   carregarOSDisponiveis:function(tecnicoLogin){
-    var s=document.getElementById('ag_os_select');
-    if(!s)return;
+    var s=document.getElementById('ag_os_select');if(!s)return;
     s.innerHTML='<option value="">Selecione a OS</option>';
     var osDisponiveis=State.osHistory.filter(function(o){return o.status==='abertura'});
     if(!osDisponiveis.length){s.innerHTML='<option value="">Nenhuma OS em abertura</option>';return}
     osDisponiveis.forEach(function(o){
-      var cliente=(o.cliente||'Sem cliente').toUpperCase();
-      var marca=o.marca||'';
-      var opt=document.createElement('option');
-      opt.value=o.numeroOS;
-      opt.textContent=o.numeroOS+' — '+cliente+(marca?' — '+marca:'');
+      var opt=document.createElement('option');opt.value=o.numeroOS;
+      opt.textContent=o.numeroOS+' — '+(o.cliente||'Sem cliente').toUpperCase()+(o.marca?' — '+o.marca:'');
       s.appendChild(opt);
     });
   },
   salvar:async function(){
     if(!Auth.isAdmin()){showToast('Apenas administrador',true);return}
-    var cl=document.getElementById('ag_cliente').value.trim();
-    var osSelect=document.getElementById('ag_os_select').value.trim();
-    var dt=document.getElementById('ag_data').value;
-    var hr=document.getElementById('ag_horario').value;
-    var tc=document.getElementById('ag_tecnico').value;
-    var ds=document.getElementById('ag_descricao').value;
-    var editId=document.getElementById('ag_editId').value;
+    var cl=document.getElementById('ag_cliente').value.trim(),osSelect=document.getElementById('ag_os_select').value.trim(),dt=document.getElementById('ag_data').value,hr=document.getElementById('ag_horario').value,tc=document.getElementById('ag_tecnico').value,ds=document.getElementById('ag_descricao').value,editId=document.getElementById('ag_editId').value;
     if(!cl||!dt||!tc){showToast('Cliente, data e tecnico obrigatorios',true);return}
     if(!hr){showToast('Horario obrigatorio',true);return}
     if(!osSelect){showToast('Selecione uma OS',true);return}
     var agendamento;
-    if(editId){
-      var idx=State.agendamentos.findIndex(function(a){return a.id==editId});
-      if(idx!==-1){
-        State.agendamentos[idx]={id:parseInt(editId),cliente:cl,equipamento:osSelect,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};
-        agendamento=State.agendamentos[idx];showToast('Agendamento atualizado')
-      }
-    }else{
-      agendamento={id:Date.now(),cliente:cl,equipamento:osSelect,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};
-      State.agendamentos.push(agendamento);showToast('Agendamento salvo')
-    }
+    if(editId){var idx=State.agendamentos.findIndex(function(a){return a.id==editId});if(idx!==-1){State.agendamentos[idx]={id:parseInt(editId),cliente:cl,equipamento:osSelect,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};agendamento=State.agendamentos[idx];showToast('Agendamento atualizado')}}
+    else{agendamento={id:Date.now(),cliente:cl,equipamento:osSelect,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};State.agendamentos.push(agendamento);showToast('Agendamento salvo')}
     Storage.saveAgendamentos();this.limparForm();this.atualizarLista();
     try{await GoogleSheetsSync.syncSingleAgendamento(agendamento)}catch(e){SyncQueue.add('upsert','agendamento',agendamento)}
   },
-  limparForm:function(){
-    ['ag_cliente','ag_descricao'].forEach(function(id){document.getElementById(id).value=''});
-    document.getElementById('ag_data').value='';document.getElementById('ag_horario').value='';
-    document.getElementById('ag_tecnico').value='';document.getElementById('ag_editId').value='';
-    this.carregarOSDisponiveis('');
-  },
+  limparForm:function(){['ag_cliente','ag_descricao'].forEach(function(id){document.getElementById(id).value=''});document.getElementById('ag_data').value='';document.getElementById('ag_horario').value='';document.getElementById('ag_tecnico').value='';document.getElementById('ag_editId').value='';this.carregarOSDisponiveis('')},
   atualizarLista:function(){
     var c=document.getElementById('agendamentosLista');if(!c)return;
     var p=State.agendamentos.filter(function(a){return a.status!=='concluido'}).sort(function(a,b){return(a.data+''+a.horario).localeCompare(b.data+''+b.horario)});
     if(!p.length){c.innerHTML='<div class="text-center p-4 text-[var(--muted)]">Nenhum agendamento pendente</div>';return}
     var h='';var hoje=new Date().toISOString().split('T')[0];
     p.forEach(function(a){
-      var osNum=a.equipamento||'Sem OS';
-      var osObj=State.osHistory.find(function(o){return o.numeroOS===osNum});
-      var osInfo=osObj?(' — '+(osObj.marca||'')+' '+(osObj.modelo||'')):'';
-      var isHoje=a.data===hoje;
-      var isFuturo=a.data>hoje;
+      var osNum=a.equipamento||'Sem OS',osObj=State.osHistory.find(function(o){return o.numeroOS===osNum}),osInfo=osObj?(' — '+(osObj.marca||'')+' '+(osObj.modelo||'')):'';
+      var isHoje=a.data===hoje,isFuturo=a.data>hoje;
       var corBorda=isHoje?'border-color:var(--success)':(isFuturo?'border-color:var(--info)':'border-color:var(--border)');
       var tagData=isHoje?'<span style="background:var(--success);color:#fff;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:700">HOJE</span>':(isFuturo?'<span style="background:var(--info);color:#fff;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:700">'+a.data+'</span>':'<span style="background:var(--muted);color:#fff;padding:2px 8px;border-radius:6px;font-size:.7rem">'+a.data+'</span>');
       h+='<div class="schedule-card" style="'+corBorda+'"><div class="flex justify-between items-start flex-wrap"><div>';
       h+='<div style="font-size:.75rem;color:var(--muted);margin-bottom:2px"><i class="fas fa-clipboard-list"></i> '+osNum+osInfo+' '+tagData+'</div>';
-      h+='<strong>'+a.cliente+'</strong>';
-      h+='<br><small><i class="fas fa-clock"></i> '+a.horario+' HS | <i class="fas fa-user-cog"></i> '+a.tecnico+'</small>';
+      h+='<strong>'+a.cliente+'</strong><br><small><i class="fas fa-clock"></i> '+a.horario+' HS | <i class="fas fa-user-cog"></i> '+a.tecnico+'</small>';
       if(a.descricao)h+='<br><small class="text-[var(--muted)]">'+a.descricao+'</small>';
       h+='</div><div class="flex gap-1 flex-wrap">';
-      h+='<button onclick="Agendamentos.irParaOS(\''+osNum+'\')" class="btn btn-info text-xs py-1 px-2" title="Abrir OS"><i class="fas fa-external-link-alt"></i></button>';
+      h+='<button onclick="Agendamentos.irParaOS(\''+osNum+'\')" class="btn btn-info text-xs py-1 px-2"><i class="fas fa-external-link-alt"></i></button>';
       h+='<button onclick="Agendamentos.concluir('+a.id+')" class="btn btn-success text-xs py-1 px-2"><i class="fas fa-check"></i></button>';
       h+='<button onclick="Agendamentos.editar('+a.id+')" class="btn btn-info text-xs py-1 px-2"><i class="fas fa-edit"></i></button>';
       h+='<button onclick="Agendamentos.excluir('+a.id+')" class="btn btn-danger text-xs py-1 px-2"><i class="fas fa-trash"></i></button>';
@@ -827,155 +795,52 @@ var Agendamentos = {
     });
     c.innerHTML=h
   },
-  irParaOS:function(numOS){
-    var osObj=State.osHistory.find(function(o){return o.numeroOS===numOS});
-    if(osObj){Historico.view(numOS)}else{showToast('OS nao encontrada. Clique em Baixar primeiro.',true)}
-  },
-  editar:function(id){
-    var a=State.agendamentos.find(function(a){return a.id===id});if(!a)return;
-    document.getElementById('ag_cliente').value=a.cliente;document.getElementById('ag_data').value=a.data;
-    document.getElementById('ag_horario').value=a.horario;document.getElementById('ag_tecnico').value=a.tecnico;
-    document.getElementById('ag_descricao').value=a.descricao||'';document.getElementById('ag_editId').value=a.id;
-    this.carregarOSDisponiveis(a.tecnico);
-    setTimeout(function(){var sel=document.getElementById('ag_os_select');if(sel)sel.value=a.equipamento||''},100);
-    showToast('Editando agendamento')
-  },
-  concluir:async function(id){
-    var i=State.agendamentos.findIndex(function(a){return a.id===id});
-    if(i!==-1){State.agendamentos[i].status='concluido';Storage.saveAgendamentos();this.atualizarLista();showToast('Concluido');try{await GoogleSheetsSync.syncSingleAgendamento(State.agendamentos[i])}catch(e){SyncQueue.add('upsert','agendamento',State.agendamentos[i])}}
-  },
-  excluir:async function(id){
-    if(!confirm('Excluir?'))return;
-    var r=State.agendamentos.find(function(a){return a.id===id});
-    State.agendamentos=State.agendamentos.filter(function(a){return a.id!==id});
-    Storage.saveAgendamentos();this.atualizarLista();showToast('Excluido');
-    if(r){try{await GoogleSheetsSync.syncSingleAgendamento(Object.assign({},r,{_deleted:true}))}catch(e){SyncQueue.add('delete','agendamento',{id:id})}}
-  },
-  obterAgendamentosDoDia:function(tl){
-    var h=new Date().toISOString().split('T')[0];
-    return State.agendamentos.filter(function(a){return a.tecnico===tl&&a.data===h&&a.status!=='concluido'})
-  },
-  obterAgendamentosFuturos:function(tl){
-    var h=new Date().toISOString().split('T')[0];
-    var todos=State.agendamentos.filter(function(a){return a.tecnico===tl&&a.status!=='concluido'&&a.data>=h});
-    var hoje=todos.filter(function(a){return a.data===h});
-    var futuros=todos.filter(function(a){return a.data>h});
-    return{hoje:hoje,futuros:futuros,total:todos.length}
-  }
+  irParaOS:function(numOS){var osObj=State.osHistory.find(function(o){return o.numeroOS===numOS});if(osObj){Historico.view(numOS)}else{showToast('OS nao encontrada. Clique em Baixar primeiro.',true)}},
+  editar:function(id){var a=State.agendamentos.find(function(a){return a.id===id});if(!a)return;document.getElementById('ag_cliente').value=a.cliente;document.getElementById('ag_data').value=a.data;document.getElementById('ag_horario').value=a.horario;document.getElementById('ag_tecnico').value=a.tecnico;document.getElementById('ag_descricao').value=a.descricao||'';document.getElementById('ag_editId').value=a.id;this.carregarOSDisponiveis(a.tecnico);setTimeout(function(){var sel=document.getElementById('ag_os_select');if(sel)sel.value=a.equipamento||''},100);showToast('Editando agendamento')},
+  concluir:async function(id){var i=State.agendamentos.findIndex(function(a){return a.id===id});if(i!==-1){State.agendamentos[i].status='concluido';Storage.saveAgendamentos();this.atualizarLista();showToast('Concluido');try{await GoogleSheetsSync.syncSingleAgendamento(State.agendamentos[i])}catch(e){SyncQueue.add('upsert','agendamento',State.agendamentos[i])}}},
+  excluir:async function(id){if(!confirm('Excluir?'))return;var r=State.agendamentos.find(function(a){return a.id===id});State.agendamentos=State.agendamentos.filter(function(a){return a.id!==id});Storage.saveAgendamentos();this.atualizarLista();showToast('Excluido');if(r){try{await GoogleSheetsSync.syncSingleAgendamento(Object.assign({},r,{_deleted:true}))}catch(e){SyncQueue.add('delete','agendamento',{id:id})}}},
+  obterAgendamentosFuturos:function(tl){var h=new Date().toISOString().split('T')[0];var todos=State.agendamentos.filter(function(a){return a.tecnico===tl&&a.status!=='concluido'&&a.data>=h});return{hoje:todos.filter(function(a){return a.data===h}),futuros:todos.filter(function(a){return a.data>h}),total:todos.length}}
 };
 
 /* ==================== JORNADA ==================== */
-    var Jornada = {
-  carregar:function(){
-    if(!Auth.currentUser||Auth.currentUser.nivel!=='tecnico')return;
-    var s=Storage.loadJornada(Auth.currentUser.login);
-    State.jornada=s||{etapa:'inicio',dados:{}};
-    if(!s)Storage.saveJornada(Auth.currentUser.login,State.jornada);
-    this.renderizar()
-  },
+var Jornada = {
+  carregar:function(){if(!Auth.currentUser||Auth.currentUser.nivel!=='tecnico')return;var s=Storage.loadJornada(Auth.currentUser.login);State.jornada=s||{etapa:'inicio',dados:{}};if(!s)Storage.saveJornada(Auth.currentUser.login,State.jornada);this.renderizar()},
   renderizar:function(){
-    var c=document.getElementById('jornadaSteps'),sd=document.getElementById('jornadaStatus');
-    if(!c)return;
-    var ag=Agendamentos.obterAgendamentosFuturos(Auth.currentUser.login);
-    var h='';
-
+    var c=document.getElementById('jornadaSteps'),sd=document.getElementById('jornadaStatus');if(!c)return;
+    var ag=Agendamentos.obterAgendamentosFuturos(Auth.currentUser.login),h='';
     if(ag.total>0){
       h+='<div style="font-size:1.1rem;font-weight:700;color:#fbbf24;margin-bottom:10px"><i class="fas fa-calendar-check" style="margin-right:6px"></i>'+ag.total+' agendamento(s) pendente(s)</div>';
-
-      if(ag.hoje.length>0){
-        h+='<div style="margin-bottom:12px"><div style="font-size:.8rem;color:var(--success);font-weight:700;margin-bottom:6px"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:4px"></i>HOJE</div>';
-        ag.hoje.forEach(function(a){
-          var osNum=a.equipamento||'';
-          var osTag=osNum?' <span style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:6px;font-size:.8rem;font-weight:700">'+osNum+'</span>':'';
-          h+='<span style="display:inline-block;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#6ee7b7;padding:6px 14px;border-radius:10px;margin:4px;font-size:1rem;font-weight:600"><i class="fas fa-clock" style="color:#10b981;margin-right:6px"></i>'+a.horario+' HS'+osTag+' — <strong style="color:#f8fafc">'+a.cliente+'</strong></span>';
-        });
-        h+='</div>';
-      }
-
-      if(ag.futuros.length>0){
-        h+='<div style="margin-bottom:12px"><div style="font-size:.8rem;color:var(--info);font-weight:700;margin-bottom:6px"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:4px"></i>PROXIMOS</div>';
-        ag.futuros.forEach(function(a){
-          var osNum=a.equipamento||'';
-          var osTag=osNum?' <span style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:6px;font-size:.75rem;font-weight:700">'+osNum+'</span>':'';
-          var dataFormatada=a.data.split('-').reverse().join('/');
-          h+='<div style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:8px 14px;margin:4px;font-size:.95rem;color:#93c5fd"><i class="fas fa-calendar-day" style="color:#3b82f6;margin-right:6px"></i><strong>'+dataFormatada+'</strong> — '+a.horario+' HS'+osTag+' — <strong style="color:#f8fafc">'+a.cliente+'</strong></div>';
-        });
-        h+='</div>';
-      }
-    }else{
-      h='<div style="font-size:.95rem;color:#6b7280"><i class="fas fa-info-circle" style="margin-right:6px"></i>Nenhum agendamento pendente</div>';
-    }
+      if(ag.hoje.length>0){h+='<div style="margin-bottom:12px"><div style="font-size:.8rem;color:var(--success);font-weight:700;margin-bottom:6px"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:4px"></i>HOJE</div>';ag.hoje.forEach(function(a){var osNum=a.equipamento||'';var osTag=osNum?' <span style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:6px;font-size:.8rem;font-weight:700">'+osNum+'</span>':'';h+='<span style="display:inline-block;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#6ee7b7;padding:6px 14px;border-radius:10px;margin:4px;font-size:1rem;font-weight:600"><i class="fas fa-clock" style="color:#10b981;margin-right:6px"></i>'+a.horario+' HS'+osTag+' — <strong style="color:#f8fafc">'+a.cliente+'</strong></span>'});h+='</div>'}
+      if(ag.futuros.length>0){h+='<div style="margin-bottom:12px"><div style="font-size:.8rem;color:var(--info);font-weight:700;margin-bottom:6px"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:4px"></i>PROXIMOS</div>';ag.futuros.forEach(function(a){var osNum=a.equipamento||'';var osTag=osNum?' <span style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:6px;font-size:.75rem;font-weight:700">'+osNum+'</span>':'';var dataFormatada=a.data.split('-').reverse().join('/');h+='<div style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:8px 14px;margin:4px;font-size:.95rem;color:#93c5fd"><i class="fas fa-calendar-day" style="color:#3b82f6;margin-right:6px"></i><strong>'+dataFormatada+'</strong> — '+a.horario+' HS'+osTag+' — <strong style="color:#f8fafc">'+a.cliente+'</strong></div>'});h+='</div>'}
+    }else{h='<div style="font-size:.95rem;color:#6b7280"><i class="fas fa-info-circle" style="margin-right:6px"></i>Nenhum agendamento pendente</div>'}
     sd.innerHTML=h;
-
     var d=State.jornada.dados||{},e1=d.inicio&&d.inicio.concluido;
     h='<div class="journey-step '+(e1?'completed':'')+'"><h3><i class="fas fa-play-circle"></i> 1. Inicio do Trabalho</h3>';
-    if(!e1){
-      h+='<div class="grid grid-cols-2 gap-3"><div><label class="text-xs text-[var(--muted)]">Placa *</label><input type="text" id="jornada_placa_inicio" class="form-input" value="'+(d.inicio?d.inicio.placa:'')+'" placeholder="ABC-1234" style="border-color:var(--danger)"></div><div><label class="text-xs text-[var(--muted)]">KM Inicial *</label><input type="number" id="jornada_km_inicio" class="form-input" value="'+(d.inicio?d.inicio.km:'')+'" placeholder="0" style="border-color:var(--danger)"></div></div>';
-      h+='<div class="mt-3"><button onclick="Jornada.obterLocalizacao(\'inicio\')" class="location-btn"><i class="fas fa-map-marker-alt"></i> Obter Localizacao *</button> <span id="localizacao_inicio_texto" class="text-xs text-[var(--muted)] ml-2">'+(d.inicio&&d.inicio.localizacao?d.inicio.localizacao:'<span class="text-red-400">Nao obtida</span>')+'</span></div>';
-      h+='<div class="mt-3"><label class="text-xs text-[var(--muted)]">Foto *</label><input type="file" id="jornada_foto_inicio" accept="image/*" capture="environment" class="form-input" style="border-color:var(--danger)"></div>';
-      h+='<button onclick="Jornada.salvarEtapa(\'inicio\')" class="btn btn-primary mt-3"><i class="fas fa-save"></i> Registrar Inicio</button>';
-    }else{
-      h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> Registrado em '+d.inicio.dataHora+' — Placa: <strong>'+d.inicio.placa+'</strong> — KM: <strong>'+d.inicio.km+'</strong>';
-      if(d.inicio.localizacao)h+=' — <i class="fas fa-map-pin"></i> '+d.inicio.localizacao;
-      h+='</div>';if(d.inicio.foto)h+='<div class="mt-2"><img src="'+d.inicio.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>';
-    }
+    if(!e1){h+='<div class="grid grid-cols-2 gap-3"><div><label class="text-xs text-[var(--muted)]">Placa *</label><input type="text" id="jornada_placa_inicio" class="form-input" value="'+(d.inicio?d.inicio.placa:'')+'" placeholder="ABC-1234" style="border-color:var(--danger)"></div><div><label class="text-xs text-[var(--muted)]">KM Inicial *</label><input type="number" id="jornada_km_inicio" class="form-input" value="'+(d.inicio?d.inicio.km:'')+'" placeholder="0" style="border-color:var(--danger)"></div></div>';h+='<div class="mt-3"><button onclick="Jornada.obterLocalizacao(\'inicio\')" class="location-btn"><i class="fas fa-map-marker-alt"></i> Obter Localizacao *</button> <span id="localizacao_inicio_texto" class="text-xs text-[var(--muted)] ml-2">'+(d.inicio&&d.inicio.localizacao?d.inicio.localizacao:'<span class="text-red-400">Nao obtida</span>')+'</span></div>';h+='<div class="mt-3"><label class="text-xs text-[var(--muted)]">Foto *</label><input type="file" id="jornada_foto_inicio" accept="image/*" capture="environment" class="form-input" style="border-color:var(--danger)"></div>';h+='<button onclick="Jornada.salvarEtapa(\'inicio\')" class="btn btn-primary mt-3"><i class="fas fa-save"></i> Registrar Inicio</button>'}
+    else{h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> Registrado em '+d.inicio.dataHora+' — Placa: <strong>'+d.inicio.placa+'</strong> — KM: <strong>'+d.inicio.km+'</strong>';if(d.inicio.localizacao)h+=' — <i class="fas fa-map-pin"></i> '+d.inicio.localizacao;h+='</div>';if(d.inicio.foto)h+='<div class="mt-2"><img src="'+d.inicio.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>'}
     h+='</div>';
-
     var e2=d.chegada&&d.chegada.concluido;
     h+='<div class="journey-step '+(e2?'completed':'')+'"><h3><i class="fas fa-flag-checkered"></i> 2. Chegada ao Cliente</h3>';
-    if(!e2&&e1){
-      h+='<div class="mt-2"><button onclick="Jornada.obterLocalizacao(\'chegada\')" class="location-btn"><i class="fas fa-map-marker-alt"></i> Obter Localizacao *</button> <span id="localizacao_chegada_texto" class="text-xs text-[var(--muted)] ml-2">'+(d.chegada&&d.chegada.localizacao?d.chegada.localizacao:'<span class="text-red-400">Nao obtida</span>')+'</span></div>';
-      h+='<div class="mt-3"><label class="text-xs text-[var(--muted)]">Foto *</label><input type="file" id="jornada_foto_chegada" accept="image/*" capture="environment" class="form-input" style="border-color:var(--danger)"></div>';
-      h+='<button onclick="Jornada.salvarEtapa(\'chegada\')" class="btn btn-primary mt-3"><i class="fas fa-save"></i> Registrar Chegada</button>';
-    }else if(e2){
-      h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> Registrado em '+d.chegada.dataHora;if(d.chegada.localizacao)h+=' — <i class="fas fa-map-pin"></i> '+d.chegada.localizacao;h+='</div>';if(d.chegada.foto)h+='<div class="mt-2"><img src="'+d.chegada.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>';
-    }else{h+='<div class="text-[var(--warning)] text-sm"><i class="fas fa-hourglass-half"></i> Aguarde registrar inicio.</div>'}
+    if(!e2&&e1){h+='<div class="mt-2"><button onclick="Jornada.obterLocalizacao(\'chegada\')" class="location-btn"><i class="fas fa-map-marker-alt"></i> Obter Localizacao *</button> <span id="localizacao_chegada_texto" class="text-xs text-[var(--muted)] ml-2">'+(d.chegada&&d.chegada.localizacao?d.chegada.localizacao:'<span class="text-red-400">Nao obtida</span>')+'</span></div>';h+='<div class="mt-3"><label class="text-xs text-[var(--muted)]">Foto *</label><input type="file" id="jornada_foto_chegada" accept="image/*" capture="environment" class="form-input" style="border-color:var(--danger)"></div>';h+='<button onclick="Jornada.salvarEtapa(\'chegada\')" class="btn btn-primary mt-3"><i class="fas fa-save"></i> Registrar Chegada</button>'}
+    else if(e2){h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> Registrado em '+d.chegada.dataHora;if(d.chegada.localizacao)h+=' — <i class="fas fa-map-pin"></i> '+d.chegada.localizacao;h+='</div>';if(d.chegada.foto)h+='<div class="mt-2"><img src="'+d.chegada.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>'}
+    else{h+='<div class="text-[var(--warning)] text-sm"><i class="fas fa-hourglass-half"></i> Aguarde registrar inicio.</div>'}
     h+='</div>';
-
     var e3=d.final&&d.final.concluido;
     h+='<div class="journey-step '+(e3?'completed':'')+'"><h3><i class="fas fa-stop-circle"></i> 3. Finalizacao (Retorno)</h3>';
-    if(!e3&&e2){
-      h+='<div class="grid grid-cols-2 gap-3"><div><label class="text-xs text-[var(--muted)]">Placa *</label><input type="text" id="jornada_placa_final" class="form-input" value="'+(d.final?d.final.placa:'')+'" placeholder="ABC-1234" style="border-color:var(--danger)"></div><div><label class="text-xs text-[var(--muted)]">KM Final *</label><input type="number" id="jornada_km_final" class="form-input" value="'+(d.final?d.final.km:'')+'" placeholder="0" style="border-color:var(--danger)"></div></div>';
-      h+='<div class="mt-3"><button onclick="Jornada.obterLocalizacao(\'final\')" class="location-btn"><i class="fas fa-map-marker-alt"></i> Obter Localizacao *</button> <span id="localizacao_final_texto" class="text-xs text-[var(--muted)] ml-2">'+(d.final&&d.final.localizacao?d.final.localizacao:'<span class="text-red-400">Nao obtida</span>')+'</span></div>';
-      h+='<div class="mt-3"><label class="text-xs text-[var(--muted)]">Foto *</label><input type="file" id="jornada_foto_final" accept="image/*" capture="environment" class="form-input" style="border-color:var(--danger)"></div>';
-      h+='<button onclick="Jornada.salvarEtapa(\'final\')" class="btn btn-primary mt-3"><i class="fas fa-save"></i> Registrar Finalizacao</button>';
-    }else if(e3){
-      h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> Finalizado em '+d.final.dataHora+' — Placa: <strong>'+d.final.placa+'</strong> — KM: <strong>'+d.final.km+'</strong>';
-      if(d.final.localizacao)h+=' — <i class="fas fa-map-pin"></i> '+d.final.localizacao;h+='</div>';if(d.final.foto)h+='<div class="mt-2"><img src="'+d.final.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>';
-    }else{h+='<div class="text-[var(--warning)] text-sm"><i class="fas fa-hourglass-half"></i> Aguarde registrar chegada.</div>'}
+    if(!e3&&e2){h+='<div class="grid grid-cols-2 gap-3"><div><label class="text-xs text-[var(--muted)]">Placa *</label><input type="text" id="jornada_placa_final" class="form-input" value="'+(d.final?d.final.placa:'')+'" placeholder="ABC-1234" style="border-color:var(--danger)"></div><div><label class="text-xs text-[var(--muted)]">KM Final *</label><input type="number" id="jornada_km_final" class="form-input" value="'+(d.final?d.final.km:'')+'" placeholder="0" style="border-color:var(--danger)"></div></div>';h+='<div class="mt-3"><button onclick="Jornada.obterLocalizacao(\'final\')" class="location-btn"><i class="fas fa-map-marker-alt"></i> Obter Localizacao *</button> <span id="localizacao_final_texto" class="text-xs text-[var(--muted)] ml-2">'+(d.final&&d.final.localizacao?d.final.localizacao:'<span class="text-red-400">Nao obtida</span>')+'</span></div>';h+='<div class="mt-3"><label class="text-xs text-[var(--muted)]">Foto *</label><input type="file" id="jornada_foto_final" accept="image/*" capture="environment" class="form-input" style="border-color:var(--danger)"></div>';h+='<button onclick="Jornada.salvarEtapa(\'final\')" class="btn btn-primary mt-3"><i class="fas fa-save"></i> Registrar Finalizacao</button>'}
+    else if(e3){h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> Finalizado em '+d.final.dataHora+' — Placa: <strong>'+d.final.placa+'</strong> — KM: <strong>'+d.final.km+'</strong>';if(d.final.localizacao)h+=' — <i class="fas fa-map-pin"></i> '+d.final.localizacao;h+='</div>';if(d.final.foto)h+='<div class="mt-2"><img src="'+d.final.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>'}
+    else{h+='<div class="text-[var(--warning)] text-sm"><i class="fas fa-hourglass-half"></i> Aguarde registrar chegada.</div>'}
     h+='</div>';
-
     if(e2&&!e3){h+='<div class="journey-step"><h3><i class="fas fa-laptop-code"></i> 4. Executar Servico</h3><p class="text-sm text-[var(--muted)]">Voce pode iniciar a OS na aba O.S</p><button onclick="document.querySelector(\'.tab-button[data-tab=\\\'tab-os\\\']\').click()" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Ir para O.S</button></div>'}
     c.innerHTML=h
   },
-  obterLocalizacao:function(et){
-    if(!navigator.geolocation){showToast('Geolocalizacao nao suportada',true);return}
-    showToast('Obtendo localizacao...');
-    navigator.geolocation.getCurrentPosition(function(p){
-      var t=p.coords.latitude.toFixed(6)+', '+p.coords.longitude.toFixed(6);
-      var s=document.getElementById('localizacao_'+et+'_texto');if(s)s.innerHTML=t;
-      if(!State.jornada.dados[et])State.jornada.dados[et]={};
-      State.jornada.dados[et].localizacao=t;
-      Storage.saveJornada(Auth.currentUser.login,State.jornada);showToast('Localizacao obtida')
-    },function(e){showToast('Erro GPS: '+e.message,true)})
-  },
+  obterLocalizacao:function(et){if(!navigator.geolocation){showToast('Geolocalizacao nao suportada',true);return}showToast('Obtendo localizacao...');navigator.geolocation.getCurrentPosition(function(p){var t=p.coords.latitude.toFixed(6)+', '+p.coords.longitude.toFixed(6);var s=document.getElementById('localizacao_'+et+'_texto');if(s)s.innerHTML=t;if(!State.jornada.dados[et])State.jornada.dados[et]={};State.jornada.dados[et].localizacao=t;Storage.saveJornada(Auth.currentUser.login,State.jornada);showToast('Localizacao obtida')},function(e){showToast('Erro GPS: '+e.message,true)})},
   salvarEtapa:async function(et){
     var de={},fotoBase64=null;
-    if(et==='inicio'){
-      var pl=document.getElementById('jornada_placa_inicio').value.trim(),km=document.getElementById('jornada_km_inicio').value.trim(),lo=(State.jornada.dados.inicio||{}).localizacao||'',fi=document.getElementById('jornada_foto_inicio');
-      if(!pl){showToast('Preencha a PLACA',true);return}if(!km){showToast('Preencha o KM',true);return}if(!lo){showToast('Obtenha a LOCALIZACAO',true);return}if(!fi||!fi.files||!fi.files.length){showToast('Tire a FOTO',true);return}
-      fotoBase64=await Fotos.compressFile(fi.files[0]);de={placa:pl,km:km,localizacao:lo,foto:fotoBase64,dataHora:new Date().toLocaleString(),concluido:true};State.jornada.dados.inicio=de;State.jornada.etapa='chegada';
-    }else if(et==='chegada'){
-      var lo=(State.jornada.dados.chegada||{}).localizacao||'',fc=document.getElementById('jornada_foto_chegada');
-      if(!lo){showToast('Obtenha a LOCALIZACAO',true);return}if(!fc||!fc.files||!fc.files.length){showToast('Tire a FOTO',true);return}
-      fotoBase64=await Fotos.compressFile(fc.files[0]);de={localizacao:lo,foto:fotoBase64,dataHora:new Date().toLocaleString(),concluido:true};State.jornada.dados.chegada=de;State.jornada.etapa='trabalhando';
-    }else if(et==='final'){
-      var pl=document.getElementById('jornada_placa_final').value.trim(),km=document.getElementById('jornada_km_final').value.trim(),lo=(State.jornada.dados.final||{}).localizacao||'',ff=document.getElementById('jornada_foto_final');
-      if(!pl){showToast('Preencha a PLACA',true);return}if(!km){showToast('Preencha o KM',true);return}if(!lo){showToast('Obtenha a LOCALIZACAO',true);return}if(!ff||!ff.files||!ff.files.length){showToast('Tire a FOTO',true);return}
-      fotoBase64=await Fotos.compressFile(ff.files[0]);de={placa:pl,km:km,localizacao:lo,foto:fotoBase64,dataHora:new Date().toLocaleString(),concluido:true};State.jornada.dados.final=de;State.jornada.etapa='finalizado';
-    }
-    Storage.saveJornada(Auth.currentUser.login,State.jornada);this.renderizar();showToast('Etapa '+et+' registrada!');
-    if(et==='chegada')showToast('Agora inicie a OS na aba O.S');
+    if(et==='inicio'){var pl=document.getElementById('jornada_placa_inicio').value.trim(),km=document.getElementById('jornada_km_inicio').value.trim(),lo=(State.jornada.dados.inicio||{}).localizacao||'',fi=document.getElementById('jornada_foto_inicio');if(!pl){showToast('Preencha a PLACA',true);return}if(!km){showToast('Preencha o KM',true);return}if(!lo){showToast('Obtenha a LOCALIZACAO',true);return}if(!fi||!fi.files||!fi.files.length){showToast('Tire a FOTO',true);return}fotoBase64=await Fotos.compressFile(fi.files[0]);de={placa:pl,km:km,localizacao:lo,foto:fotoBase64,dataHora:new Date().toLocaleString(),concluido:true};State.jornada.dados.inicio=de;State.jornada.etapa='chegada'}
+    else if(et==='chegada'){var lo=(State.jornada.dados.chegada||{}).localizacao||'',fc=document.getElementById('jornada_foto_chegada');if(!lo){showToast('Obtenha a LOCALIZACAO',true);return}if(!fc||!fc.files||!fc.files.length){showToast('Tire a FOTO',true);return}fotoBase64=await Fotos.compressFile(fc.files[0]);de={localizacao:lo,foto:fotoBase64,dataHora:new Date().toLocaleString(),concluido:true};State.jornada.dados.chegada=de;State.jornada.etapa='trabalhando'}
+    else if(et==='final'){var pl=document.getElementById('jornada_placa_final').value.trim(),km=document.getElementById('jornada_km_final').value.trim(),lo=(State.jornada.dados.final||{}).localizacao||'',ff=document.getElementById('jornada_foto_final');if(!pl){showToast('Preencha a PLACA',true);return}if(!km){showToast('Preencha o KM',true);return}if(!lo){showToast('Obtenha a LOCALIZACAO',true);return}if(!ff||!ff.files||!ff.files.length){showToast('Tire a FOTO',true);return}fotoBase64=await Fotos.compressFile(ff.files[0]);de={placa:pl,km:km,localizacao:lo,foto:fotoBase64,dataHora:new Date().toLocaleString(),concluido:true};State.jornada.dados.final=de;State.jornada.etapa='finalizado'}
+    Storage.saveJornada(Auth.currentUser.login,State.jornada);this.renderizar();showToast('Etapa '+et+' registrada!');if(et==='chegada')showToast('Agora inicie a OS na aba O.S');
     var syncData={id:Date.now(),tecnico:Auth.currentUser.login,data:new Date().toLocaleDateString('pt-BR'),etapa:et,placa:de.placa||'',km:de.km||'',localizacao:de.localizacao||'',foto:fotoBase64||'',dataHora:de.dataHora||''};
     try{await GoogleSheetsSync.syncJornada(syncData)}catch(e){SyncQueue.add('upsert','jornada',syncData)}
   },
@@ -1012,62 +877,208 @@ var App={
     this.iniciarHeartbeat();
     this.iniciarPainelOnline();
   },
-iniciarHeartbeat: function() {
+  iniciarHeartbeat: function() {
   if (!Auth.currentUser) return;
-  const enviar = async () => {
-    if (!Auth.currentUser) return;
-    const user = {
-      login: Auth.currentUser.login,
-      nome: Auth.currentUser.nome,
-      nivel: Auth.currentUser.nivel
-    };
-    try {
-      await GoogleSheetsSync.syncHeartbeat(user);
-    } catch(e) { /* ignora falhas da rede */ }
+  var self = this;
+  var heartbeatData = {
+    login: Auth.currentUser.login,
+    nome: Auth.currentUser.nome,
+    nivel: Auth.currentUser.nivel,
+    ultimo: new Date().toISOString()
   };
-  enviar();
-  setInterval(enviar, 60000); // a cada 1 minuto
-},
-iniciarPainelOnline: function() {
-  if (!Auth.isAdmin()) return;
-  let panel = document.getElementById('onlineUsersPanel');
-  if (!panel) {
-    const div = document.createElement('div');
-    div.id = 'onlineUsersPanel';
-    div.style.cssText = 'position:fixed;top:70px;right:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;z-index:90;min-width:180px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.3)';
-    div.innerHTML = '<div style="font-weight:700;color:var(--accent);margin-bottom:8px;font-size:11px"><i class="fas fa-wifi"></i> USUÁRIOS ONLINE</div><div id="onlineUsersList"><div style="color:var(--muted)">Carregando...</div></div>';
-    document.body.appendChild(div);
-    panel = div;
-  }
-  
-  const atualizar = async () => {
-    if (!Auth.isAdmin()) return;
-    try {
-      const result = await GoogleSheetsSync.getOnlineUsers();
-      const users = result.onlineUsers || {};
-      const listDiv = document.getElementById('onlineUsersList');
-      if (!listDiv) return;
-      const keys = Object.keys(users);
-      if (keys.length === 0) {
-        listDiv.innerHTML = '<div style="color:var(--muted)">Nenhum usuário online</div>';
-        return;
-      }
-      let html = '';
-      keys.forEach(login => {
-        const u = users[login];
-        const diffMin = (new Date() - new Date(u.ultimo)) / 60000;
-        const status = diffMin < 1 ? '🟢' : '🟡';
-        const tempo = diffMin < 1 ? 'Agora' : Math.floor(diffMin) + ' min';
-        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)"><div>${status} <strong>${u.nome}</strong></div><div style="color:var(--muted);font-size:10px">${tempo}</div></div>`;
-      });
-      listDiv.innerHTML = html;
-    } catch(e) {
-      console.warn('Erro ao atualizar painel online', e);
+
+  // Salva localmente SEMPRE como fallback
+  var onlineLocal = JSON.parse(localStorage.getItem('marlift_online_users') || '{}');
+  onlineLocal[Auth.currentUser.login] = heartbeatData;
+  // Limpa usuários inativos (mais de 3 minutos)
+  var agora = Date.now();
+  Object.keys(onlineLocal).forEach(function(k) {
+    if ((agora - new Date(onlineLocal[k].ultimo).getTime()) > 180000) {
+      delete onlineLocal[k];
     }
-  };
-  
+  });
+  localStorage.setItem('marlift_online_users', JSON.stringify(onlineLocal));
+
+  // Tenta enviar para o Google Sheets (pode falhar silenciosamente)
+  GoogleSheetsSync.syncHeartbeat(heartbeatData).then(function(ok) {
+    if (ok) {
+      self._heartbeatOnline = true;
+    } else {
+      self._heartbeatOnline = false;
+    }
+  }).catch(function() {
+    self._heartbeatOnline = false;
+  });
+
+  // Repete a cada 45 segundos
+  setTimeout(function() { self.iniciarHeartbeat(); }, 45000);
+},
+
+  iniciarPainelOnline: function() {
+  if (!Auth.isAdmin()) return;
+
+  // Remove painel antigo se existir
+  var antigo = document.getElementById('onlineUsersPanel');
+  if (antigo) antigo.remove();
+
+  var div = document.createElement('div');
+  div.id = 'onlineUsersPanel';
+  div.style.cssText = 'position:fixed;top:70px;right:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;z-index:90;min-width:200px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.4);max-height:70vh;overflow-y:auto';
+  div.innerHTML = 
+    '<div style="font-weight:700;color:var(--accent);margin-bottom:10px;font-size:11px;display:flex;justify-content:space-between;align-items:center">' +
+      '<span><i class="fas fa-wifi"></i> USUARIOS ONLINE</span>' +
+      '<span id="onlineConnStatus" style="font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(107,114,128,.3);color:var(--muted)">verificando...</span>' +
+    '</div>' +
+    '<div id="onlineUsersList"><div style="color:var(--muted);text-align:center;padding:8px"><i class="fas fa-spinner fa-spin"></i> Carregando...</div></div>' +
+    '<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:9px;color:var(--muted);text-align:center" id="onlineDebugInfo">---</div>';
+  document.body.appendChild(div);
+
+  var self = this;
+  var tentativas = 0;
+
+  function atualizar() {
+    if (!Auth.isAdmin() || !Auth.currentUser) return;
+
+    tentativas++;
+    var connStatus = document.getElementById('onlineConnStatus');
+    var listDiv = document.getElementById('onlineUsersList');
+    var debugDiv = document.getElementById('onlineDebugInfo');
+    if (!listDiv) return;
+
+    // Sempre lê dados locais primeiro
+    var onlineLocal = JSON.parse(localStorage.getItem('marlift_online_users') || '{}');
+    var agora = Date.now();
+
+    // Limpa expirados localmente
+    Object.keys(onlineLocal).forEach(function(k) {
+      if ((agora - new Date(onlineLocal[k].ultimo).getTime()) > 180000) {
+        delete onlineLocal[k];
+      }
+    });
+    localStorage.setItem('marlift_online_users', JSON.stringify(onlineLocal));
+
+    // Tenta buscar do Google Sheets
+    GoogleSheetsSync.getOnlineUsers().then(function(result) {
+      var usersRemotos = {};
+      var usoRemoto = false;
+
+      if (result && result.success && result.onlineUsers && typeof result.onlineUsers === 'object') {
+        usersRemotos = result.onlineUsers;
+        // Filtra apenas ativos nos últimos 3 minutos
+        Object.keys(usersRemotos).forEach(function(k) {
+          if ((agora - new Date(usersRemotos[k].ultimo).getTime()) > 180000) {
+            delete usersRemotos[k];
+          }
+        });
+        if (Object.keys(usersRemotos).length > 0) {
+          usoRemoto = true;
+          // Atualiza localStorage com dados do servidor (mais confiáveis)
+          Object.assign(onlineLocal, usersRemotos);
+          localStorage.setItem('marlift_online_users', JSON.stringify(onlineLocal));
+        }
+      }
+
+      // Atualiza indicador de conexão
+      if (connStatus) {
+        if (usoRemoto) {
+          connStatus.style.background = 'rgba(16,185,129,.3)';
+          connStatus.style.color = '#6ee7b7';
+          connStatus.textContent = 'nuvem OK';
+        } else if (self._heartbeatOnline === false) {
+          connStatus.style.background = 'rgba(245,158,11,.3)';
+          connStatus.style.color = '#fbbf24';
+          connStatus.textContent = 'modo local';
+        } else {
+          connStatus.style.background = 'rgba(107,114,128,.3)';
+          connStatus.style.color = 'var(--muted)';
+          connStatus.textContent = 'local';
+        }
+      }
+
+      renderizarUsuarios(onlineLocal, true);
+
+      if (debugDiv) {
+        debugDiv.textContent = 'Tentativa #' + tentativas + ' | Remotos: ' + Object.keys(usersRemotos).length + ' | Locais: ' + Object.keys(onlineLocal).length + ' | Heartbeat: ' + (self._heartbeatOnline !== false ? 'enviando' : 'local');
+      }
+
+    }).catch(function(err) {
+      // Fallback: usa apenas dados locais
+      if (connStatus) {
+        connStatus.style.background = 'rgba(239,68,68,.25)';
+        connStatus.style.color = '#fca5a5';
+        connStatus.textContent = 'offline';
+      }
+
+      renderizarUsuarios(onlineLocal, false);
+
+      if (debugDiv) {
+        debugDiv.textContent = 'Erro: ' + (err.message || 'sem conexao') + ' | Usando dados locais (' + Object.keys(onlineLocal).length + ')';
+      }
+    });
+  }
+
+  function renderizarUsuarios(users, conectado) {
+    var listDiv = document.getElementById('onlineUsersList');
+    if (!listDiv) return;
+
+    var keys = Object.keys(users);
+    if (keys.length === 0) {
+      listDiv.innerHTML = '<div style="color:var(--muted);text-align:center;padding:12px"><i class="fas fa-user-slash" style="font-size:18px;display:block;margin-bottom:6px"></i>Nenhum usuario online<br><span style="font-size:9px">' + (conectado ? 'Dados da nuvem' : 'Apenas dados locais') + '</span></div>';
+      return;
+    }
+
+    // Ordena por último heartbeat mais recente
+    keys.sort(function(a, b) {
+      return new Date(users[b].ultimo) - new Date(users[a].ultimo);
+    });
+
+    var html = '';
+    keys.forEach(function(login) {
+      var u = users[login];
+      var diffMs = agora - new Date(u.ultimo).getTime();
+      var diffMin = Math.floor(diffMs / 60000);
+      var diffSec = Math.floor((diffMs % 60000) / 1000);
+
+      var statusIcon, statusTexto, statusCor;
+      if (diffMin < 1) {
+        statusIcon = 'fa-circle';
+        statusCor = '#10b981';
+        statusTexto = 'Agora';
+      } else if (diffMin < 3) {
+        statusIcon = 'fa-circle';
+        statusCor = '#f59e0b';
+        statusTexto = diffMin + ' min atras';
+      } else {
+        statusIcon = 'fa-circle';
+        statusCor = '#ef4444';
+        statusTexto = diffMin + ' min';
+      }
+
+      var nivelTag = '';
+      if (u.nivel === 'admin') nivelTag = '<span style="background:rgba(139,92,246,.3);color:#a78bfa;padding:1px 6px;border-radius:4px;font-size:9px;margin-left:4px">ADM</span>';
+      else if (u.nivel === 'tecnico') nivelTag = '<span style="background:rgba(59,130,246,.3);color:#60a5fa;padding:1px 6px;border-radius:4px;font-size:9px;margin-left:4px">TEC</span>';
+
+      // Não mostrar o próprio admin se ele estiver vendo
+      var isSelf = login === Auth.currentUser.login;
+
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)' + (isSelf ? ';opacity:.6' : '') + '">' +
+        '<div style="display:flex;align-items:center;gap:6px">' +
+          '<i class="fas ' + statusIcon + '" style="font-size:8px;color:' + statusCor + '"></i>' +
+          '<strong>' + (u.nome || login) + '</strong>' + nivelTag +
+          (isSelf ? ' <span style="font-size:9px;color:var(--muted)">(voce)</span>' : '') +
+        '</div>' +
+        '<div style="color:var(--muted);font-size:10px;text-align:right">' + statusTexto + '</div>' +
+      '</div>';
+    });
+
+    listDiv.innerHTML = html;
+  }
+
+  // Primeira execução imediata
   atualizar();
-  setInterval(atualizar, 30000); // a cada 30 segundos
+
+  // Atualiza a cada 20 segundos
+  setInterval(atualizar, 20000);
 },
   setupAgendamentoOS:function(){
     var selTec=document.getElementById('ag_tecnico');
