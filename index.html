@@ -439,7 +439,7 @@ var SyncQueue = {
 
 /* ==================== GOOGLE SHEETS SYNC ==================== */
 var GoogleSheetsSync = {
-  webAppUrl:'https://script.google.com/macros/s/AKfycbzS_d09U9aSFXTMHUBEB4y-Rq8E1fMi1YyHyz4tht9mKJime_AArR_dihqJwZ0-dSY/exec',
+  webAppUrl:'https://script.google.com/macros/s/AKfycbxfB-sAWMjHcxq_CGnJABW8I-D_L0ciV6Ur-DMwqjW5mYt7ZgP_h8MA0eBJvKTqA2FG/exec',
   setStatus:function(m){var s=$('syncStatusText');if(s)s.textContent=m},
   hasValidData:function(arr,req){if(!arr||!Array.isArray(arr)||!arr.length)return false;if(req)return arr.some(function(i){if(typeof i!=='object'||i===null)return false;var v=i[req];return v!==null&&v!==undefined&&String(v).trim()!==''});return arr.some(function(i){if(typeof i!=='object'||i===null)return false;return Object.values(i).some(function(v){if(v===null||v===undefined)return false;if(typeof v==='string'&&!v.trim())return false;if(Array.isArray(v)&&!v.length)return false;if(typeof v==='object'&&!Array.isArray(v)&&!Object.keys(v).length)return false;return true})})},
   hasValidPermissions:function(o){if(!o||typeof o!=='object'||Array.isArray(o))return false;return Object.keys(o).some(function(k){return o[k]===true})},
@@ -694,6 +694,8 @@ var Auth = {
   logout: function(reason) {
     if (this.currentUser && reason === 'inactivity') showToast('Sessao expirada por inatividade', true);
     if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
+    App.pararHeartbeat();
+    App.pararPainelOnline();
     this.currentUser = null;
     localStorage.removeItem('marlift_current_user');
     Timer.cleanup();
@@ -1149,9 +1151,100 @@ var App={
     if(Auth.isAdmin())this.iniciarPainelOnline();
   },
 
-  iniciarHeartbeat:function(){if(!Auth.currentUser)return;var self=this;async function enviar(){if(!Auth.currentUser)return;try{await GoogleSheetsSync.syncHeartbeat({login:Auth.currentUser.login,nome:Auth.currentUser.nome,nivel:Auth.currentUser.nivel})}catch(e){}}enviar();setInterval(enviar,60000)},
+  iniciarHeartbeat:function(){
+    if(!Auth.currentUser)return;
+    var self=this;
+    async function enviar(){
+      if(!Auth.currentUser)return;
+      try{
+        await GoogleSheetsSync.syncHeartbeat({
+          login:Auth.currentUser.login,
+          nome:Auth.currentUser.nome,
+          nivel:Auth.currentUser.nivel,
+          status:'online'
+        });
+      }catch(e){}
+    }
+    enviar();
+    this._heartbeatInterval=setInterval(enviar,60000);
+  },
 
-  iniciarPainelOnline:function(){if(!Auth.isAdmin())return;var existing=document.getElementById('onlineUsersPanel');if(!existing){var div=document.createElement('div');div.id='onlineUsersPanel';div.style.cssText='position:fixed;top:70px;right:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;z-index:90;min-width:180px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.3)';div.innerHTML='<div style="font-weight:700;color:var(--accent);margin-bottom:8px;font-size:11px"><i class="fas fa-wifi"></i> USUARIOS ONLINE</div><div id="onlineUsersList"><div style="color:var(--muted)">Verificando...</div></div>';document.body.appendChild(div)}async function verificar(){if(!Auth.isAdmin())return;try{var r=await fetch(GoogleSheetsSync.webAppUrl);var data=await r.json();var list=$('onlineUsersList');if(!list)return;var users=data.usuariosOnline||{};var keys=Object.keys(users);if(!keys.length){list.innerHTML='<div style="color:var(--muted)">Nenhum usuario online</div>';return}var h='';keys.forEach(function(k){var u=users[k];var diff=(new Date()-new Date(u.ultimo))/1000/60;var status=diff<1?'🟢':'🟡';var tempo=diff<1?'Agora':Math.floor(diff)+' min';h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)"><div>'+status+' <strong>'+u.nome+'</strong></div><div style="color:var(--muted);font-size:10px">'+tempo+'</div></div>'});list.innerHTML=h}catch(e){}}verificar();setInterval(verificar,30000)},
+  pararHeartbeat:function(){
+    if(this._heartbeatInterval){clearInterval(this._heartbeatInterval);this._heartbeatInterval=null}
+    if(Auth.currentUser){
+      GoogleSheetsSync.syncHeartbeat({
+        login:Auth.currentUser.login,
+        nome:Auth.currentUser.nome,
+        nivel:Auth.currentUser.nivel,
+        status:'offline'
+      }).catch(function(){});
+    }
+  },
+
+  iniciarPainelOnline:function(){
+    if(!Auth.isAdmin())return;
+    var existing=document.getElementById('onlineUsersPanel');
+    if(existing)existing.remove();
+    var btnReabrir=document.getElementById('btnReabrirPainel');
+    if(btnReabrir)btnReabrir.remove();
+    var div=document.createElement('div');
+    div.id='onlineUsersPanel';
+    div.style.cssText='position:fixed;top:70px;right:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;z-index:90;min-width:200px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:opacity .3s';
+    div.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-weight:700;color:var(--accent);font-size:11px"><i class="fas fa-wifi"></i> USUARIOS ONLINE</div><button onclick="App.pararPainelOnline()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 4px;line-height:1" title="Fechar painel"><i class="fas fa-times"></i></button></div><div id="onlineUsersList"><div style="color:var(--muted)"><i class="fas fa-spinner fa-spin"></i> Verificando...</div></div>';
+    document.body.appendChild(div);
+    var self=this;
+    async function verificar(){
+      if(!Auth.isAdmin()){self.pararPainelOnline();return}
+      var list=document.getElementById('onlineUsersList');
+      if(!list)return;
+      try{
+        var r=await fetch(GoogleSheetsSync.webAppUrl);
+        var data=await r.json();
+        var users=data.usuariosOnline||{};
+        var keys=Object.keys(users);
+        if(!keys.length){list.innerHTML='<div style="color:var(--muted)"><i class="fas fa-user-slash"></i> Nenhum usuario online</div>';return}
+        var h='';
+        var agora=new Date();
+        keys.forEach(function(k){
+          var u=users[k];
+          if(u.status==='offline')return;
+          var diff=999;
+          if(u.ultimo){
+            var t=new Date(u.ultimo);
+            if(!isNaN(t.getTime()))diff=(agora-t)/1000/60;
+          }
+          if(diff>5)return;
+          var status=diff<2?'🟢':(diff<4?'🟡':'⚫');
+          var tempo=diff<1?'Agora':Math.floor(diff)+' min';
+          h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:6px">'+status+' <strong style="font-size:12px">'+u.nome+'</strong></div><div style="color:var(--muted);font-size:10px">'+tempo+'</div></div>';
+        });
+        if(!h)h='<div style="color:var(--muted)"><i class="fas fa-user-slash"></i> Nenhum usuario online</div>';
+        list.innerHTML=h;
+      }catch(e){list.innerHTML='<div style="color:var(--muted)">Erro ao verificar</div>'}
+    }
+    verificar();
+    this._panelInterval=setInterval(verificar,15000);
+  },
+
+  pararPainelOnline:function(){
+    if(this._panelInterval){clearInterval(this._panelInterval);this._panelInterval=null}
+    var panel=document.getElementById('onlineUsersPanel');
+    if(panel)panel.remove();
+    if(Auth.isAdmin()){
+      var existing=document.getElementById('btnReabrirPainel');
+      if(!existing){
+        var btn=document.createElement('button');
+        btn.id='btnReabrirPainel';
+        btn.style.cssText='position:fixed;top:70px;right:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 12px;z-index:90;cursor:pointer;color:var(--accent);font-size:16px;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:all .2s';
+        btn.innerHTML='<i class="fas fa-wifi"></i>';
+        btn.title='Usuarios Online';
+        btn.onmouseenter=function(){btn.style.background='var(--bg-secondary)';btn.style.borderColor='var(--accent)'};
+        btn.onmouseleave=function(){btn.style.background='var(--card)';btn.style.borderColor='var(--border)'};
+        btn.onclick=function(){btn.remove();App.iniciarPainelOnline()};
+        document.body.appendChild(btn);
+      }
+    }
+  },
 
   setupAgendamentoOS:function(){var selTec=$('ag_tecnico');if(selTec)selTec.addEventListener('change',function(){Agendamentos.carregarOSDisponiveis(selTec.value)})},
 
