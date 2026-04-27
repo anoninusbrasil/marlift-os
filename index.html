@@ -524,9 +524,16 @@ var GoogleSheetsSync = {
   async syncSingleCliente(c){return await this.postData('syncCliente',c)},
   async syncJornada(j){return await this.postData('syncJornada',j)},
   /* === CORRIGIDO: action 'syncHeartbeat' (nao 'heartbeat') e retorna objeto completo === */
-  async syncHeartbeat(user){
-    return await this.postDataRaw('syncHeartbeat', user);
-  },
+  GoogleSheetsSync.syncHeartbeat(heartbeatData).then(function(result) {
+    if (result && result.success && result.online) {
+      App._onlineUsers = result.online;
+      App._heartbeatMode = 'nuvem';
+      localStorage.setItem('marlift_online_users', JSON.stringify(result.online));
+    }
+    self._heartbeatOnline = !!result && result.success;
+  }).catch(function() {
+    self._heartbeatOnline = false;
+  });
   async fetchFromSheet(){
     try{
       this.setStatus('Baixando...');
@@ -877,216 +884,55 @@ var App={
     this.iniciarHeartbeat();
     this.iniciarPainelOnline();
   },
-  iniciarHeartbeat: function() {
-  if (!Auth.currentUser) return;
-  var self = this;
-  var heartbeatData = {
-    login: Auth.currentUser.login,
-    nome: Auth.currentUser.nome,
-    nivel: Auth.currentUser.nivel,
-    ultimo: new Date().toISOString()
-  };
-
-  // Salva localmente SEMPRE como fallback
-  var onlineLocal = JSON.parse(localStorage.getItem('marlift_online_users') || '{}');
-  onlineLocal[Auth.currentUser.login] = heartbeatData;
-  // Limpa usuários inativos (mais de 3 minutos)
-  var agora = Date.now();
-  Object.keys(onlineLocal).forEach(function(k) {
-    if ((agora - new Date(onlineLocal[k].ultimo).getTime()) > 180000) {
-      delete onlineLocal[k];
-    }
-  });
-  localStorage.setItem('marlift_online_users', JSON.stringify(onlineLocal));
-
-  // Tenta enviar para o Google Sheets (pode falhar silenciosamente)
-  GoogleSheetsSync.syncHeartbeat(heartbeatData).then(function(ok) {
-    if (ok) {
-      self._heartbeatOnline = true;
-    } else {
-      self._heartbeatOnline = false;
-    }
-  }).catch(function() {
-    self._heartbeatOnline = false;
-  });
-
-  // Repete a cada 45 segundos
-  setTimeout(function() { self.iniciarHeartbeat(); }, 45000);
-},
-
   iniciarPainelOnline: function() {
-  if (!Auth.isAdmin()) return;
+    if (!Auth.isAdmin()) return;
+    var antigo = document.getElementById('onlineUsersPanel');
+    if (antigo) antigo.remove();
+    var div = document.createElement('div');
+    div.id = 'onlineUsersPanel';
+    div.style.cssText = 'position:fixed;top:56px;right:6px;z-index:90';
+    div.innerHTML =
+      '<div onclick="var p=this.querySelector(\'#onlinePanelBody\');p.style.display=p.style.display===\'none\'?\'block\':\'none\'" style="cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:3px 10px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--accent);font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.3)"><i class="fas fa-wifi" id="onlinePanelIcon"></i><span id="onlinePanelCount" style="font-family:JetBrains Mono,monospace;font-size:11px">...</span><i class="fas fa-chevron-down" style="font-size:8px;transition:transform .2s" id="onlinePanelArrow"></i></div>' +
+      '<div id="onlinePanelBody" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:0 0 12px 12px;padding:10px 12px;min-width:170px;max-height:55vh;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.4);font-size:11px"><div id="onlineUsersList"></div><div id="onlineDebugInfo" style="font-size:8px;color:var(--muted);text-align:center;margin-top:6px">---</div></div>';
+    document.body.appendChild(div);
+    var self = this;
 
-  // Remove painel antigo se existir
-  var antigo = document.getElementById('onlineUsersPanel');
-  if (antigo) antigo.remove();
-
-  var div = document.createElement('div');
-  div.id = 'onlineUsersPanel';
-  div.style.cssText = 'position:fixed;top:70px;right:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;z-index:90;min-width:200px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.4);max-height:70vh;overflow-y:auto';
-  div.innerHTML = 
-    '<div style="font-weight:700;color:var(--accent);margin-bottom:10px;font-size:11px;display:flex;justify-content:space-between;align-items:center">' +
-      '<span><i class="fas fa-wifi"></i> USUARIOS ONLINE</span>' +
-      '<span id="onlineConnStatus" style="font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(107,114,128,.3);color:var(--muted)">verificando...</span>' +
-    '</div>' +
-    '<div id="onlineUsersList"><div style="color:var(--muted);text-align:center;padding:8px"><i class="fas fa-spinner fa-spin"></i> Carregando...</div></div>' +
-    '<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:9px;color:var(--muted);text-align:center" id="onlineDebugInfo">---</div>';
-  document.body.appendChild(div);
-
-  var self = this;
-  var tentativas = 0;
-
-  function atualizar() {
-    if (!Auth.isAdmin() || !Auth.currentUser) return;
-
-    tentativas++;
-    var connStatus = document.getElementById('onlineConnStatus');
-    var listDiv = document.getElementById('onlineUsersList');
-    var debugDiv = document.getElementById('onlineDebugInfo');
-    if (!listDiv) return;
-
-    // Sempre lê dados locais primeiro
-    var onlineLocal = JSON.parse(localStorage.getItem('marlift_online_users') || '{}');
-    var agora = Date.now();
-
-    // Limpa expirados localmente
-    Object.keys(onlineLocal).forEach(function(k) {
-      if ((agora - new Date(onlineLocal[k].ultimo).getTime()) > 180000) {
-        delete onlineLocal[k];
-      }
-    });
-    localStorage.setItem('marlift_online_users', JSON.stringify(onlineLocal));
-
-    // Tenta buscar do Google Sheets
-    GoogleSheetsSync.getOnlineUsers().then(function(result) {
-      var usersRemotos = {};
-      var usoRemoto = false;
-
-      if (result && result.success && result.onlineUsers && typeof result.onlineUsers === 'object') {
-        usersRemotos = result.onlineUsers;
-        // Filtra apenas ativos nos últimos 3 minutos
-        Object.keys(usersRemotos).forEach(function(k) {
-          if ((agora - new Date(usersRemotos[k].ultimo).getTime()) > 180000) {
-            delete usersRemotos[k];
-          }
-        });
-        if (Object.keys(usersRemotos).length > 0) {
-          usoRemoto = true;
-          // Atualiza localStorage com dados do servidor (mais confiáveis)
-          Object.assign(onlineLocal, usersRemotos);
-          localStorage.setItem('marlift_online_users', JSON.stringify(onlineLocal));
-        }
-      }
-
-      // Atualiza indicador de conexão
-      if (connStatus) {
-        if (usoRemoto) {
-          connStatus.style.background = 'rgba(16,185,129,.3)';
-          connStatus.style.color = '#6ee7b7';
-          connStatus.textContent = 'nuvem OK';
-        } else if (self._heartbeatOnline === false) {
-          connStatus.style.background = 'rgba(245,158,11,.3)';
-          connStatus.style.color = '#fbbf24';
-          connStatus.textContent = 'modo local';
-        } else {
-          connStatus.style.background = 'rgba(107,114,128,.3)';
-          connStatus.style.color = 'var(--muted)';
-          connStatus.textContent = 'local';
-        }
-      }
-
-      renderizarUsuarios(onlineLocal, true);
-
-      if (debugDiv) {
-        debugDiv.textContent = 'Tentativa #' + tentativas + ' | Remotos: ' + Object.keys(usersRemotos).length + ' | Locais: ' + Object.keys(onlineLocal).length + ' | Heartbeat: ' + (self._heartbeatOnline !== false ? 'enviando' : 'local');
-      }
-
-    }).catch(function(err) {
-      // Fallback: usa apenas dados locais
-      if (connStatus) {
-        connStatus.style.background = 'rgba(239,68,68,.25)';
-        connStatus.style.color = '#fca5a5';
-        connStatus.textContent = 'offline';
-      }
-
-      renderizarUsuarios(onlineLocal, false);
-
-      if (debugDiv) {
-        debugDiv.textContent = 'Erro: ' + (err.message || 'sem conexao') + ' | Usando dados locais (' + Object.keys(onlineLocal).length + ')';
-      }
-    });
-  }
-
-  function renderizarUsuarios(users, conectado) {
-    var listDiv = document.getElementById('onlineUsersList');
-    if (!listDiv) return;
-
-    var keys = Object.keys(users);
-    if (keys.length === 0) {
-      listDiv.innerHTML = '<div style="color:var(--muted);text-align:center;padding:12px"><i class="fas fa-user-slash" style="font-size:18px;display:block;margin-bottom:6px"></i>Nenhum usuario online<br><span style="font-size:9px">' + (conectado ? 'Dados da nuvem' : 'Apenas dados locais') + '</span></div>';
-      return;
-    }
-
-    // Ordena por último heartbeat mais recente
-    keys.sort(function(a, b) {
-      return new Date(users[b].ultimo) - new Date(users[a].ultimo);
-    });
-
-    var html = '';
-    keys.forEach(function(login) {
-      var u = users[login];
-      var diffMs = agora - new Date(u.ultimo).getTime();
-      var diffMin = Math.floor(diffMs / 60000);
-      var diffSec = Math.floor((diffMs % 60000) / 1000);
-
-      var statusIcon, statusTexto, statusCor;
-      if (diffMin < 1) {
-        statusIcon = 'fa-circle';
-        statusCor = '#10b981';
-        statusTexto = 'Agora';
-      } else if (diffMin < 3) {
-        statusIcon = 'fa-circle';
-        statusCor = '#f59e0b';
-        statusTexto = diffMin + ' min atras';
-      } else {
-        statusIcon = 'fa-circle';
-        statusCor = '#ef4444';
-        statusTexto = diffMin + ' min';
-      }
-
-      var nivelTag = '';
-      if (u.nivel === 'admin') nivelTag = '<span style="background:rgba(139,92,246,.3);color:#a78bfa;padding:1px 6px;border-radius:4px;font-size:9px;margin-left:4px">ADM</span>';
-      else if (u.nivel === 'tecnico') nivelTag = '<span style="background:rgba(59,130,246,.3);color:#60a5fa;padding:1px 6px;border-radius:4px;font-size:9px;margin-left:4px">TEC</span>';
-
-      // Não mostrar o próprio admin se ele estiver vendo
-      var isSelf = login === Auth.currentUser.login;
-
-      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)' + (isSelf ? ';opacity:.6' : '') + '">' +
-        '<div style="display:flex;align-items:center;gap:6px">' +
-          '<i class="fas ' + statusIcon + '" style="font-size:8px;color:' + statusCor + '"></i>' +
-          '<strong>' + (u.nome || login) + '</strong>' + nivelTag +
-          (isSelf ? ' <span style="font-size:9px;color:var(--muted)">(voce)</span>' : '') +
-        '</div>' +
-        '<div style="color:var(--muted);font-size:10px;text-align:right">' + statusTexto + '</div>' +
-      '</div>';
-    });
-
-    listDiv.innerHTML = html;
-  }
-
-  // Primeira execução imediata
-  atualizar();
-
-  // Atualiza a cada 20 segundos
-  setInterval(atualizar, 20000);
-},
-  setupAgendamentoOS:function(){
-    var selTec=document.getElementById('ag_tecnico');
-    if(selTec){
-      selTec.addEventListener('change',function(){
-        Agendamentos.carregarOSDisponiveis(selTec.value);
+    function atualizar() {
+      if (!Auth.isAdmin() || !Auth.currentUser) return;
+      var listDiv = document.getElementById('onlineUsersList');
+      var debugDiv = document.getElementById('onlineDebugInfo');
+      if (!listDiv) return;
+      var users = self._onlineUsers || {};
+      var agora = Date.now();
+      var limpos = {};
+      Object.keys(users).forEach(function(k) {
+        if ((agora - new Date(users[k].ultimo).getTime()) < 180000) limpos[k] = users[k];
       });
+      users = limpos;
+      var keys = Object.keys(users);
+      var countEl = document.getElementById('onlinePanelCount');
+      var iconEl = document.getElementById('onlinePanelIcon');
+      if (countEl) countEl.textContent = keys.length > 0 ? keys.length + ' online' : 'offline';
+      if (iconEl) iconEl.className = keys.length > 0 ? 'fas fa-wifi' : 'fas fa-wifi-slash';
+      if (keys.length === 0) {
+        listDiv.innerHTML = '<div style="color:var(--muted);text-align:center;padding:8px;font-size:11px"><i class="fas fa-user-slash" style="display:block;margin-bottom:4px;font-size:14px"></i>Nenhum</div>';
+      } else {
+        keys.sort(function(a, b) { return new Date(users[b].ultimo) - new Date(users[a].ultimo); });
+        var h = '';
+        keys.forEach(function(login) {
+          var u = users[login], diff = Math.floor((agora - new Date(u.ultimo).getTime()) / 60000);
+          var cor = diff < 1 ? '#10b981' : (diff < 3 ? '#f59e0b' : '#ef4444');
+          var tag = u.nivel === 'admin' ? '<span style="background:rgba(139,92,246,.3);color:#a78bfa;padding:1px 5px;border-radius:3px;font-size:8px">ADM</span>' : (u.nivel === 'tecnico' ? '<span style="background:rgba(59,130,246,.3);color:#60a5fa;padding:1px 5px;border-radius:3px;font-size:8px">TEC</span>' : '');
+          var self2 = login === Auth.currentUser.login;
+          h += '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border)' + (self2 ? ';opacity:.5' : '') + '"><i class="fas fa-circle" style="font-size:6px;color:' + cor + '"></i><strong style="font-size:11px">' + (u.nome || login) + '</strong>' + tag + (self2 ? '<span style="font-size:8px;color:var(--muted)">(voce)</span>' : '') + '<span style="margin-left:auto;font-size:9px;color:var(--muted)">' + (diff < 1 ? 'agora' : diff + 'min') + '</span></div>';
+        });
+        listDiv.innerHTML = h;
+      }
+      if (debugDiv) debugDiv.textContent = (self._heartbeatMode === 'nuvem' ? 'nuvem' : 'local') + ' | ' + keys.length;
     }
+
+    atualizar();
+    setTimeout(function() { atualizar(); }, 20000);
   },
   populateMarcas:function(){var s=$('marcaSelect');if(!s)return;s.innerHTML='<option value="">Selecione</option>';Config.marcas.forEach(function(m){if(m!=='OUTRA')s.innerHTML+='<option value="'+m+'">'+m+'</option>'});s.innerHTML+='<option value="OUTRA">OUTRA</option>'},
   setupMarcaSelect:function(){var s=$('marcaSelect'),d=$('marcaOutraDiv'),i=$('marcaOutra');if(s&&d&&i){s.addEventListener('change',function(){d.style.display=s.value==='OUTRA'?'block':'none';Utils.setVal('marca',s.value==='OUTRA'?i.value.toUpperCase():s.value)});i.addEventListener('input',function(){Utils.setVal('marca',i.value.toUpperCase())})}},
