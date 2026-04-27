@@ -439,7 +439,7 @@ var SyncQueue = {
 
 /* ==================== GOOGLE SHEETS SYNC ==================== */
 var GoogleSheetsSync = {
-  webAppUrl:'https://script.google.com/macros/s/AKfycbxfB-sAWMjHcxq_CGnJABW8I-D_L0ciV6Ur-DMwqjW5mYt7ZgP_h8MA0eBJvKTqA2FG/exec',
+  webAppUrl:'https://script.google.com/macros/s/AKfycby6h9mnAPbGfKmWKx7dsavyArLasttD6AASFImvCE8OMNGyJzbO08_AlLimSadRekUx/exec',
   setStatus:function(m){var s=$('syncStatusText');if(s)s.textContent=m},
   hasValidData:function(arr,req){if(!arr||!Array.isArray(arr)||!arr.length)return false;if(req)return arr.some(function(i){if(typeof i!=='object'||i===null)return false;var v=i[req];return v!==null&&v!==undefined&&String(v).trim()!==''});return arr.some(function(i){if(typeof i!=='object'||i===null)return false;return Object.values(i).some(function(v){if(v===null||v===undefined)return false;if(typeof v==='string'&&!v.trim())return false;if(Array.isArray(v)&&!v.length)return false;if(typeof v==='object'&&!Array.isArray(v)&&!Object.keys(v).length)return false;return true})})},
   hasValidPermissions:function(o){if(!o||typeof o!=='object'||Array.isArray(o))return false;return Object.keys(o).some(function(k){return o[k]===true})},
@@ -1200,27 +1200,7 @@ var App={
       try{
         var r=await fetch(GoogleSheetsSync.webAppUrl+'?_t='+Date.now());
         var data=await r.json();
-        var users=data.usuariosOnline||{};
-        var keys=Object.keys(users);
-        if(!keys.length){list.innerHTML='<div style="color:var(--muted)"><i class="fas fa-user-slash"></i> Nenhum usuario online</div>';return}
-        var h='';
-        var agora=new Date();
-        keys.forEach(function(k){
-          var u=users[k];
-          if(u.status==='offline')return;
-          var diff=999;
-          if(u.ultimo){
-            var t=new Date(u.ultimo);
-            if(!isNaN(t.getTime()))diff=(agora-t)/1000/60;
-          }
-          if(diff>5)return;
-          var status=diff<2?'🟢':(diff<4?'🟡':'⚫');
-          var tempo=diff<1?'Agora':Math.floor(diff)+' min';
-          h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:6px">'+status+' <strong style="font-size:12px">'+u.nome+'</strong></div><div style="color:var(--muted);font-size:10px">'+tempo+'</div></div>';
-        });
-        if(!h)h='<div style="color:var(--muted)"><i class="fas fa-user-slash"></i> Nenhum usuario online</div>';
-        list.innerHTML=h;
-      }catch(e){list.innerHTML='<div style="color:var(--muted)">Erro ao verificar</div>'}
+        var users=data.usuariosOnline||{};list.innerHTML='<div style="color:var(--muted)">Erro ao verificar</div>'}
     }
     verificar();
     this._panelInterval=setInterval(verificar,15000);
