@@ -541,6 +541,7 @@ var GoogleSheetsSync={
 };
 
 /* ==================== ONLINE USERS (WIDGET) ==================== */
+/* ==================== ONLINE USERS (WIDGET) ==================== */
 var OnlineUsers={
   _timer:null,
   _open:false,
@@ -550,17 +551,18 @@ var OnlineUsers={
     var self=this;
     this._timer=setInterval(function(){self.fetch()},45*1000);
     document.addEventListener('click',function(e){
-      var w=$('onlineWidget');if(w&&!w.contains(e.target)){self.closeDropdown()}
+      var w=$('onlineWidget');
+      if(w&&!w.contains(e.target)){self.closeDropdown()}
     })
   },
 
   stop:function(){if(this._timer){clearInterval(this._timer);this._timer=null}},
 
+  /* ABRIR/FECHAR dropdown — NÃO faz fetch, só mostra os dados que já vieram */
   toggleDropdown:function(){
     this._open=!this._open;
     var dd=$('onlineDropdown');
     if(dd)dd.classList.toggle('open',this._open);
-    if(this._open)this.fetch()
   },
 
   closeDropdown:function(){
@@ -568,6 +570,7 @@ var OnlineUsers={
     var dd=$('onlineDropdown');if(dd)dd.classList.remove('open')
   },
 
+  /* FETCH — busca dados frescos do servidor (usado em background e pelo botão refresh) */
   async fetch(){
     var btn=$('onlineRefreshBtn');if(btn)btn.classList.add('spinning');
     var ok=await GoogleSheetsSync.fetchOnlineUsers();
@@ -575,30 +578,38 @@ var OnlineUsers={
     if(!ok)this.renderFallback()
   },
 
+  /* FALLBACK — só usa se o servidor falhou completamente */
   renderFallback:function(){
-    /* Fallback: usa lista de usuários + heartbeat local */
     var users=Auth.getUsers(),now=Date.now(),threshold=3*60*1000;
     var hbData=localStorage.getItem('marlift_heartbeats');var hbs=hbData?JSON.parse(hbData):{};
+    /* Combina dados do servidor com heartbeat local (para mostrar eu mesmo corretamente) */
+    var serverMap={};
+    (State.onlineUsers||[]).forEach(function(u){serverMap[u.login]=u});
     State.onlineUsers=users.map(function(u){
+      var fromServer=serverMap[u.login];
       var last=hbs[u.login]?hbs[u.login].ts:0;
-      return{login:u.login,nome:u.nome,nivel:u.nivel,lastSeen:last,isOnline:(now-last)<threshold}
+      var isOnline=fromServer?fromServer.isOnline:(now-last)<threshold;
+      return{login:u.login,nome:u.nome,nivel:u.nivel,lastSeen:fromServer?fromServer.lastSeen:last,isOnline:isOnline}
     });
     this.render()
   },
 
+  /* RENDER — só desenha na tela, nunca busca dados */
   render:function(){
-    var users=State.onlineUsers||[],count=users.filter(function(u){return u.isOnline}).length;
+    var users=State.onlineUsers||[];
+    var count=users.filter(function(u){return u.isOnline}).length;
     var ce=$('onlineCount');if(ce)ce.textContent=count;
     var list=$('onlineUserList');if(!list)return;
     if(!users.length){list.innerHTML='<div class="online-dropdown-empty"><i class="fas fa-user-slash" style="font-size:20px;margin-bottom:6px;display:block;opacity:.3"></i>Nenhum dado disponível</div>';return}
-    /* Ordenar: online primeiro, depois por último visto */
     users.sort(function(a,b){if(a.isOnline&&!b.isOnline)return-1;if(!a.isOnline&&b.isOnline)return 1;return(b.lastSeen||0)-(a.lastSeen||0)});
     var h='';var now=Date.now();
     users.forEach(function(u){
       var on=u.isOnline;var lastTxt='';
       if(on){lastTxt='Agora'}
-      else if(u.lastSeen){var diff=Math.floor((now-u.lastSeen)/60000);if(diff<1)lastTxt='Agora';else if(diff<60)lastTxt=diff+'min atrás';else if(diff<1440)lastTxt=Math.floor(diff/60)+'h atrás';else lastTxt=Math.floor(diff/1440)+'d atrás'}
-      else{lastTxt='Nunca'}
+      else if(u.lastSeen){
+        var diff=Math.floor((now-u.lastSeen)/60000);
+        if(diff<1)lastTxt='Agora';else if(diff<60)lastTxt=diff+'min atrás';else if(diff<1440)lastTxt=Math.floor(diff/60)+'h atrás';else lastTxt=Math.floor(diff/1440)+'d atrás'
+      }else{lastTxt='Nunca'}
       var nvl=u.nivel||'visualizador';
       var avClass=nvl==='admin'?'admin-avatar':(nvl==='tecnico'?'tecnico-avatar':'visualizador-avatar');
       var initials=(u.nome||u.login||'?').split(' ').map(function(w){return w[0]}).join('').substring(0,2).toUpperCase();
