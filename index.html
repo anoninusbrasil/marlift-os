@@ -111,23 +111,45 @@
     .schedule-hora{font-size:1.6rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--fg);letter-spacing:1px}
     .schedule-tecnico{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:6px}
     .schedule-descricao{font-size:.8rem;color:var(--muted);margin-top:4px;line-height:1.4}
-    .schedule-equip{font-size:.8rem;color:var(--info);margin-top:2px}
     .schedule-actions{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
-    .perm-denied-overlay{position:relative}
-    .perm-denied-overlay::after{content:'Sem permissão';position:absolute;inset:0;background:rgba(12,15,18,.85);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:600;font-size:.85rem;z-index:5;pointer-events:none}
     .hb-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px;transition:background .3s}
     .hb-dot.online{background:var(--success)}
     .hb-dot.offline{background:var(--danger)}
     .hb-dot.syncing{background:var(--warning);animation:hb-blink 1s infinite}
     @keyframes hb-blink{0%,100%{opacity:1}50%{opacity:.3}}
-    @media(max-width:768px){.step{font-size:0;padding:8px 2px;gap:0}.step .step-text{display:none}.step .step-icon{font-size:14px}.timer-display{font-size:1.5rem}.btn{padding:8px 12px;font-size:11px}.photo-item{width:80px;height:80px}.stat-value{font-size:1.1rem}.toolbar{gap:6px}.toolbar .btn{font-size:10px;padding:6px 8px}.top-bar{flex-direction:column;text-align:center}.user-area{margin-top:5px}.tab-button{padding:8px 12px;font-size:11px}.schedule-cliente{font-size:1.05rem}.schedule-hora{font-size:1.4rem}}
-    @media(max-width:480px){.stats-grid{grid-template-columns:repeat(2,1fr)}.table-os th,.table-os td{padding:6px 4px;font-size:10px}.schedule-actions .btn{flex:1;min-width:0;justify-content:center;padding:10px 6px;font-size:11px}}
+    /* ===== USUÁRIOS ONLINE ===== */
+    .online-widget{position:relative;display:flex;align-items:center}
+    .online-badge{display:flex;align-items:center;gap:6px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:30px;padding:5px 12px;cursor:pointer;transition:all .2s;font-size:11px;font-weight:600;color:var(--fg);user-select:none}
+    .online-badge:hover{border-color:var(--success);background:var(--card)}
+    .online-count{background:var(--success);color:#fff;border-radius:12px;padding:1px 7px;font-size:10px;font-weight:700;min-width:18px;text-align:center}
+    .online-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:280px;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 20px 40px rgba(0,0,0,.5);z-index:150;display:none;overflow:hidden}
+    .online-dropdown.open{display:block;animation:dropIn .2s ease}
+    @keyframes dropIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+    .online-dropdown-header{padding:12px 14px 8px;border-bottom:1px solid var(--border);font-size:.7rem;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;display:flex;justify-content:space-between;align-items:center}
+    .online-dropdown-header .refresh-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 6px;border-radius:6px;transition:all .2s}
+    .online-dropdown-header .refresh-btn:hover{color:var(--accent);background:var(--bg-secondary)}
+    .online-dropdown-header .refresh-btn.spinning i{animation:spin .8s linear infinite}
+    .online-user-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);transition:background .15s}
+    .online-user-row:last-child{border-bottom:none}
+    .online-user-row:hover{background:var(--bg-secondary)}
+    .online-user-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+    .online-user-avatar.admin-avatar{background:linear-gradient(135deg,#f97316,#fb923c)}
+    .online-user-avatar.tecnico-avatar{background:linear-gradient(135deg,#3b82f6,#60a5fa)}
+    .online-user-avatar.visualizador-avatar{background:linear-gradient(135deg,#6b7280,#9ca3af)}
+    .online-user-info{flex:1;min-width:0}
+    .online-user-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .online-user-meta{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px}
+    .online-user-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .online-user-status-dot.is-online{background:var(--success);box-shadow:0 0 6px rgba(16,185,129,.5)}
+    .online-user-status-dot.is-offline{background:var(--muted)}
+    .online-dropdown-empty{padding:20px 14px;text-align:center;color:var(--muted);font-size:12px}
+    @media(max-width:768px){.step{font-size:0;padding:8px 2px;gap:0}.step .step-text{display:none}.step .step-icon{font-size:14px}.timer-display{font-size:1.5rem}.btn{padding:8px 12px;font-size:11px}.photo-item{width:80px;height:80px}.stat-value{font-size:1.1rem}.toolbar{gap:6px}.toolbar .btn{font-size:10px;padding:6px 8px}.top-bar{flex-direction:column;text-align:center}.user-area{margin-top:5px}.tab-button{padding:8px 12px;font-size:11px}.schedule-cliente{font-size:1.05rem}.schedule-hora{font-size:1.4rem}.online-dropdown{width:260px;right:-40px}}
+    @media(max-width:480px){.stats-grid{grid-template-columns:repeat(2,1fr)}.table-os th,.table-os td{padding:6px 4px;font-size:10px}.schedule-actions .btn{flex:1;min-width:0;justify-content:center;padding:10px 6px;font-size:11px}.online-badge span.online-label-text{display:none}}
     @media print{.no-print{display:none!important}body{background:#fff;color:#000}}
   </style>
 </head>
 <body>
 
-<!-- TELA DE LOGIN -->
 <div id="loginScreen" class="login-container">
   <div class="login-card">
     <div class="login-logo"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div>
@@ -144,10 +166,8 @@
   </div>
 </div>
 
-<!-- MODAL EQUIPAMENTOS -->
 <div id="equipModal" class="modal"><div class="modal-content"><div class="modal-title"><i class="fas fa-forklift"></i> Selecione o Equipamento</div><div id="equipList"></div><button onclick="App.fecharModalEquip()" class="btn btn-secondary w-full mt-3">Cancelar</button></div></div>
 
-<!-- SISTEMA PRINCIPAL -->
 <div id="appContainer" style="display:none">
   <header class="no-print border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur-sm sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-3">
@@ -156,7 +176,26 @@
           <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-[var(--accent)] to-[var(--accent-light)] rounded-xl flex items-center justify-center shadow-lg"><svg class="w-5 h-5 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div>
           <div><h1 class="font-display text-xl md:text-2xl tracking-wide text-[var(--accent)]">MARLIFT EMPILHADEIRAS</h1><p class="text-xs text-[var(--muted)]">Sistema de O.S - v9.9</p></div>
         </div>
-        <div class="user-area"><i class="fas fa-user-circle text-[var(--accent)] text-lg"></i><span class="font-medium text-sm" id="currentUserName">Carregando...</span><span id="currentUserNivel" class="text-xs px-2 py-0.5 rounded-full font-bold" style="font-size:.6rem"></span><div class="w-px h-5 bg-[var(--border)]"></div><button onclick="Auth.logout()" class="text-xs text-[var(--muted)] hover:text-[var(--danger)] transition-colors"><i class="fas fa-sign-out-alt"></i> Sair</button></div>
+        <div class="flex items-center gap-3 flex-wrap justify-center">
+          <!-- ===== WIDGET USUÁRIOS ONLINE ===== -->
+          <div class="online-widget" id="onlineWidget">
+            <div class="online-badge" id="onlineBadge" onclick="OnlineUsers.toggleDropdown()">
+              <i class="fas fa-wifi" style="font-size:10px"></i>
+              <span class="online-label-text">Online</span>
+              <span class="online-count" id="onlineCount">0</span>
+              <i class="fas fa-chevron-down" style="font-size:8px;color:var(--muted)"></i>
+            </div>
+            <div class="online-dropdown" id="onlineDropdown">
+              <div class="online-dropdown-header">
+                <span><i class="fas fa-signal" style="margin-right:4px"></i> Usuários Conectados</span>
+                <button class="refresh-btn" id="onlineRefreshBtn" onclick="event.stopPropagation();OnlineUsers.fetch()"><i class="fas fa-sync-alt"></i></button>
+              </div>
+              <div id="onlineUserList"></div>
+            </div>
+          </div>
+          <!-- ===== FIM WIDGET ===== -->
+          <div class="user-area"><i class="fas fa-user-circle text-[var(--accent)] text-lg"></i><span class="font-medium text-sm" id="currentUserName">Carregando...</span><span id="currentUserNivel" class="text-xs px-2 py-0.5 rounded-full font-bold" style="font-size:.6rem"></span><div class="w-px h-5 bg-[var(--border)]"></div><button onclick="Auth.logout()" class="text-xs text-[var(--muted)] hover:text-[var(--danger)] transition-colors"><i class="fas fa-sign-out-alt"></i> Sair</button></div>
+        </div>
       </div>
       <div class="toolbar">
         <button onclick="App.gerarPreviaPDF()" id="btnPreviaPDF" class="btn btn-primary text-sm" disabled><i class="fas fa-file-pdf"></i> PDF</button>
@@ -208,7 +247,6 @@
           <button id="btnAprovar" class="btn btn-success" onclick="App.mudarStatus('aprovada')"><i class="fas fa-stamp"></i> Aprovar com Assinatura</button>
         </div>
       </div>
-
       <div class="checklist-card p-4 md:p-5 mb-5">
         <h2 class="font-display text-xl mb-3">Dados do Equipamento</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -226,18 +264,15 @@
         </div>
         <div class="mt-4"><label class="block text-xs text-[var(--muted)] mb-1">Endereço</label><div class="flex gap-2"><input type="text" id="endereco" class="form-input flex-1"><button type="button" onclick="App.abrirMapa()" class="btn btn-secondary"><i class="fas fa-map-marker-alt"></i></button></div></div>
       </div>
-
       <div class="checklist-card p-4 md:p-5 mb-5">
         <h2 class="font-display text-xl mb-3">Serviço Realizado</h2>
         <div><label class="block text-xs text-[var(--muted)] mb-1">Diagnóstico / Serviços executados</label><textarea id="descricaoServico" class="form-input min-h-24" placeholder="Descreva o diagnóstico..."></textarea></div>
         <div class="mt-3"><label class="block text-xs text-[var(--muted)] mb-1">Peças / Materiais Aplicados</label><textarea id="pecasAplicadas" class="form-input min-h-20" placeholder="Liste as peças..."></textarea></div>
         <div class="mt-3"><label class="block text-xs text-[var(--muted)] mb-1">Pendências / Itens Críticos</label><textarea id="pendencias" class="form-input min-h-20" placeholder="Pendências..."></textarea></div>
       </div>
-
       <div class="checklist-card p-4 md:p-5 mb-5"><h2 class="font-display text-xl mb-2"><i class="fas fa-camera"></i> Foto do Horímetro</h2><input type="file" id="fotoHorimetroInput" accept="image/*" class="form-input"><div id="fotoHorimetroPreview" class="photo-preview"></div></div>
       <div class="checklist-card p-4 md:p-5 mb-5"><h2 class="font-display text-xl mb-2">Fotos do Serviço (máx. 10)</h2><input type="file" id="fotosServico" multiple accept="image/*" class="form-input"><div id="fotosPreview" class="photo-preview"></div></div>
       <div class="checklist-card p-4 md:p-5 mb-5"><h2 class="font-display text-xl mb-2"><i class="fas fa-exclamation-triangle"></i> Fotos das Pendências (máx. 10)</h2><input type="file" id="fotosPendenciasInput" multiple accept="image/*" class="form-input"><div id="fotosPendenciasPreview" class="photo-preview"></div></div>
-
       <div class="checklist-card p-4 md:p-5 mb-5">
         <h2 class="font-display text-xl mb-3">Assinaturas Digitais</h2>
         <div class="grid md:grid-cols-2 gap-6">
@@ -245,7 +280,6 @@
           <div><label class="block text-xs text-[var(--muted)] mb-1">Cliente / Recebedor</label><canvas id="sigClienteCanvas" class="signature-canvas"></canvas><div class="flex gap-2 mt-2"><button type="button" onclick="Signature.clear('cli')" class="btn btn-secondary text-xs">Limpar</button><button type="button" onclick="Signature.save('cli')" class="btn btn-primary text-xs">Salvar</button></div><input type="hidden" id="assinaturaClienteData"><input type="text" id="recebedor" placeholder="Nome do recebedor" class="form-input mt-2"></div>
         </div>
       </div>
-
       <div class="checklist-card p-4 md:p-5 mb-5">
         <h2 class="font-display text-xl mb-3">Controle de Horas</h2>
         <div class="text-center mb-4"><div class="timer-display" id="timerDisplay">00:00:00</div><div class="flex gap-2 justify-center mt-3 flex-wrap"><button type="button" onclick="Timer.control('start')" class="btn btn-success text-sm">Iniciar</button><button type="button" onclick="Timer.control('pause')" class="btn btn-warning text-sm">Pausar</button><button type="button" onclick="Timer.control('stop')" class="btn btn-danger text-sm">Parar</button></div></div>
@@ -260,7 +294,6 @@
           <div><label class="block text-xs text-[var(--muted)] mb-1">Total Geral</label><input type="text" id="totalGeral" class="form-input font-mono font-bold text-[var(--success)]" readonly></div>
         </div>
       </div>
-
       <div class="flex gap-3 justify-center mb-8 no-print flex-wrap">
         <button onclick="App.salvarOSManual()" class="btn btn-primary" id="btnSalvarProgresso"><i class="fas fa-save"></i> Salvar Progresso</button>
       </div>
@@ -399,9 +432,9 @@
 
 <script>
 /* ==================== XSS PROTECTION ==================== */
-function esc(str){if(str===null||str===undefined)return'';var s=String(str);var d=document.createElement('div');d.appendChild(document.createTextNode(s));return d.innerHTML}
+function esc(s){if(s===null||s===undefined)return'';var d=document.createElement('div');d.appendChild(document.createTextNode(String(s)));return d.innerHTML}
 
-/* ==================== CONFIGURAÇÕES ==================== */
+/* ==================== CONFIG ==================== */
 var Config={
   marcas:["TOYOTA","CLARK","BYD","PALETRANS","LINDE","HYSTER","YALE","CATERPILLAR","KOMATSU","MITSUBISHI","NISSAN","STILL","CROWN","JUNGHEINRICH","TCM","HYUNDAI","DOOSAN","HELI","HANGCHA","LONKING","OUTRA"],
   checklist:[
@@ -413,17 +446,14 @@ var Config={
     {id:'estrutura',title:'Estrutura e Garfos',items:[{id:'est_mastros',label:'Mastros'},{id:'est_correntes',label:'Correntes'},{id:'est_garfos',label:'Garfos'},{id:'est_roletes',label:'Roletes'}]},
     {id:'seguranca',title:'Segurança',items:[{id:'seg_cinto',label:'Cinto de segurança'},{id:'seg_extintor',label:'Extintor'},{id:'seg_espelhos',label:'Espelhos'},{id:'seg_alarme',label:'Alarme de ré'}]}
   ],
-  maxFotos:10,
-  inactivityTimeout:15*60*1000,
-  maxSyncRetries:5,
-  syncRetryDelay:10000
+  maxFotos:10,inactivityTimeout:15*60*1000,maxSyncRetries:5
 };
 
 var State={
   currentStatus:'abertura',fotosServico:[],fotoHorimetro:null,fotosPendencias:[],
   clients:[],osHistory:[],editingClientId:null,hasUnsavedChanges:false,
-  osCounter:0,agendamentos:[],jornada:{},
-  timerStartRealTime:0,timerPausedAccum:0
+  osCounter:0,agendamentos:[],jornada:{},timerStartRealTime:0,timerPausedAccum:0,
+  onlineUsers:[]
 };
 
 /* ==================== STORAGE ==================== */
@@ -436,123 +466,198 @@ var Storage={
   loadCounter:function(){var d=localStorage.getItem('marlift_os_counter');State.osCounter=d?parseInt(d):0;return State.osCounter},
   saveAgendamentos:function(){localStorage.setItem('marlift_agendamentos',JSON.stringify(State.agendamentos))},
   loadAgendamentos:function(){var d=localStorage.getItem('marlift_agendamentos');State.agendamentos=d?JSON.parse(d):[];return State.agendamentos},
-  saveJornada:function(login,jd){var a=localStorage.getItem('marlift_jornadas');var o=a?JSON.parse(a):{};o[login]=jd;localStorage.setItem('marlift_jornadas',JSON.stringify(o))},
-  loadJornada:function(login){var a=localStorage.getItem('marlift_jornadas');var o=a?JSON.parse(a):{};return o[login]||null}
+  saveJornada:function(l,j){var a=localStorage.getItem('marlift_jornadas');var o=a?JSON.parse(a):{};o[l]=j;localStorage.setItem('marlift_jornadas',JSON.stringify(o))},
+  loadJornada:function(l){var a=localStorage.getItem('marlift_jornadas');var o=a?JSON.parse(a):{};return o[l]||null}
 };
 
-/* ==================== UTILITÁRIOS DATA/HORA - FUSO BRASÍLIA ==================== */
-function normalizeDate(dateValue){if(!dateValue)return'';if(typeof dateValue==='string'&&dateValue.includes('T')){var d=new Date(dateValue);if(!isNaN(d.getTime()))return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}if(typeof dateValue==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(dateValue))return dateValue;return''}
-function extractTimeFromDate(dateValue){if(!dateValue)return'';if(typeof dateValue==='string'&&dateValue.includes('T')){var d=new Date(dateValue);if(!isNaN(d.getTime()))return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}if(typeof dateValue==='string'&&/^\d{2}:\d{2}$/.test(dateValue))return dateValue;if(typeof dateValue==='string'&&dateValue.includes(':')){var p=dateValue.split(':');if(p.length>=2)return p[0].padStart(2,'0')+':'+p[1].padStart(2,'0')}return''}
+/* ==================== UTILITÁRIOS ==================== */
+function $(id){return document.getElementById(id)}
+function showToast(msg,err){var t=$('toastCenter');if(!t)return;var m=$('toastMessage');if(m)m.textContent=msg;t.style.borderColor=err?'var(--danger)':'var(--success)';t.querySelector('i').className=err?'fas fa-exclamation-circle text-red-500 text-xl':'fas fa-check-circle text-green-500 text-xl';t.classList.remove('show');void t.offsetWidth;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show')},2800)}
+function normalizeDate(v){if(!v)return'';if(typeof v==='string'&&v.includes('T')){var d=new Date(v);if(!isNaN(d.getTime()))return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}if(typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v))return v;return''}
+function extractTimeFromDate(v){if(!v)return'';if(typeof v==='string'&&v.includes('T')){var d=new Date(v);if(!isNaN(d.getTime()))return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}if(typeof v==='string'&&/^\d{2}:\d{2}$/.test(v))return v;if(typeof v==='string'&&v.includes(':')){var p=v.split(':');if(p.length>=2)return p[0].padStart(2,'0')+':'+p[1].padStart(2,'0')}return''}
 function hojeBr(){return new Date().toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'})}
 function agoraBr(){return new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}
 function dataHojeISO(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function parseCSVLine(line){var r=[],c='',q=false;for(var i=0;i<line.length;i++){var ch=line[i];if(q){if(ch==='"'&&line[i+1]==='"'){c+='"';i++}else if(ch==='"'){q=false}else{c+=ch}}else{if(ch==='"'){q=true}else if(ch===','){r.push(c);c=''}else{c+=ch}}}r.push(c);return r}
 
-/* ==================== FILA DE SINCRONIZAÇÃO OFFLINE (com retry limitado) ==================== */
-var SyncQueue={
-  key:'marlift_sync_queue',
-  add:function(action,entity,data){var q=this.getQueue();q.push({action:action,entity:entity,data:data,timestamp:Date.now(),retries:0});localStorage.setItem(this.key,JSON.stringify(q));this.scheduleProcess()},
-  getQueue:function(){var q=localStorage.getItem(this.key);return q?JSON.parse(q):[]},
-  clearQueue:function(){localStorage.removeItem(this.key)},
-  limparFila:function(){if(!Auth.isAdmin()){showToast('Apenas administrador',true);return}var q=this.getQueue(),t=q.length;if(!t){showToast('Fila já está vazia');return}if(!confirm('Limpar '+t+' item(ns) da fila?'))return;this.clearQueue();SyncUI.set('Pronto','ok');showToast('Fila limpa: '+t+' item(ns)')},
-  _processTimer:null,
-  scheduleProcess:function(){if(this._processTimer)return;var self=this;this._processTimer=setTimeout(function(){self._processTimer=null;self.process()},1500)},
-  async process(){if(!navigator.onLine){SyncUI.set('Offline','error');return}var q=this.getQueue();if(!q.length){SyncUI.set('Pronto','ok');return}SyncUI.set('Sincronizando ('+q.length+')','syncing');var ok=[],failed=[];for(var i=0;i<q.length;i++){var it=q[i];if(it.retries>=Config.maxSyncRetries){failed.push(i);continue}try{var r=false;if(it.entity==='cliente')r=await GoogleSheetsSync.syncSingleCliente(it.data);else if(it.entity==='os')r=await GoogleSheetsSync.syncSingleOS(it.data);else if(it.entity==='agendamento')r=await GoogleSheetsSync.syncSingleAgendamento(it.data);else if(it.entity==='usuario')r=await GoogleSheetsSync.syncUsuarios(it.data);else if(it.entity==='permissao')r=await GoogleSheetsSync.syncPermissoes(it.data);else if(it.entity==='jornada')r=await GoogleSheetsSync.syncJornada(it.data);if(r){ok.push(i)}else{it.retries=(it.retries||0)+1;failed.push(i)}}catch(e){it.retries=(it.retries||0)+1;failed.push(i)}}var nq=q.filter(function(_,idx){return ok.indexOf(idx)===-1});localStorage.setItem(this.key,JSON.stringify(nq));var descartados=q.length-nq.length;if(descartados>0)console.log('[SYNC] '+descartados+' item(ns) descartados (max retries)');if(!nq.length){this.clearQueue();SyncUI.set('Sincronizado','ok')}else{SyncUI.set('Fila: '+nq.length,'');this.scheduleProcess()}},
-  forceSync:async function(){if(!Auth.isAdmin()){showToast('Apenas administrador pode sincronizar',true);return}var btn=$('btnSync');if(btn){btn.classList.add('btn-loading');btn.disabled=true}showToast('Forçando sincronização...');try{await this.process();await GoogleSheetsSync.fetchFromSheet()}finally{if(btn){btn.classList.remove('btn-loading');btn.disabled=!Auth.can('sincronizar')}}}
+var Utils={
+  generateOSNumber:function(){State.osCounter=Storage.loadCounter();State.osCounter++;Storage.saveCounter();var n=new Date();return'OS-'+n.getFullYear().toString().slice(-2)+String(n.getMonth()+1).padStart(2,'0')+'-'+String(State.osCounter).padStart(4,'0')},
+  setDefaultDate:function(){var i=$('dataOS');if(i&&!i.value)i.value=dataHojeISO()},
+  getVal:function(id){var e=$(id);return e?e.value:''},
+  setVal:function(id,v){var e=$(id);if(e)e.value=v||''},
+  formatStatus:function(s){return{abertura:'EM ABERTURA',execucao:'EM EXECUÇÃO',finalizacao:'FINALIZANDO',fechada:'FECHADA',aprovada:'APROVADA'}[s]||(s||'').toUpperCase()},
+  timeDiff:function(s,e){if(!s||!e)return 0;var sp=s.split(':').map(Number),ep=e.split(':').map(Number);return(ep[0]*60+ep[1])-(sp[0]*60+sp[1])<0?(ep[0]*60+ep[1])-(sp[0]*60+sp[1])+1440:(ep[0]*60+ep[1])-(sp[0]*60+sp[1])},
+  timeToMinutes:function(t){if(!t)return 0;if(t.indexOf('h')!==-1)return parseInt(t)*60;var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1]||0)},
+  validarHorimetro:function(h){if(!h)return false;var n=parseInt(h.replace('h',''));return!isNaN(n)&&n>0&&n<=99999}
 };
 
-/* ==================== SYNC UI HELPER ==================== */
-var SyncUI={
-  set:function(msg,cls){var s=$('syncStatusText');if(s)s.textContent=msg;var d=$('hbDot');if(d){d.className='hb-dot '+(cls||'')};var ss=$('syncStatus');if(ss){ss.className='sync-status'+(cls?' '+cls:'')}}
+/* ==================== SYNC UI ==================== */
+var SyncUI={set:function(m,c){var s=$('syncStatusText');if(s)s.textContent=m;var d=$('hbDot');if(d)d.className='hb-dot '+(c||'');var ss=$('syncStatus');if(ss)ss.className='sync-status'+(c?' '+c:'')}};
+
+/* ==================== FILA DE SYNC ==================== */
+var SyncQueue={
+  key:'marlift_sync_queue',
+  add:function(a,e,d){var q=this.getQueue();q.push({action:a,entity:e,data:d,timestamp:Date.now(),retries:0});localStorage.setItem(this.key,JSON.stringify(q));this.scheduleProcess()},
+  getQueue:function(){var q=localStorage.getItem(this.key);return q?JSON.parse(q):[]},
+  clearQueue:function(){localStorage.removeItem(this.key)},
+  limparFila:function(){if(!Auth.isAdmin()){showToast('Apenas administrador',true);return}var q=this.getQueue(),t=q.length;if(!t){showToast('Fila vazia');return}if(!confirm('Limpar '+t+' item(ns)?'))return;this.clearQueue();SyncUI.set('Pronto','ok');showToast('Fila limpa: '+t)},
+  _pt:null,
+  scheduleProcess:function(){if(this._pt)return;var self=this;this._pt=setTimeout(function(){self._pt=null;self.process()},1500)},
+  async process(){if(!navigator.onLine){SyncUI.set('Offline','error');return}var q=this.getQueue();if(!q.length){SyncUI.set('Pronto','ok');return}SyncUI.set('Sync ('+q.length+')','syncing');var ok=[];for(var i=0;i<q.length;i++){var it=q[i];if(it.retries>=Config.maxSyncRetries)continue;try{var r=false;if(it.entity==='cliente')r=await GoogleSheetsSync.syncSingleCliente(it.data);else if(it.entity==='os')r=await GoogleSheetsSync.syncSingleOS(it.data);else if(it.entity==='agendamento')r=await GoogleSheetsSync.syncSingleAgendamento(it.data);else if(it.entity==='usuario')r=await GoogleSheetsSync.syncUsuarios(it.data);else if(it.entity==='permissao')r=await GoogleSheetsSync.syncPermissoes(it.data);else if(it.entity==='jornada')r=await GoogleSheetsSync.syncJornada(it.data);if(r)ok.push(i);else it.retries++}catch(e){it.retries++}}var nq=q.filter(function(_,i){return ok.indexOf(i)===-1});localStorage.setItem(this.key,JSON.stringify(nq));if(!nq.length){this.clearQueue();SyncUI.set('OK','ok')}else{SyncUI.set('Fila: '+nq.length,'');this.scheduleProcess()}},
+  forceSync:async function(){if(!Auth.isAdmin()){showToast('Apenas admin',true);return}var b=$('btnSync');if(b){b.classList.add('btn-loading');b.disabled=true}try{await this.process();await GoogleSheetsSync.fetchFromSheet()}finally{if(b){b.classList.remove('btn-loading');b.disabled=!Auth.can('sincronizar')}}}
 };
 
 /* ==================== GOOGLE SHEETS SYNC ==================== */
 var GoogleSheetsSync={
   webAppUrl:'https://script.google.com/macros/s/AKfycby6h9mnAPbGfKmWKx7dsavyArLasttD6AASFImvCE8OMNGyJzbO08_AlLimSadRekUx/exec',
-  hasValidData:function(arr,req){if(!arr||!Array.isArray(arr)||!arr.length)return false;if(req)return arr.some(function(i){if(typeof i!=='object'||i===null)return false;var v=i[req];return v!==null&&v!==undefined&&String(v).trim()!==''});return arr.some(function(i){if(typeof i!=='object'||i===null)return false;return Object.values(i).some(function(v){if(v===null||v===undefined)return false;if(typeof v==='string'&&!v.trim())return false;if(Array.isArray(v)&&!v.length)return false;if(typeof v==='object'&&!Array.isArray(v)&&!Object.keys(v).length)return false;return true})})},
+  hasValidData:function(a,r){if(!a||!Array.isArray(a)||!a.length)return false;if(r)return a.some(function(i){if(typeof i!=='object'||i===null)return false;var v=i[r];return v!==null&&v!==undefined&&String(v).trim()!==''});return a.some(function(i){if(typeof i!=='object'||i===null)return false;return Object.values(i).some(function(v){if(v===null||v===undefined)return false;if(typeof v==='string'&&!v.trim())return false;if(Array.isArray(v)&&!v.length)return false;return true})})},
   hasValidPermissions:function(o){if(!o||typeof o!=='object'||Array.isArray(o))return false;return Object.keys(o).some(function(k){return o[k]===true})},
-  async postData(action,data){try{var r=await fetch(this.webAppUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:action,data:data}),redirect:'follow'});var t=await r.text();try{var j=JSON.parse(t);return j.success===true}catch(e){return false}}catch(e){return false}},
+  async postData(a,d){try{var r=await fetch(this.webAppUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:a,data:d}),redirect:'follow'});var t=await r.text();try{return JSON.parse(t).success===true}catch(e){return false}}catch(e){return false}},
   async syncSingleAgendamento(a){return await this.postData('syncAgendamento',a)},
   async syncPermissoes(p){return await this.postData('syncPermissoes',p)},
   async syncUsuarios(u){return await this.postData('syncUsuarios',u)},
   async syncSingleOS(o){return await this.postData('syncOS',o)},
   async syncSingleCliente(c){return await this.postData('syncCliente',c)},
   async syncJornada(j){return await this.postData('syncJornada',j)},
+  async fetchOnlineUsers(){try{var r=await fetch(this.webAppUrl+'?action=onlineUsers&_t='+Date.now());var d=await r.json();if(d.success&&Array.isArray(d.users)){State.onlineUsers=d.users;OnlineUsers.render();return true}return false}catch(e){return false}},
   async fetchFromSheet(){
-    var btn=$('btnDownload');if(btn){btn.classList.add('btn-loading');btn.disabled=true}
+    var b=$('btnDownload');if(b){b.classList.add('btn-loading');b.disabled=true}
     try{
       SyncUI.set('Baixando...','syncing');var response=await fetch(this.webAppUrl+'?_t='+Date.now());var data=await response.json();
-      if(!data.success)throw new Error(data.error||'Erro na planilha');
-      var mudancas=[],ignoradas=[];
-      if(this.hasValidData(data.clientes,'nome')){
-        var cv=data.clientes.filter(function(c){return(c.nome||'').trim()!==''});
-        if(cv.length>0){State.clients=cv.map(function(c){return{id:c.id||Date.now(),nome:(c.nome||'').trim(),cnpj:(c.cnpj||'').trim(),endereco:(c.endereco||'').trim(),cidade:(c.cidade||'').trim(),telefone:(c.telefone||'').trim(),whatsapp:(c.whatsapp||'').trim(),email:(c.email||'').trim(),responsavel_nome:(c.responsavel_nome||'').trim(),responsavel_telefone:(c.responsavel_telefone||'').trim(),equipamentos:function(){try{var e=c.equipamentos;if(typeof e==='string'){var p=JSON.parse(e);if(Array.isArray(p)&&p.length)return p.filter(function(q){return q.marca}).map(function(q){return{marca:(q.marca||'').trim(),modelo:(q.modelo||'').trim(),serie:(q.serie||'').trim(),qtd:q.qtd||1,combustivel:(q.combustivel||'').trim()}});return[]}if(Array.isArray(e))return e.filter(function(q){return q.marca})}catch(x){}return[]}()}});Storage.saveClients();mudancas.push('Clientes ('+State.clients.length+')')}else ignoradas.push('Clientes (vazios)')
-      }else ignoradas.push('Clientes (sem dados)');
-      if(this.hasValidData(data.os,'numeroos')){
-        var ov=data.os.filter(function(o){return(o.numeroos||'').trim()!==''});
-        if(ov.length>0){State.osHistory=ov.map(function(o){return{numeroOS:(o.numeroos||'').trim(),dataOS:normalizeDate(o.dataos||''),cliente:(o.cliente||'').trim(),status:(o.status||'abertura').toLowerCase().trim(),tipoChamado:(o.tipochamado||'normal').toLowerCase().trim(),horasTotais:o.horastotais||'0h',totalGeral:o.totalgeral||'00:00',descricaoServico:o.descricaoservico||'',pecasAplicadas:o.pecasaplicadas||'',pendencias:o.pendencias||'',relatoCliente:o.relatocliente||'',marca:o.marca||'',modelo:o.modelo||'',numSerie:o.numserie||'',horimetro:o.horimetro||'',combustivel:o.combustivel||'',whatsappCliente:o.whatsappcliente||'',cnpj:o.cnpj||'',cidadeCliente:o.cidadecliente||'',endereco:o.endereco||'',tecnico:o.tecnico||'MARLIFT',recebedor:o.recebedor||'',fotosBase64:function(){try{var f=o.fotosbase64;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),fotoHorimetro:o.fotohorimetro||null,fotosPendencias:function(){try{var f=o.fotospendencias;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),assinaturaTecnico:o.assinaturatecnico||'',assinaturaCliente:o.assinaturacliente||'',checklistData:function(){try{var c=o.checklistdata;if(typeof c==='string')return JSON.parse(c);if(typeof c==='object'&&c!==null&&!Array.isArray(c))return c}catch(e){}return{}}()}});Storage.saveOSHistory();mudancas.push('OS ('+State.osHistory.length+')')}else ignoradas.push('OS (vazios)')
-      }else ignoradas.push('OS (sem dados)');
-      if(this.hasValidData(data.agendamentos,'cliente')){
-        var av=data.agendamentos.filter(function(a){return(a.cliente||'').trim()!==''});
-        if(av.length>0){State.agendamentos=av.map(function(a){return{id:a.id||Date.now(),cliente:(a.cliente||'').trim(),equipamento:(a.equipamento||'').trim(),data:normalizeDate(a.data||''),horario:extractTimeFromDate(a.horario||''),tecnico:(a.tecnico||'').trim(),descricao:(a.descricao||'').trim(),status:(a.status||'pendente').toLowerCase().trim()}});Storage.saveAgendamentos();mudancas.push('Agendamentos ('+State.agendamentos.length+')')}else ignoradas.push('Agendamentos (vazios)')
-      }else ignoradas.push('Agendamentos (sem dados)');
-      if(this.hasValidPermissions(data.permissoes)){localStorage.setItem('marlift_permissoes_tecnico',JSON.stringify(data.permissoes));mudancas.push('Permissões')}else ignoradas.push('Permissões (sem dados)');
-      if(this.hasValidData(data.usuarios,'login')){
-        var uv=data.usuarios.filter(function(u){return(u.login||'').trim()!==''});
-        if(uv.length>0){Auth.saveUsers(uv);mudancas.push('Usuários ('+uv.length+')')}else ignoradas.push('Usuários (vazios)')
-      }else ignoradas.push('Usuários (sem dados)');
-      if(mudancas.length>0){Clientes.renderTable();Clientes.updateStats();Historico.render();Historico.updateStats();Agendamentos.atualizarLista();Agendamentos.atualizarSelectTecnicos();if(Permissoes.carregarNaInterface)Permissoes.carregarNaInterface();UserManager.render()}
-      var msg='';if(mudancas.length)msg='Sincronizado: '+mudancas.join(', ');if(ignoradas.length)msg+=(msg?'\n':'')+'Mantidos locais: '+ignoradas.join(', ');if(!msg)msg='Nenhuma alteração necessária';
-      showToast(msg);SyncUI.set('OK','ok')
+      if(!data.success)throw new Error(data.error||'Erro');
+      var mud=[],ign=[];
+      if(this.hasValidData(data.clientes,'nome')){var cv=data.clientes.filter(function(c){return(c.nome||'').trim()!==''});if(cv.length){State.clients=cv.map(function(c){return{id:c.id||Date.now(),nome:(c.nome||'').trim(),cnpj:(c.cnpj||'').trim(),endereco:(c.endereco||'').trim(),cidade:(c.cidade||'').trim(),telefone:(c.telefone||'').trim(),whatsapp:(c.whatsapp||'').trim(),email:(c.email||'').trim(),responsavel_nome:(c.responsavel_nome||'').trim(),responsavel_telefone:(c.responsavel_telefone||'').trim(),equipamentos:function(){try{var e=c.equipamentos;if(typeof e==='string'){var p=JSON.parse(e);if(Array.isArray(p)&&p.length)return p.filter(function(q){return q.marca}).map(function(q){return{marca:(q.marca||'').trim(),modelo:(q.modelo||'').trim(),serie:(q.serie||'').trim(),qtd:q.qtd||1,combustivel:(q.combustivel||'').trim()}});return[]}if(Array.isArray(e))return e.filter(function(q){return q.marca})}catch(x){}return[]}()}});Storage.saveClients();mud.push('Clientes ('+State.clients.length+')')}else ign.push('Clientes (vazios)')}else ign.push('Clientes (sem dados)');
+      if(this.hasValidData(data.os,'numeroos')){var ov=data.os.filter(function(o){return(o.numeroos||'').trim()!==''});if(ov.length){State.osHistory=ov.map(function(o){return{numeroOS:(o.numeroos||'').trim(),dataOS:normalizeDate(o.dataos||''),cliente:(o.cliente||'').trim(),status:(o.status||'abertura').toLowerCase().trim(),tipoChamado:(o.tipochamado||'normal').toLowerCase().trim(),horasTotais:o.horastotais||'0h',totalGeral:o.totalgeral||'00:00',descricaoServico:o.descricaoservico||'',pecasAplicadas:o.pecasaplicadas||'',pendencias:o.pendencias||'',relatoCliente:o.relatocliente||'',marca:o.marca||'',modelo:o.modelo||'',numSerie:o.numserie||'',horimetro:o.horimetro||'',combustivel:o.combustivel||'',whatsappCliente:o.whatsappcliente||'',cnpj:o.cnpj||'',cidadeCliente:o.cidadecliente||'',endereco:o.endereco||'',tecnico:o.tecnico||'MARLIFT',recebedor:o.recebedor||'',fotosBase64:function(){try{var f=o.fotosbase64;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),fotoHorimetro:o.fotohorimetro||null,fotosPendencias:function(){try{var f=o.fotospendencias;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),assinaturaTecnico:o.assinaturatecnico||'',assinaturaCliente:o.assinaturacliente||'',checklistData:function(){try{var c=o.checklistdata;if(typeof c==='string')return JSON.parse(c);if(typeof c==='object'&&c!==null&&!Array.isArray(c))return c}catch(e){}return{}}()}});Storage.saveOSHistory();mud.push('OS ('+State.osHistory.length+')')}else ign.push('OS (vazios)')}else ign.push('OS (sem dados)');
+      if(this.hasValidData(data.agendamentos,'cliente')){var av=data.agendamentos.filter(function(a){return(a.cliente||'').trim()!==''});if(av.length){State.agendamentos=av.map(function(a){return{id:a.id||Date.now(),cliente:(a.cliente||'').trim(),equipamento:(a.equipamento||'').trim(),data:normalizeDate(a.data||''),horario:extractTimeFromDate(a.horario||''),tecnico:(a.tecnico||'').trim(),descricao:(a.descricao||'').trim(),status:(a.status||'pendente').toLowerCase().trim()}});Storage.saveAgendamentos();mud.push('Agendamentos')}else ign.push('Agendamentos (vazios)')}else ign.push('Agendamentos (sem dados)');
+      if(this.hasValidPermissions(data.permissoes)){localStorage.setItem('marlift_permissoes_tecnico',JSON.stringify(data.permissoes));mud.push('Permissões')}else ign.push('Permissões (sem dados)');
+      if(this.hasValidData(data.usuarios,'login')){var uv=data.usuarios.filter(function(u){return(u.login||'').trim()!==''});if(uv.length){Auth.saveUsers(uv);mud.push('Usuários')}else ign.push('Usuários (vazios)')}else ign.push('Usuários (sem dados)');
+      /* Usuários online vêm no fetch principal */
+      if(data.onlineUsers&&Array.isArray(data.onlineUsers)){State.onlineUsers=data.onlineUsers;OnlineUsers.render()}
+      if(mud.length>0){Clientes.renderTable();Clientes.updateStats();Historico.render();Historico.updateStats();Agendamentos.atualizarLista();Agendamentos.atualizarSelectTecnicos();if(Permissoes.carregarNaInterface)Permissoes.carregarNaInterface();UserManager.render()}
+      var msg='';if(mud.length)msg='Sync: '+mud.join(', ');if(ign.length)msg+=(msg?'\n':'')+'Locais: '+ign.join(', ');if(!msg)msg='Nenhuma alteração';showToast(msg);SyncUI.set('OK','ok')
     }catch(err){console.error('[SYNC]',err);SyncUI.set('Erro','error');showToast('Erro: '+err.message,true)}
-    finally{if(btn){btn.classList.remove('btn-loading');btn.disabled=!Auth.can('baixar_dados')}}
+    finally{if(b){b.classList.remove('btn-loading');b.disabled=!Auth.can('baixar_dados')}}
   }
 };
 
-/* ==================== HEARTBEAT EFICIENTE ==================== */
-var Heartbeat={
+/* ==================== ONLINE USERS (WIDGET) ==================== */
+var OnlineUsers={
   _timer:null,
-  _lastPing:0,
-  _intervalMs:5*60*1000,
-  _minIntervalMs:60*1000,
-  _visiblePing:60*1000,
-  _hiddenPing:10*60*1000,
-  _pending:false,
-  _status:'offline',
+  _open:false,
+
+  start:function(){
+    this.fetch();
+    var self=this;
+    this._timer=setInterval(function(){self.fetch()},45*1000);
+    document.addEventListener('click',function(e){
+      var w=$('onlineWidget');if(w&&!w.contains(e.target)){self.closeDropdown()}
+    })
+  },
+
+  stop:function(){if(this._timer){clearInterval(this._timer);this._timer=null}},
+
+  toggleDropdown:function(){
+    this._open=!this._open;
+    var dd=$('onlineDropdown');
+    if(dd)dd.classList.toggle('open',this._open);
+    if(this._open)this.fetch()
+  },
+
+  closeDropdown:function(){
+    this._open=false;
+    var dd=$('onlineDropdown');if(dd)dd.classList.remove('open')
+  },
+
+  async fetch(){
+    var btn=$('onlineRefreshBtn');if(btn)btn.classList.add('spinning');
+    var ok=await GoogleSheetsSync.fetchOnlineUsers();
+    if(btn)setTimeout(function(){btn.classList.remove('spinning')},600);
+    if(!ok)this.renderFallback()
+  },
+
+  renderFallback:function(){
+    /* Fallback: usa lista de usuários + heartbeat local */
+    var users=Auth.getUsers(),now=Date.now(),threshold=3*60*1000;
+    var hbData=localStorage.getItem('marlift_heartbeats');var hbs=hbData?JSON.parse(hbData):{};
+    State.onlineUsers=users.map(function(u){
+      var last=hbs[u.login]?hbs[u.login].ts:0;
+      return{login:u.login,nome:u.nome,nivel:u.nivel,lastSeen:last,isOnline:(now-last)<threshold}
+    });
+    this.render()
+  },
+
+  render:function(){
+    var users=State.onlineUsers||[],count=users.filter(function(u){return u.isOnline}).length;
+    var ce=$('onlineCount');if(ce)ce.textContent=count;
+    var list=$('onlineUserList');if(!list)return;
+    if(!users.length){list.innerHTML='<div class="online-dropdown-empty"><i class="fas fa-user-slash" style="font-size:20px;margin-bottom:6px;display:block;opacity:.3"></i>Nenhum dado disponível</div>';return}
+    /* Ordenar: online primeiro, depois por último visto */
+    users.sort(function(a,b){if(a.isOnline&&!b.isOnline)return-1;if(!a.isOnline&&b.isOnline)return 1;return(b.lastSeen||0)-(a.lastSeen||0)});
+    var h='';var now=Date.now();
+    users.forEach(function(u){
+      var on=u.isOnline;var lastTxt='';
+      if(on){lastTxt='Agora'}
+      else if(u.lastSeen){var diff=Math.floor((now-u.lastSeen)/60000);if(diff<1)lastTxt='Agora';else if(diff<60)lastTxt=diff+'min atrás';else if(diff<1440)lastTxt=Math.floor(diff/60)+'h atrás';else lastTxt=Math.floor(diff/1440)+'d atrás'}
+      else{lastTxt='Nunca'}
+      var nvl=u.nivel||'visualizador';
+      var avClass=nvl==='admin'?'admin-avatar':(nvl==='tecnico'?'tecnico-avatar':'visualizador-avatar');
+      var initials=(u.nome||u.login||'?').split(' ').map(function(w){return w[0]}).join('').substring(0,2).toUpperCase();
+      var nvlLabel=nvl==='admin'?'Admin':(nvl==='tecnico'?'Técnico':'Visualizador');
+      var isMe=Auth.currentUser&&Auth.currentUser.login===u.login;
+      h+='<div class="online-user-row">';
+      h+='<div class="online-user-avatar '+avClass+'">'+esc(initials)+'</div>';
+      h+='<div class="online-user-info">';
+      h+='<div class="online-user-name">'+esc(u.nome||u.login)+(isMe?' <span style="font-size:10px;color:var(--accent);font-weight:400">(você)</span>':'')+'</div>';
+      h+='<div class="online-user-meta"><span class="online-user-status-dot '+(on?'is-online':'is-offline')+'"></span> '+esc(lastTxt)+' · '+esc(nvlLabel)+'</div>';
+      h+='</div></div>'
+    });
+    list.innerHTML=h
+  }
+};
+
+/* ==================== HEARTBEAT (com registro local para fallback) ==================== */
+var Heartbeat={
+  _timer:null,_lastPing:0,_pending:false,_status:'offline',
 
   start:function(){
     if(!Auth.can('heartbeat'))return;
     this._status='online';this.updateDot();
-    var self=this;
-    this._doPing();
+    var self=this;this._doPing();
     this._timer=setInterval(function(){self._tick()},30*1000);
     document.addEventListener('visibilitychange',function(){if(!document.hidden)self._tick()});
+    OnlineUsers.start()
   },
 
   stop:function(){
     if(this._timer){clearInterval(this._timer);this._timer=null}
-    this._status='offline';this.updateDot();
+    this._status='offline';this.updateDot();OnlineUsers.stop();
     if(Auth.currentUser){
+      this._removeLocal(Auth.currentUser.login);
       GoogleSheetsSync.postData('heartbeat',{login:Auth.currentUser.login,nome:Auth.currentUser.nome,nivel:Auth.currentUser.nivel,status:'offline'}).catch(function(){});
     }
   },
 
-  _tick:function(){
-    var now=Date.now(),elapsed=now-this._lastPing,hidden=document.hidden;
-    var threshold=hidden?this._hiddenPing:this._visiblePing;
-    if(elapsed>=threshold&&!this._pending)this._doPing()
-  },
+  _tick:function(){var now=Date.now(),elapsed=now-this._lastPing,hidden=document.hidden;if(elapsed>=(hidden?10*60*1000:60*1000)&&!this._pending)this._doPing()},
 
   _doPing:function(){
     if(this._pending||!Auth.currentUser)return;
     this._pending=true;this._lastPing=Date.now();
     var self=this,u=Auth.currentUser;
+    /* Salvar localmente como fallback */
+    this._saveLocal(u.login,u.nome,u.nivel);
     GoogleSheetsSync.postData('heartbeat',{login:u.login,nome:u.nome,nivel:u.nivel,status:'online'})
       .then(function(ok){self._status=ok?'online':'offline'})
       .catch(function(){self._status='offline'})
-      .finally(function(){self._pending=false;self.updateDot()})
+      .finally(function(){self._pending=false;self.updateDot();OnlineUsers.renderFallback()})
   },
 
-  updateDot:function(){var d=$('hbDot');if(!d)return;d.className='hb-dot '+this._status}
+  _saveLocal:function(login,nome,nivel){
+    try{var d=localStorage.getItem('marlift_heartbeats');var o=d?JSON.parse(d):{};o[login]={nome:nome,nivel:nivel,ts:Date.now()};/* Limpar entradas > 24h */var cutoff=Date.now()-24*60*60*1000;for(var k in o){if(o[k].ts<cutoff)delete o[k]}localStorage.setItem('marlift_heartbeats',JSON.stringify(o))}catch(e){}
+  },
+
+  _removeLocal:function(login){try{var d=localStorage.getItem('marlift_heartbeats');var o=d?JSON.parse(d):{};delete o[login];localStorage.setItem('marlift_heartbeats',JSON.stringify(o))}catch(e){}},
+
+  updateDot:function(){var d=$('hbDot');if(d)d.className='hb-dot '+this._status}
 };
 
 /* ==================== AUTH ==================== */
@@ -569,62 +674,44 @@ var Auth={
   resetInactivityTimer:function(){if(this.inactivityTimer)clearTimeout(this.inactivityTimer);if(this.currentUser)this.inactivityTimer=setTimeout(function(){Auth.logout('inactivity')},Config.inactivityTimeout)},
   getUsers:function(){var u=localStorage.getItem('marlift_users');if(u)return JSON.parse(u);var d=[{id:1,nome:'Administrador',login:'admin',senha:'admin123',nivel:'admin'},{id:2,nome:'Técnico Principal',login:'tecnico',senha:'123456',nivel:'tecnico'}];localStorage.setItem('marlift_users',JSON.stringify(d));return d},
   saveUsers:function(u){localStorage.setItem('marlift_users',JSON.stringify(u))},
-  login:function(){var login=$('loginUsername').value.trim(),senha=$('loginPassword').value,errDiv=$('loginErrorMessage');if(errDiv){errDiv.style.display='none';errDiv.innerHTML=''}if(!login||!senha){if(errDiv){errDiv.innerHTML='Preencha usuário e senha';errDiv.style.display='block'}showToast('Preencha usuário e senha',true);return}var users=this.getUsers(),user=users.find(function(u){return u.login===login&&u.senha===senha});if(!user){if(errDiv){errDiv.innerHTML='Usuário ou senha inválidos!';errDiv.style.display='block'}showToast('Credenciais inválidas!',true);$('loginPassword').value='';return}this.currentUser=user;localStorage.setItem('marlift_current_user',JSON.stringify(user));$('loginScreen').style.display='none';$('appContainer').style.display='block';$('currentUserName').innerHTML=esc(user.nome);this.updatePermissions();showToast('Bem-vindo, '+user.nome+'!');this.startInactivityTimer();App.init();if(user.nivel==='tecnico'){setTimeout(function(){Jornada.carregar();var tb=document.querySelector('.tab-button[data-tab="tab-jornada"]');if(tb)tb.click()},500)}},
-  logout:function(reason){if(this.currentUser&&reason==='inactivity')showToast('Sessão expirada por inatividade',true);if(this.inactivityTimer)clearTimeout(this.inactivityTimer);Heartbeat.stop();Timer.cleanup();this.currentUser=null;localStorage.removeItem('marlift_current_user');$('loginScreen').style.display='flex';$('appContainer').style.display='none';SyncUI.set('Offline','offline')},
-  startInactivityTimer:function(){var self=this;['mousedown','mousemove','keypress','scroll','touchstart'].forEach(function(ev){document.addEventListener(ev,function(){self.resetInactivityTimer()})});this.resetInactivityTimer()},
-  recoverPassword:function(){var login=prompt('Digite seu login:');if(!login)return;var u=this.getUsers().find(function(x){return x.login===login});if(!u){alert('Usuário não encontrado!');return}alert('Sua senha: '+u.senha)},
+  login:function(){var login=$('loginUsername').value.trim(),senha=$('loginPassword').value,errDiv=$('loginErrorMessage');if(errDiv){errDiv.style.display='none';errDiv.innerHTML=''}if(!login||!senha){if(errDiv){errDiv.innerHTML='Preencha usuário e senha';errDiv.style.display='block'}return}var users=this.getUsers(),user=users.find(function(u){return u.login===login&&u.senha===senha});if(!user){if(errDiv){errDiv.innerHTML='Credenciais inválidas!';errDiv.style.display='block'}$('loginPassword').value='';return}this.currentUser=user;localStorage.setItem('marlift_current_user',JSON.stringify(user));$('loginScreen').style.display='none';$('appContainer').style.display='block';$('currentUserName').innerHTML=esc(user.nome);this.updatePermissions();showToast('Bem-vindo, '+user.nome+'!');this.startInactivityTimer();App.init();if(user.nivel==='tecnico'){setTimeout(function(){Jornada.carregar();var tb=document.querySelector('.tab-button[data-tab="tab-jornada"]');if(tb)tb.click()},500)}},
+  logout:function(r){if(this.currentUser&&r==='inactivity')showToast('Sessão expirada',true);if(this.inactivityTimer)clearTimeout(this.inactivityTimer);Heartbeat.stop();Timer.cleanup();this.currentUser=null;localStorage.removeItem('marlift_current_user');$('loginScreen').style.display='flex';$('appContainer').style.display='none';SyncUI.set('Offline','offline')},
+  startInactivityTimer:function(){var self=this;['mousedown','mousemove','keypress','scroll','touchstart'].forEach(function(e){document.addEventListener(e,function(){self.resetInactivityTimer()})});this.resetInactivityTimer()},
+  recoverPassword:function(){var l=prompt('Login:');if(!l)return;var u=this.getUsers().find(function(x){return x.login===l});if(!u){alert('Não encontrado');return}alert('Senha: '+u.senha)},
   checkSession:function(){var s=localStorage.getItem('marlift_current_user');if(s){this.currentUser=JSON.parse(s);$('loginScreen').style.display='none';$('appContainer').style.display='block';$('currentUserName').innerHTML=esc(this.currentUser.nome);this.updatePermissions();this.startInactivityTimer();return true}return false},
-  updatePermissions:function(){if(!this.currentUser)return;var a=this.isAdmin(),t=this.isTecnico();var badge=$('currentUserNivel');if(badge){if(a){badge.textContent='ADMIN';badge.style.background='rgba(249,115,22,.2)';badge.style.color='#fb923c'}else if(t){badge.textContent='TÉCNICO';badge.style.background='rgba(59,130,246,.2)';badge.style.color='#60a5fa'}else{badge.textContent='VISUALIZADOR';badge.style.background='rgba(107,114,128,.2)';badge.style.color='#9ca3af'}}var ta=$('tabAgendamentosBtn'),tj=$('tabJornadaBtn'),tp=$('tabPermissoesBtn'),tu=$('tabUsuariosBtn');if(ta)ta.style.display=this.can('agendamentos_visualizar')?'inline-flex':'none';if(tj)tj.style.display=this.can('jornada_registrar')?'inline-flex':'none';if(tp)tp.style.display=this.can('permissoes_editar')?'inline-flex':'none';if(tu)tu.style.display=this.can('usuarios_visualizar')?'inline-flex':'none';var ids={btnNovaOS:'criar_os',btnSync:'sincronizar',btnDownload:'baixar_dados'};for(var k in ids){var el=$(k);if(el){var p=ids[k];el.disabled=!this.can(p);el.title=this.can(p)?'':'Sem permissão'}}var limparFila=$('btnLimparFila');if(limparFila)limparFila.style.display=this.can('limpar_fila')?'inline-flex':'none';var statusBtns={btnAbrirOS:'criar_os',btnIniciarExecucao:'mudar_status',btnFinalizar:'mudar_status',btnFecharOS:'mudar_status',btnAprovar:'mudar_status',btnSalvarProgresso:'salvar_os'};for(var k2 in statusBtns){var el2=$(k2);if(el2){var p2=statusBtns[k2];el2.disabled=!this.can(p2);el2.style.display=this.can(p2)?'inline-flex':'none'}}var formCard=$('clienteFormCard');if(formCard)formCard.style.display=this.can('clientes_cadastrar')?'block':'none';var histBtns={btnExportarCSVHistorico:'historico_exportar_csv',btnImportarCSVHistorico:'historico_importar_csv',btnLimparHistorico:'historico_limpar'};for(var k3 in histBtns){var el3=$(k3);if(el3)el3.style.display=this.can(histBtns[k3])?'inline-flex':'none'}Clientes.renderTable();Historico.render()}
+  updatePermissions:function(){if(!this.currentUser)return;var a=this.isAdmin(),t=this.isTecnico(),badge=$('currentUserNivel');if(badge){if(a){badge.textContent='ADMIN';badge.style.background='rgba(249,115,22,.2)';badge.style.color='#fb923c'}else if(t){badge.textContent='TÉCNICO';badge.style.background='rgba(59,130,246,.2)';badge.style.color='#60a5fa'}else{badge.textContent='VISUALIZADOR';badge.style.background='rgba(107,114,128,.2)';badge.style.color='#9ca3af'}}var tabs={tabAgendamentosBtn:'agendamentos_visualizar',tabJornadaBtn:'jornada_registrar',tabPermissoesBtn:'permissoes_editar',tabUsuariosBtn:'usuarios_visualizar'};for(var k in tabs){var el=$(k);if(el)el.style.display=this.can(tabs[k])?'inline-flex':'none'}var btns={btnNovaOS:'criar_os',btnSync:'sincronizar',btnDownload:'baixar_dados'};for(var k2 in btns){var e2=$(k2);if(e2){e2.disabled=!this.can(btns[k2]);e2.title=this.can(btns[k2])?'':'Sem permissão'}}var lf=$('btnLimparFila');if(lf)lf.style.display=this.can('limpar_fila')?'inline-flex':'none';var sb={btnAbrirOS:'criar_os',btnIniciarExecucao:'mudar_status',btnFinalizar:'mudar_status',btnFecharOS:'mudar_status',btnAprovar:'mudar_status',btnSalvarProgresso:'salvar_os'};for(var k3 in sb){var e3=$(k3);if(e3){e3.disabled=!this.can(sb[k3]);e3.style.display=this.can(sb[k3])?'inline-flex':'none'}}var fc=$('clienteFormCard');if(fc)fc.style.display=this.can('clientes_cadastrar')?'block':'none';var hb={btnExportarCSVHistorico:'historico_exportar_csv',btnImportarCSVHistorico:'historico_importar_csv',btnLimparHistorico:'historico_limpar'};for(var k4 in hb){var e4=$(k4);if(e4)e4.style.display=this.can(hb[k4])?'inline-flex':'none'}Clientes.renderTable();Historico.render()}
 };
 
-/* ==================== UTILITÁRIOS ==================== */
-function $(id){return document.getElementById(id)}
-function showToast(msg,isErr){var t=$('toastCenter');if(!t)return;var m=$('toastMessage');if(m)m.textContent=msg;t.style.borderColor=isErr?'var(--danger)':'var(--success)';t.querySelector('i').className=isErr?'fas fa-exclamation-circle text-red-500 text-xl':'fas fa-check-circle text-green-500 text-xl';t.classList.remove('show');void t.offsetWidth;t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(function(){t.classList.remove('show')},2800)}
-var Utils={
-  generateOSNumber:function(){State.osCounter=Storage.loadCounter();State.osCounter++;Storage.saveCounter();var n=new Date(),yy=n.getFullYear().toString().slice(-2),mm=String(n.getMonth()+1).padStart(2,'0');return'OS-'+yy+mm+'-'+String(State.osCounter).padStart(4,'0')},
-  setDefaultDate:function(){var i=$('dataOS');if(i&&!i.value)i.value=dataHojeISO()},
-  getVal:function(id){var e=$(id);return e?e.value:''},
-  setVal:function(id,v){var e=$(id);if(e)e.value=v||''},
-  formatStatus:function(s){return{abertura:'EM ABERTURA',execucao:'EM EXECUÇÃO',finalizacao:'FINALIZANDO',fechada:'FECHADA',aprovada:'APROVADA'}[s]||(s||'').toUpperCase()},
-  timeDiff:function(s,e){if(!s||!e)return 0;var sp=s.split(':').map(Number),ep=e.split(':').map(Number),d=(ep[0]*60+ep[1])-(sp[0]*60+sp[1]);return d<0?d+1440:d},
-  timeToMinutes:function(t){if(!t)return 0;if(t.indexOf('h')!==-1)return parseInt(t)*60;var p=t.split(':');return parseInt(p[0])*60+parseInt(p[1]||0)},
-  validarHorimetro:function(h){if(!h)return false;var num=parseInt(h.replace('h',''));return !isNaN(num)&&num>0&&num<=99999}
-};
-
-/* ==================== TIMER (corrigido para background tab) ==================== */
+/* ==================== TIMER ==================== */
 var Timer={interval:null,running:false,paused:false,
   control:function(a){if(!Auth.can('timer_controle')&&a!=='stop'){showToast('Sem permissão',true);return}if(a==='start')this.start();else if(a==='pause')this.pause();else if(a==='stop')this.stop()},
   start:function(){if(this.running&&!this.paused)return;if(this.paused){if(!Utils.getVal('horaAlmocoRetorno'))Utils.setVal('horaAlmocoRetorno',new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}));this.paused=false;this.running=true;State.timerStartRealTime=Date.now()}else{this.running=true;this.paused=false;State.timerPausedAccum=0;State.timerStartRealTime=Date.now();if(!Utils.getVal('horaInicio'))Utils.setVal('horaInicio',new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}))}if(this.interval)clearInterval(this.interval);var self=this;this.interval=setInterval(function(){self.updateDisplay()},1000)},
   pause:function(){if(!this.running||this.paused)return;this.paused=true;State.timerPausedAccum+=(Date.now()-State.timerStartRealTime);if(!Utils.getVal('horaAlmocoSaida'))Utils.setVal('horaAlmocoSaida',new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}))},
   stop:function(){if(!this.running)return;if(!this.paused)State.timerPausedAccum+=(Date.now()-State.timerStartRealTime);clearInterval(this.interval);this.interval=null;this.running=false;this.paused=false;if(!Utils.getVal('horaTermino'))Utils.setVal('horaTermino',new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}));Horas.calcular()},
-  getElapsedSeconds:function(){var total=State.timerPausedAccum;if(this.running&&!this.paused)total+=(Date.now()-State.timerStartRealTime);return Math.floor(total/1000)},
+  getElapsedSeconds:function(){var t=State.timerPausedAccum;if(this.running&&!this.paused)t+=(Date.now()-State.timerStartRealTime);return Math.floor(t/1000)},
   reset:function(){State.timerPausedAccum=0;State.timerStartRealTime=0;var d=$('timerDisplay');if(d)d.textContent='00:00:00'},
-  updateDisplay:function(){var s=this.getElapsedSeconds(),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60,d=$('timerDisplay');if(d)d.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')},
+  updateDisplay:function(){var s=this.getElapsedSeconds(),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60,d=$('timerDisplay');if(d)d.textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sc).padStart(2,'0')},
   cleanup:function(){if(this.interval){clearInterval(this.interval);this.interval=null}}
 };
 
 /* ==================== HORAS ==================== */
-var Horas={
-  calcular:function(){var i=Utils.getVal('horaInicio'),t=Utils.getVal('horaTermino');if(!i||!t)return 0;var total=Utils.timeDiff(i,t),sa=Utils.getVal('horaAlmocoSaida'),re=Utils.getVal('horaAlmocoRetorno');if(sa&&re)total-=Utils.timeDiff(sa,re);var h=Math.max(1,Math.ceil(total/60));Utils.setVal('horasTotais',h+'h');this.updateTotal();return h},
-  updateTotal:function(){var hs=Utils.getVal('horasTotais'),min=0;if(hs){var m=hs.match(/(\d+)h/);if(m)min=parseInt(m[1])*60}var ex=Utils.timeToMinutes(Utils.getVal('horasExtras')),nt=Utils.timeToMinutes(Utils.getVal('adicionalNoturno')),tot=min+ex+nt,h=Math.floor(tot/60),m=tot%60;Utils.setVal('totalGeral',String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'))},
-  initListeners:function(){var self=this;['horaInicio','horaTermino','horaAlmocoSaida','horaAlmocoRetorno'].forEach(function(id){var el=$(id);if(el)el.addEventListener('change',function(){self.calcular()})});var ex=$('horasExtras');if(ex)ex.addEventListener('input',function(){self.updateTotal()});var nt=$('adicionalNoturno');if(nt)nt.addEventListener('input',function(){self.updateTotal()})}
-};
+var Horas={calcular:function(){var i=Utils.getVal('horaInicio'),t=Utils.getVal('horaTermino');if(!i||!t)return 0;var total=Utils.timeDiff(i,t),sa=Utils.getVal('horaAlmocoSaida'),re=Utils.getVal('horaAlmocoRetorno');if(sa&&re)total-=Utils.timeDiff(sa,re);var h=Math.max(1,Math.ceil(total/60));Utils.setVal('horasTotais',h+'h');this.updateTotal();return h},updateTotal:function(){var hs=Utils.getVal('horasTotais'),min=0;if(hs){var m=hs.match(/(\d+)h/);if(m)min=parseInt(m[1])*60}var ex=Utils.timeToMinutes(Utils.getVal('horasExtras')),nt=Utils.timeToMinutes(Utils.getVal('adicionalNoturno')),tot=min+ex+nt,h=Math.floor(tot/60),m=tot%60;Utils.setVal('totalGeral',String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'))},initListeners:function(){var self=this;['horaInicio','horaTermino','horaAlmocoSaida','horaAlmocoRetorno'].forEach(function(id){var el=$(id);if(el)el.addEventListener('change',function(){self.calcular()})});['horasExtras','adicionalNoturno'].forEach(function(id){var el=$(id);if(el)el.addEventListener('input',function(){self.updateTotal()})})}};
 
-/* ==================== SIGNATURE (corrigido para tab oculta) ==================== */
+/* ==================== SIGNATURE ==================== */
 var Signature={canvases:{},drawing:{tec:false,cli:false},
-  init:function(){this.canvases.tec=$('sigTecnicoCanvas');this.canvases.cli=$('sigClienteCanvas');if(!Auth.can('assinatura_tecnico')){var cv=this.canvases.tec;if(cv)cv.style.pointerEvents='none';var lb=cv&&cv.parentElement;if(lb)lb.style.opacity='.5'}if(!Auth.can('assinatura_cliente')){var cv2=this.canvases.cli;if(cv2)cv2.style.pointerEvents='none';var lb2=cv2&&cv2.parentElement;if(lb2)lb2.style.opacity='.5'}var self=this;this.clear('tec');this.clear('cli');this.setupCanvas('tec');this.setupCanvas('cli')},
-  _ensureSize:function(w){var cv=this.canvases[w];if(!cv)return false;var pw=cv.parentElement;if(!pw||pw.offsetWidth===0)return false;var nw=pw.offsetWidth,nh=140;if(cv.width!==nw||cv.height!==nh){cv.width=nw;cv.height=nh;this._bindEvents(w);this.clear(w)}return true},
+  init:function(){this.canvases.tec=$('sigTecnicoCanvas');this.canvases.cli=$('sigClienteCanvas');if(!Auth.can('assinatura_tecnico')){var cv=this.canvases.tec;if(cv)cv.style.pointerEvents='none'}if(!Auth.can('assinatura_cliente')){var cv2=this.canvases.cli;if(cv2)cv2.style.pointerEvents='none'}this.clear('tec');this.clear('cli');this.setupCanvas('tec');this.setupCanvas('cli')},
+  _ensureSize:function(w){var cv=this.canvases[w];if(!cv)return false;var pw=cv.parentElement;if(!pw||pw.offsetWidth===0)return false;var nw=pw.offsetWidth,nh=140;if(cv.width!==nw||cv.height!==nh){cv.width=nw;cv.height=nh;cv._bound=false;this.clear(w)}return true},
   setupCanvas:function(w){this._ensureSize(w)},
-  _bindEvents:function(w){var self=this,cv=this.canvases[w];if(!cv)return;if(cv._bound)return;cv._bound=true;var cx=cv.getContext('2d');cx.strokeStyle='#1a1a1a';cx.lineWidth=2;cx.lineCap='round';cx.lineJoin='round';var gc=function(e){var r=cv.getBoundingClientRect(),sx=cv.width/r.width,sy=cv.height/r.height,cx2,cy2;if(e.touches){cx2=e.touches[0].clientX;cy2=e.touches[0].clientY}else{cx2=e.clientX;cy2=e.clientY}return{x:Math.max(0,Math.min((cx2-r.left)*sx,cv.width)),y:Math.max(0,Math.min((cy2-r.top)*sy,cv.height))}};var draw=function(e){if(!self.drawing[w])return;e.preventDefault();var c=gc(e);cx.lineTo(c.x,c.y);cx.stroke();cx.beginPath();cx.moveTo(c.x,c.y)};var start=function(e){if(!self._ensureSize(w)){showToast('Aguarde o canvas carregar',true);return}e.preventDefault();self.drawing[w]=true;cx=cv.getContext('2d');cx.strokeStyle='#1a1a1a';cx.lineWidth=2;cx.lineCap='round';cx.lineJoin='round';var c=gc(e);cx.beginPath();cx.moveTo(c.x,c.y)};var stop=function(){self.drawing[w]=false;cx.beginPath()};cv.addEventListener('mousedown',start);cv.addEventListener('mousemove',draw);cv.addEventListener('mouseup',stop);cv.addEventListener('mouseleave',stop);cv.addEventListener('touchstart',start,{passive:false});cv.addEventListener('touchmove',draw,{passive:false});cv.addEventListener('touchend',stop)},
-  clear:function(w){var cv=this.canvases[w];if(!cv)return;if(!this._ensureSize(w))return;var cx=cv.getContext('2d');cx.clearRect(0,0,cv.width,cv.height);cx.fillStyle='#ffffff';cx.fillRect(0,0,cv.width,cv.height);Utils.setVal(w==='tec'?'assinaturaTecnicoData':'assinaturaClienteData','')},
-  save:function(w){if(w==='tec'&&!Auth.can('assinatura_tecnico')){showToast('Sem permissão',true);return}if(w==='cli'&&!Auth.can('assinatura_cliente')){showToast('Sem permissão',true);return}if(!this._ensureSize(w)){showToast('Canvas não disponível',true);return}var cv=this.canvases[w];Utils.setVal(w==='tec'?'assinaturaTecnicoData':'assinaturaClienteData',cv.toDataURL('image/png'));showToast('Assinatura salva');State.hasUnsavedChanges=true},
-  loadFromData:function(w,url){if(!url)return;var self=this;var tries=0;var attempt=function(){if(self._ensureSize(w)){var cv=self.canvases[w];var cx=cv.getContext('2d'),img=new Image();img.onload=function(){cx.clearRect(0,0,cv.width,cv.height);cx.drawImage(img,0,0,cv.width,cv.height);Utils.setVal(w==='tec'?'assinaturaTecnicoData':'assinaturaClienteData',url)};img.src=url}else if(tries<10){tries++;setTimeout(attempt,200)}};attempt()}
+  _bindEvents:function(w){var self=this,cv=this.canvases[w];if(!cv||cv._bound)return;cv._bound=true;var cx=cv.getContext('2d');cx.strokeStyle='#1a1a1a';cx.lineWidth=2;cx.lineCap='round';cx.lineJoin='round';var gc=function(e){var r=cv.getBoundingClientRect(),sx=cv.width/r.width,sy=cv.height/r.height,x,y;if(e.touches){x=e.touches[0].clientX;y=e.touches[0].clientY}else{x=e.clientX;y=e.clientY}return{x:Math.max(0,Math.min((x-r.left)*sx,cv.width)),y:Math.max(0,Math.min((y-r.top)*sy,cv.height))}};cv.onmousedown=cv.ontouchstart=function(e){e.preventDefault();if(!self._ensureSize(w))return;self.drawing[w]=true;cx=cv.getContext('2d');cx.strokeStyle='#1a1a1a';cx.lineWidth=2;cx.lineCap='round';cx.lineJoin='round';var p=gc(e);cx.beginPath();cx.moveTo(p.x,p.y)};cv.onmousemove=cv.ontouchmove=function(e){if(!self.drawing[w])return;e.preventDefault();var p=gc(e);cx.lineTo(p.x,p.y);cx.stroke();cx.beginPath();cx.moveTo(p.x,p.y)};cv.onmouseup=cv.onmouseleave=cv.ontouchend=function(){self.drawing[w]=false;cx.beginPath()}},
+  clear:function(w){var cv=this.canvases[w];if(!cv||!this._ensureSize(w))return;var cx=cv.getContext('2d');cx.clearRect(0,0,cv.width,cv.height);cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);Utils.setVal(w==='tec'?'assinaturaTecnicoData':'assinaturaClienteData','')},
+  save:function(w){if(w==='tec'&&!Auth.can('assinatura_tecnico')||w==='cli'&&!Auth.can('assinatura_cliente')){showToast('Sem permissão',true);return}if(!this._ensureSize(w)){showToast('Canvas não disponível',true);return}Utils.setVal(w==='tec'?'assinaturaTecnicoData':'assinaturaClienteData',this.canvases[w].toDataURL('image/png'));showToast('Assinatura salva');State.hasUnsavedChanges=true},
+  loadFromData:function(w,url){if(!url)return;var self=this,tries=0;(function attempt(){if(self._ensureSize(w)){var cv=self.canvases[w],cx=cv.getContext('2d'),img=new Image();img.onload=function(){cx.clearRect(0,0,cv.width,cv.height);cx.drawImage(img,0,0,cv.width,cv.height);Utils.setVal(w==='tec'?'assinaturaTecnicoData':'assinaturaClienteData',url)};img.src=url}else if(tries<10){tries++;setTimeout(attempt,200)}})()}
 };
 
 /* ==================== CHECKLIST ==================== */
 var Checklist={total:0,checked:0,
-  render:function(){var c=$('checklistSections');if(!c)return;c.innerHTML='';this.total=0;var self=this,canFill=Auth.can('checklist_preencher');Config.checklist.forEach(function(sec){self.total+=sec.items.length;var ih=sec.items.map(function(it){var disabled=canFill?'':'disabled';var cursor=canFill?'cursor-pointer':'cursor-not-allowed opacity-60';return'<div class="checklist-item"><label class="'+cursor+'"><input type="checkbox" data-check="true" id="'+it.id+'" onchange="Checklist.updateProgress()" '+disabled+'><span class="text-sm">'+esc(it.label)+'</span></label><select class="form-input w-24 text-xs" id="'+it.id+'_status" '+disabled+'><option value="ok">OK</option><option value="atencao">Atenção</option><option value="critico">Crítico</option><option value="na">N/A</option></select></div>'}).join('');var btnStyle=canFill?'':'style="display:none"';var d=document.createElement('div');d.className='checklist-card p-4 md:p-5 mb-4';d.innerHTML='<div class="flex justify-between items-center mb-3 flex-wrap"><h3 class="font-display text-xl">'+esc(sec.title)+'</h3><button type="button" class="btn btn-secondary text-xs" onclick="Checklist.selectAll(\''+sec.id+'\')" '+btnStyle+'><i class="fas fa-check-double"></i> Selecionar Todos</button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-2">'+ih+'</div>';c.appendChild(d)});this.updateProgress()},
-  selectAll:function(sid){if(!Auth.can('checklist_preencher')){showToast('Sem permissão',true);return}var sec=Config.checklist.find(function(s){return s.id===sid});if(sec)sec.items.forEach(function(it){var cb=$(it.id);if(cb)cb.checked=true});this.updateProgress()},
+  render:function(){var c=$('checklistSections');if(!c)return;c.innerHTML='';this.total=0;var self=this,cf=Auth.can('checklist_preencher');Config.checklist.forEach(function(sec){self.total+=sec.items.length;var ih=sec.items.map(function(it){return'<div class="checklist-item"><label class="'+(cf?'cursor-pointer':'cursor-not-allowed opacity-60')+'"><input type="checkbox" data-check="true" id="'+it.id+'" onchange="Checklist.updateProgress()" '+(cf?'':'disabled')+'><span class="text-sm">'+esc(it.label)+'</span></label><select class="form-input w-24 text-xs" id="'+it.id+'_status" '+(cf?'':'disabled')+'><option value="ok">OK</option><option value="atencao">Atenção</option><option value="critico">Crítico</option><option value="na">N/A</option></select></div>'}).join('');var d=document.createElement('div');d.className='checklist-card p-4 md:p-5 mb-4';d.innerHTML='<div class="flex justify-between items-center mb-3 flex-wrap"><h3 class="font-display text-xl">'+esc(sec.title)+'</h3>'+(cf?'<button type="button" class="btn btn-secondary text-xs" onclick="Checklist.selectAll(\''+sec.id+'\')"><i class="fas fa-check-double"></i> Todos</button>':'')+'</div><div class="grid grid-cols-1 md:grid-cols-2 gap-2">'+ih+'</div>';c.appendChild(d)});this.updateProgress()},
+  selectAll:function(sid){if(!Auth.can('checklist_preencher'))return;var sec=Config.checklist.find(function(s){return s.id===sid});if(sec)sec.items.forEach(function(it){var cb=$(it.id);if(cb)cb.checked=true});this.updateProgress()},
   updateProgress:function(){var cbs=document.querySelectorAll('input[data-check="true"]');this.checked=Array.from(cbs).filter(function(cb){return cb.checked}).length;var pct=this.total>0?Math.round(this.checked/this.total*100):0;var pt=$('progressText');if(pt)pt.textContent=pct+'%';var fl=$('progressFill');if(fl)fl.style.width=pct+'%'},
   getChecklistData:function(){var d={};document.querySelectorAll('input[data-check="true"]').forEach(function(cb){d[cb.id]=cb.checked});document.querySelectorAll('#checklistSections select').forEach(function(s){d[s.id]=s.value});return d},
   loadChecklistData:function(d){if(!d)return;document.querySelectorAll('input[data-check="true"]').forEach(function(cb){if(d[cb.id]!==undefined)cb.checked=d[cb.id]});document.querySelectorAll('#checklistSections select').forEach(function(s){if(d[s.id]!==undefined)s.value=d[s.id]});this.updateProgress()}
@@ -633,77 +720,76 @@ var Checklist={total:0,checked:0,
 /* ==================== CLIENTES ==================== */
 var Clientes={
   load:function(){State.clients=Storage.loadClients();this.renderTable();this.updateStats()},
-  updateStats:function(){var tc=State.clients.length,tm=0;State.clients.forEach(function(c){tm+=(c.equipamentos||[]).length});var cc=new Set(),to=0,oa=0,op=0;State.osHistory.forEach(function(o){if(o.cliente){cc.add(o.cliente);to++}if(o.status==='abertura'||o.status==='execucao'||o.status==='finalizacao')oa++;if(o.status==='aprovada')op++});$('statTotalClientes').innerText=tc;$('statTotalMarcas').innerText=tm;$('statClientesComOS').innerText=cc.size;$('statTotalOSClientes').innerText=to;$('statOSAbertasCliente').innerText=oa;$('statOSAprovadasCliente').innerText=op},
-  renderTable:function(){var tb=$('cad_tableBody');if(!tb)return;tb.innerHTML='';if(!State.clients.length){tb.innerHTML='<tr><td colspan="4" class="text-center p-4 text-[var(--muted)]">Nenhum cliente cadastrado</td></tr>';return}var canEdit=Auth.can('clientes_editar'),canDelete=Auth.can('clientes_excluir');State.clients.forEach(function(c){var r=tb.insertRow();var ml=(c.equipamentos||[]).map(function(e){return esc(e.marca)}).join(', ');var acoes='<button onclick="Clientes.select('+c.id+')" class="btn btn-primary text-xs py-1 px-2"><i class="fas fa-arrow-right"></i> Selecionar</button>';if(canEdit)acoes+=' <i class="fas fa-edit text-blue-400 cursor-pointer ml-2" onclick="Clientes.edit('+c.id+')"></i>';if(canDelete)acoes+=' <i class="fas fa-trash text-red-400 cursor-pointer ml-2" onclick="Clientes.delete('+c.id+')"></i>';r.innerHTML='<td class="p-2 font-medium">'+esc(c.nome)+'</td><td class="p-2">'+esc(c.cidade)+'</td><td class="p-2">'+(ml||'-')+'</td><td class="p-2">'+acoes+'</td>'})},
+  updateStats:function(){var tc=State.clients.length,tm=0,cc=new Set(),to=0,oa=0,op=0;State.clients.forEach(function(c){tm+=(c.equipamentos||[]).length});State.osHistory.forEach(function(o){if(o.cliente){cc.add(o.cliente);to++}if('abertura execucao finalizacao'.indexOf(o.status)!==-1)oa++;if(o.status==='aprovada')op++});$('statTotalClientes').innerText=tc;$('statTotalMarcas').innerText=tm;$('statClientesComOS').innerText=cc.size;$('statTotalOSClientes').innerText=to;$('statOSAbertasCliente').innerText=oa;$('statOSAprovadasCliente').innerText=op},
+  renderTable:function(){var tb=$('cad_tableBody');if(!tb)return;tb.innerHTML='';if(!State.clients.length){tb.innerHTML='<tr><td colspan="4" class="text-center p-4 text-[var(--muted)]">Nenhum cliente</td></tr>';return}var ce=Auth.can('clientes_editar'),cd=Auth.can('clientes_excluir');State.clients.forEach(function(c){var r=tb.insertRow(),ml=(c.equipamentos||[]).map(function(e){return esc(e.marca)}).join(', '),a='<button onclick="Clientes.select('+c.id+')" class="btn btn-primary text-xs py-1 px-2"><i class="fas fa-arrow-right"></i></button>';if(ce)a+=' <i class="fas fa-edit text-blue-400 cursor-pointer ml-2" onclick="Clientes.edit('+c.id+')"></i>';if(cd)a+=' <i class="fas fa-trash text-red-400 cursor-pointer ml-2" onclick="Clientes.delete('+c.id+')"></i>';r.innerHTML='<td class="p-2 font-medium">'+esc(c.nome)+'</td><td class="p-2">'+esc(c.cidade)+'</td><td class="p-2">'+(ml||'-')+'</td><td class="p-2">'+a+'</td>'})},
   addEquipField:function(m,mo,s,q,co){adicionarCampoEquipamento(m,mo,s,q,co)},
-  save:async function(){if(!Auth.can('clientes_cadastrar')){showToast('Apenas administrador pode cadastrar clientes',true);return}var nm=Utils.getVal('cad_nome').trim();if(!nm){showToast('Nome obrigatório',true);return}var eq=[];var ct=$('equipamentosList');if(ct)ct.querySelectorAll('.equip-item').forEach(function(it){var ms=it.querySelector('.equip-marca').value,oi=it.querySelector('.outra-marca'),mk=ms==='OUTRA'?(oi?oi.value.toUpperCase():''):ms;if(mk)eq.push({marca:mk,modelo:it.querySelector('.equip-modelo').value||'',serie:it.querySelector('.equip-serie').value||'',qtd:parseInt(it.querySelector('.equip-qtd').value)||1,combustivel:it.querySelector('.equip-combustivel').value||''})});var cl={id:State.editingClientId||Date.now(),nome:nm,cnpj:Utils.getVal('cad_cnpj'),endereco:Utils.getVal('cad_endereco'),cidade:Utils.getVal('cad_cidade'),telefone:Utils.getVal('cad_telefone'),whatsapp:Utils.getVal('cad_whatsapp'),email:Utils.getVal('cad_email'),responsavel_nome:Utils.getVal('cad_responsavel_nome'),responsavel_telefone:Utils.getVal('cad_responsavel_telefone'),equipamentos:eq};if(State.editingClientId){var idx=State.clients.findIndex(function(c){return c.id===State.editingClientId});if(idx>=0)State.clients[idx]=cl;State.editingClientId=null;var cb=$('cad_btnCancelar');if(cb)cb.style.display='none'}else State.clients.push(cl);Storage.saveClients();this.renderTable();this.clearForm();this.updateStats();showToast('Cliente salvo');try{await GoogleSheetsSync.syncSingleCliente(cl)}catch(e){SyncQueue.add('upsert','cliente',cl)}},
-  select:function(id){var c=State.clients.find(function(c){return c.id===id});if(!c)return;if(c.equipamentos&&c.equipamentos.length>0){App.mostrarModalEquipamentos(c)}else{Utils.setVal('cliente',c.nome);Utils.setVal('cnpj',c.cnpj);Utils.setVal('cidadeCliente',c.cidade);Utils.setVal('endereco',c.endereco);Utils.setVal('whatsappCliente',c.whatsapp);showToast('Cliente carregado');var tb=document.querySelector('.tab-button[data-tab="tab-os"]');if(tb)tb.click()}},
-  edit:function(id){if(!Auth.can('clientes_editar')){showToast('Apenas administrador pode editar clientes',true);return}var c=State.clients.find(function(c){return c.id===id});if(!c)return;State.editingClientId=id;Utils.setVal('cad_nome',c.nome);Utils.setVal('cad_cnpj',c.cnpj);Utils.setVal('cad_endereco',c.endereco);Utils.setVal('cad_cidade',c.cidade);Utils.setVal('cad_telefone',c.telefone);Utils.setVal('cad_whatsapp',c.whatsapp);Utils.setVal('cad_email',c.email||'');Utils.setVal('cad_responsavel_nome',c.responsavel_nome||'');Utils.setVal('cad_responsavel_telefone',c.responsavel_telefone||'');var ct=$('equipamentosList');if(ct)ct.innerHTML='';if(c.equipamentos&&c.equipamentos.length)c.equipamentos.forEach(function(e){adicionarCampoEquipamento(e.marca,e.modelo,e.serie,e.qtd,e.combustivel)});var cb=$('cad_btnCancelar');if(cb)cb.style.display='inline-flex';showToast('Editando cliente')},
-  delete:function(id){if(!Auth.can('clientes_excluir')){showToast('Apenas administrador pode excluir clientes',true);return}if(!confirm('Excluir este cliente?'))return;State.clients=State.clients.filter(function(c){return c.id!==id});Storage.saveClients();this.renderTable();this.updateStats();showToast('Excluído');SyncQueue.add('delete','cliente',{id:id})},
-  cancelEdit:function(){State.editingClientId=null;this.clearForm();var cb=$('cad_btnCancelar');if(cb)cb.style.display='none'},
+  save:async function(){if(!Auth.can('clientes_cadastrar')){showToast('Apenas admin',true);return}var nm=Utils.getVal('cad_nome').trim();if(!nm){showToast('Nome obrigatório',true);return}var eq=[];$('equipamentosList').querySelectorAll('.equip-item').forEach(function(it){var ms=it.querySelector('.equip-marca').value,oi=it.querySelector('.outra-marca'),mk=ms==='OUTRA'?(oi?oi.value.toUpperCase():''):ms;if(mk)eq.push({marca:mk,modelo:it.querySelector('.equip-modelo').value||'',serie:it.querySelector('.equip-serie').value||'',qtd:parseInt(it.querySelector('.equip-qtd').value)||1,combustivel:it.querySelector('.equip-combustivel').value||''})});var cl={id:State.editingClientId||Date.now(),nome:nm,cnpj:Utils.getVal('cad_cnpj'),endereco:Utils.getVal('cad_endereco'),cidade:Utils.getVal('cad_cidade'),telefone:Utils.getVal('cad_telefone'),whatsapp:Utils.getVal('cad_whatsapp'),email:Utils.getVal('cad_email'),responsavel_nome:Utils.getVal('cad_responsavel_nome'),responsavel_telefone:Utils.getVal('cad_responsavel_telefone'),equipamentos:eq};if(State.editingClientId){var idx=State.clients.findIndex(function(c){return c.id===State.editingClientId});if(idx>=0)State.clients[idx]=cl;State.editingClientId=null;$('cad_btnCancelar').style.display='none'}else State.clients.push(cl);Storage.saveClients();this.renderTable();this.clearForm();this.updateStats();showToast('Cliente salvo');try{await GoogleSheetsSync.syncSingleCliente(cl)}catch(e){SyncQueue.add('upsert','cliente',cl)}},
+  select:function(id){var c=State.clients.find(function(c){return c.id===id});if(!c)return;if(c.equipamentos&&c.equipamentos.length)App.mostrarModalEquipamentos(c);else{Utils.setVal('cliente',c.nome);Utils.setVal('cnpj',c.cnpj);Utils.setVal('cidadeCliente',c.cidade);Utils.setVal('endereco',c.endereco);Utils.setVal('whatsappCliente',c.whatsapp);showToast('Cliente carregado');document.querySelector('.tab-button[data-tab="tab-os"]').click()}},
+  edit:function(id){if(!Auth.can('clientes_editar')){showToast('Apenas admin',true);return}var c=State.clients.find(function(c){return c.id===id});if(!c)return;State.editingClientId=id;['cad_nome','cad_cnpj','cad_endereco','cad_cidade','cad_telefone','cad_whatsapp','cad_email','cad_responsavel_nome','cad_responsavel_telefone'].forEach(function(f,i){Utils.setVal(f,[c.nome,c.cnpj,c.endereco,c.cidade,c.telefone,c.whatsapp,c.email,c.responsavel_nome,c.responsavel_telefone][i]||'')});var ct=$('equipamentosList');if(ct)ct.innerHTML='';if(c.equipamentos)c.equipamentos.forEach(function(e){adicionarCampoEquipamento(e.marca,e.modelo,e.serie,e.qtd,e.combustivel)});$('cad_btnCancelar').style.display='inline-flex'},
+  delete:function(id){if(!Auth.can('clientes_excluir')){showToast('Apenas admin',true);return}if(!confirm('Excluir?'))return;State.clients=State.clients.filter(function(c){return c.id!==id});Storage.saveClients();this.renderTable();this.updateStats();showToast('Excluído');SyncQueue.add('delete','cliente',{id:id})},
+  cancelEdit:function(){State.editingClientId=null;this.clearForm();$('cad_btnCancelar').style.display='none'},
   clearForm:function(){['cad_nome','cad_cnpj','cad_endereco','cad_cidade','cad_telefone','cad_whatsapp','cad_email','cad_responsavel_nome','cad_responsavel_telefone'].forEach(function(id){Utils.setVal(id,'')});var ct=$('equipamentosList');if(ct)ct.innerHTML=''},
-  exportCSV:function(){if(!Auth.can('clientes_exportar_csv')){showToast('Apenas administrador',true);return}var csv="Nome,CNPJ,Endereço,Cidade,Telefone,WhatsApp,E-mail,Responsável,TelResponsável,Marcas\n";State.clients.forEach(function(c){var ml=(c.equipamentos||[]).map(function(e){return e.marca}).join('; ');csv+='"'+(c.nome||'')+'",'+(c.cnpj||'')+',"'+(c.endereco||'')+'","'+(c.cidade||'')+'",'+(c.telefone||'')+','+(c.whatsapp||'')+','+(c.email||'')+','+(c.responsavel_nome||'')+','+(c.responsavel_telefone||'')+',"'+ml+'"\n'});var b=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='clientes_'+dataHojeISO()+'.csv';a.click();showToast('Exportado')},
-  importCSV:function(){if(!Auth.can('clientes_importar_csv')){showToast('Apenas administrador',true);return}var inp=document.createElement('input');inp.type='file';inp.accept='.csv';inp.onchange=function(e){var f=e.target.files[0],r=new FileReader();r.onload=function(ev){var lines=ev.target.result.split('\n');for(var i=1;i<lines.length;i++){if(!lines[i].trim())continue;var p=parseCSVLine(lines[i]);if(p[0])State.clients.push({id:Date.now()+i,nome:p[0].trim(),cnpj:p[1]||'',endereco:p[2]||'',cidade:p[3]||'',telefone:p[4]||'',whatsapp:p[5]||'',email:p[6]||'',responsavel_nome:p[7]||'',responsavel_telefone:p[8]||'',equipamentos:[]})}Storage.saveClients();Clientes.renderTable();Clientes.updateStats();showToast('Importado')};r.readAsText(f,'UTF-8')};inp.click()}
+  exportCSV:function(){if(!Auth.can('clientes_exportar_csv')){showToast('Apenas admin',true);return}var csv="Nome,CNPJ,Endereço,Cidade,Telefone,WhatsApp,E-mail,Responsável,TelResp,Marcas\n";State.clients.forEach(function(c){csv+='"'+(c.nome||'')+'",'+(c.cnpj||'')+',"'+(c.endereco||'')+'","'+(c.cidade||'')+'",'+(c.telefone||'')+','+(c.whatsapp||'')+','+(c.email||'')+','+(c.responsavel_nome||'')+','+(c.responsavel_telefone||'')+',"'+(c.equipamentos||[]).map(function(e){return e.marca}).join(';')+'"\n'});var b=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='clientes_'+dataHojeISO()+'.csv';a.click();showToast('Exportado')},
+  importCSV:function(){if(!Auth.can('clientes_importar_csv')){showToast('Apenas admin',true);return}var inp=document.createElement('input');inp.type='file';inp.accept='.csv';inp.onchange=function(e){var f=e.target.files[0],r=new FileReader();r.onload=function(ev){var lines=ev.target.result.split('\n');for(var i=1;i<lines.length;i++){if(!lines[i].trim())continue;var p=parseCSVLine(lines[i]);if(p[0])State.clients.push({id:Date.now()+i,nome:p[0].trim(),cnpj:p[1]||'',endereco:p[2]||'',cidade:p[3]||'',telefone:p[4]||'',whatsapp:p[5]||'',email:p[6]||'',responsavel_nome:p[7]||'',responsavel_telefone:p[8]||'',equipamentos:[]})}Storage.saveClients();Clientes.renderTable();Clientes.updateStats();showToast('Importado')};r.readAsText(f,'UTF-8')};inp.click()}
 };
-
-/* ==================== CSV PARSER CORRIGIDO ==================== */
-function parseCSVLine(line){var result=[],current='',inQuotes=false;for(var i=0;i<line.length;i++){var ch=line[i];if(inQuotes){if(ch==='"'&&line[i+1]==='"'){current+='"';i++}else if(ch==='"'){inQuotes=false}else{current+=ch}}else{if(ch==='"'){inQuotes=true}else if(ch===','){result.push(current);current=''}else{current+=ch}}}result.push(current);return result}
 
 /* ==================== HISTÓRICO ==================== */
 var Historico={
   load:function(){State.osHistory=Storage.loadOSHistory();this.render();this.updateStats();Clientes.updateStats()},
-  updateStats:function(){var t=State.osHistory.length,sa=0,se=0,sf=0,sfe=0,sap=0,te=0,tp=0,tc=0,tg=0,tn=0,ta=0,to2=0,em=0,now=new Date(),ma=now.getMonth(),aa=now.getFullYear();State.osHistory.forEach(function(o){if(o.status==='abertura')sa++;else if(o.status==='execucao')se++;else if(o.status==='finalizacao')sf++;else if(o.status==='fechada')sfe++;else if(o.status==='aprovada')sap++;if(o.tipoChamado==='emergencial')te++;else if(o.tipoChamado==='preventiva')tp++;else if(o.tipoChamado==='corretiva')tc++;else if(o.tipoChamado==='garantia')tg++;else if(o.tipoChamado==='normal')tn++;else if(o.tipoChamado==='avaliacao')ta++;else if(o.tipoChamado==='orcamento')to2++;if(o.dataOS){var d=new Date(o.dataOS+'T12:00:00');if(d.getMonth()===ma&&d.getFullYear()===aa)em++}});$('statTotalOS').innerText=t;$('statStatusAbertura').innerText=sa;$('statStatusExecucao').innerText=se;$('statStatusFinalizacao').innerText=sf;$('statStatusFechada').innerText=sfe;$('statStatusAprovada').innerText=sap;$('statTipoEmergencial').innerText=te;$('statTipoPreventiva').innerText=tp;$('statTipoCorretiva').innerText=tc;$('statTipoGarantia').innerText=tg;$('statTipoNormal').innerText=tn;$('statTipoAvaliacao').innerText=ta;$('statTipoOrcamento').innerText=to2;$('statEsteMes').innerText=em},
-  render:function(){var s=Utils.getVal('historicoSearch').toLowerCase(),tp=Utils.getVal('historicoFiltroTipo'),sf=Utils.getVal('historicoFiltroStatus');var f=State.osHistory.filter(function(o){return(!s||(o.numeroOS&&o.numeroOS.toLowerCase().indexOf(s)!==-1)||(o.cliente&&o.cliente.toLowerCase().indexOf(s)!==-1))&&(!tp||o.tipoChamado===tp)&&(!sf||o.status===sf)});var tb=$('historicoTableBody'),em=$('historicoEmpty');if(!tb)return;tb.innerHTML='';if(!f.length){if(em)em.classList.remove('hidden');return}if(em)em.classList.add('hidden');var canDelete=Auth.can('historico_excluir');f.forEach(function(o){var r=tb.insertRow(),sc='status-'+(o.status||'abertura'),st=Utils.formatStatus(o.status);var acoes='<button onclick="Historico.view(\''+esc(o.numeroOS).replace(/'/g,"\\'")+'\')" class="text-blue-400" title="Visualizar"><i class="fas fa-eye"></i></button>';if(Auth.can('editar_os'))acoes+=' <button onclick="Historico.edit(\''+esc(o.numeroOS).replace(/'/g,"\\'")+'\')" class="text-orange-400 ml-2" title="Editar"><i class="fas fa-edit"></i></button>';if(canDelete)acoes+=' <button onclick="Historico.delete(\''+esc(o.numeroOS).replace(/'/g,"\\'")+'\')" class="text-red-400 ml-2" title="Excluir"><i class="fas fa-trash"></i></button>';r.innerHTML='<td class="font-mono font-bold">'+esc(o.numeroOS)+'</td><td class="p-2">'+esc(o.dataOS)+'</td><td class="font-medium">'+esc(o.cliente).toUpperCase()+'</td><td class="p-2"><span class="status-badge '+sc+'">'+st+'</span></td><td class="font-mono font-bold text-[var(--success)]">'+esc(o.horasTotais)+'</td><td class="p-2">'+acoes+'</td>'})},
-  view:function(num){if(!Auth.can('historico_visualizar')){showToast('Sem permissão',true);return}var o=State.osHistory.find(function(o){return o.numeroOS===num});if(!o)return;State.currentStatus=o.status||'abertura';document.querySelectorAll('#tab-os input,#tab-os select,#tab-os textarea').forEach(function(el){if(el.id&&el.type!=='file')el.value=''});for(var k in o){if(['fotosBase64','fotoHorimetro','fotosPendencias','assinaturaTecnico','assinaturaCliente','checklistData'].indexOf(k)===-1)Utils.setVal(k,o[k])}if(o.fotoHorimetro){State.fotoHorimetro=o.fotoHorimetro;var p=$('fotoHorimetroPreview');if(p)p.innerHTML='<div class="photo-item"><img src="'+o.fotoHorimetro+'"><div class="photo-remove" onclick="Fotos.removeHorimetro()">x</div></div>'}else Fotos.removeHorimetro();if(o.fotosBase64&&o.fotosBase64.length){State.fotosServico=o.fotosBase64;var p=$('fotosPreview');if(p){p.innerHTML='';o.fotosBase64.forEach(function(src){var d=document.createElement('div');d.className='photo-item';d.innerHTML='<img src="'+src+'"><div class="photo-remove" onclick="Fotos.removeServico(this)">x</div>';p.appendChild(d)})}}else{State.fotosServico=[];var p=$('fotosPreview');if(p)p.innerHTML=''}if(o.fotosPendencias&&o.fotosPendencias.length){State.fotosPendencias=o.fotosPendencias;var p=$('fotosPendenciasPreview');if(p){p.innerHTML='';o.fotosPendencias.forEach(function(src){var d=document.createElement('div');d.className='photo-item';d.innerHTML='<img src="'+src+'"><div class="photo-remove" onclick="Fotos.removePendencia(this)">x</div>';p.appendChild(d)})}}else{State.fotosPendencias=[];var p=$('fotosPendenciasPreview');if(p)p.innerHTML=''}Signature.loadFromData('tec',o.assinaturaTecnico);Signature.loadFromData('cli',o.assinaturaCliente);if(o.checklistData)Checklist.loadChecklistData(o.checklistData);App.updateUI();showToast('OS carregada');var tb=document.querySelector('.tab-button[data-tab="tab-os"]');if(tb)tb.click()},
+  updateStats:function(){var t=State.osHistory.length,s={abertura:0,execucao:0,finalizacao:0,fechada:0,aprovada:0},tp={emergencial:0,preventiva:0,corretiva:0,garantia:0,normal:0,avaliacao:0,orcamento:0},em=0,now=new Date(),ma=now.getMonth(),aa=now.getFullYear();State.osHistory.forEach(function(o){if(s[o.status]!==undefined)s[o.status]++;if(tp[o.tipoChamado]!==undefined)tp[o.tipoChamado]++;if(o.dataOS){var d=new Date(o.dataOS+'T12:00:00');if(d.getMonth()===ma&&d.getFullYear()===aa)em++}});$('statTotalOS').innerText=t;$('statStatusAbertura').innerText=s.abertura;$('statStatusExecucao').innerText=s.execucao;$('statStatusFinalizacao').innerText=s.finalizacao;$('statStatusFechada').innerText=s.fechada;$('statStatusAprovada').innerText=s.aprovada;$('statTipoEmergencial').innerText=tp.emergencial;$('statTipoPreventiva').innerText=tp.preventiva;$('statTipoCorretiva').innerText=tp.corretiva;$('statTipoGarantia').innerText=tp.garantia;$('statTipoNormal').innerText=tp.normal;$('statTipoAvaliacao').innerText=tp.avaliacao;$('statTipoOrcamento').innerText=tp.orcamento;$('statEsteMes').innerText=em},
+  render:function(){var q=Utils.getVal('historicoSearch').toLowerCase(),tp=Utils.getVal('historicoFiltroTipo'),sf=Utils.getVal('historicoFiltroStatus');var f=State.osHistory.filter(function(o){return(!q||(o.numeroOS&&o.numeroOS.toLowerCase().indexOf(q)!==-1)||(o.cliente&&o.cliente.toLowerCase().indexOf(q)!==-1))&&(!tp||o.tipoChamado===tp)&&(!sf||o.status===sf)});var tb=$('historicoTableBody'),em=$('historicoEmpty');if(!tb)return;tb.innerHTML='';if(!f.length){if(em)em.classList.remove('hidden');return}if(em)em.classList.add('hidden');var cd=Auth.can('historico_excluir');f.forEach(function(o){var r=tb.insertRow(),a='<button onclick="Historico.view(\''+esc(o.numeroOS).replace(/'/g,"\\'")+'\')" class="text-blue-400"><i class="fas fa-eye"></i></button>';if(Auth.can('editar_os'))a+=' <button onclick="Historico.edit(\''+esc(o.numeroOS).replace(/'/g,"\\'")+'\')" class="text-orange-400 ml-2"><i class="fas fa-edit"></i></button>';if(cd)a+=' <button onclick="Historico.delete(\''+esc(o.numeroOS).replace(/'/g,"\\'")+'\')" class="text-red-400 ml-2"><i class="fas fa-trash"></i></button>';r.innerHTML='<td class="font-mono font-bold">'+esc(o.numeroOS)+'</td><td class="p-2">'+esc(o.dataOS)+'</td><td class="font-medium">'+esc(o.cliente).toUpperCase()+'</td><td class="p-2"><span class="status-badge status-'+(o.status||'abertura')+'">'+Utils.formatStatus(o.status)+'</span></td><td class="font-mono font-bold text-[var(--success)]">'+esc(o.horasTotais)+'</td><td class="p-2">'+a+'</td>'})},
+  view:function(n){var o=State.osHistory.find(function(o){return o.numeroOS===n});if(!o)return;State.currentStatus=o.status||'abertura';document.querySelectorAll('#tab-os input,#tab-os select,#tab-os textarea').forEach(function(el){if(el.id&&el.type!=='file')el.value=''});for(var k in o){if(['fotosBase64','fotoHorimetro','fotosPendencias','assinaturaTecnico','assinaturaCliente','checklistData'].indexOf(k)===-1)Utils.setVal(k,o[k])}State.fotoHorimetro=o.fotoHorimetro||null;State.fotosServico=o.fotosBase64||[];State.fotosPendencias=o.fotosPendencias||[];var ph=$('fotoHorimetroPreview');if(ph)ph.innerHTML=State.fotoHorimetro?'<div class="photo-item"><img src="'+State.fotoHorimetro+'"><div class="photo-remove" onclick="Fotos.removeHorimetro()">x</div></div>':'';var ps=$('fotosPreview');if(ps){ps.innerHTML='';State.fotosServico.forEach(function(src){var d=document.createElement('div');d.className='photo-item';d.innerHTML='<img src="'+src+'"><div class="photo-remove" onclick="Fotos.removeServico(this)">x</div>';ps.appendChild(d)})}var pp=$('fotosPendenciasPreview');if(pp){pp.innerHTML='';State.fotosPendencias.forEach(function(src){var d=document.createElement('div');d.className='photo-item';d.innerHTML='<img src="'+src+'"><div class="photo-remove" onclick="Fotos.removePendencia(this)">x</div>';pp.appendChild(d)})}Signature.loadFromData('tec',o.assinaturaTecnico);Signature.loadFromData('cli',o.assinaturaCliente);if(o.checklistData)Checklist.loadChecklistData(o.checklistData);App.updateUI();showToast('OS carregada');document.querySelector('.tab-button[data-tab="tab-os"]').click()},
   edit:function(n){this.view(n)},
-  delete:function(n){if(!Auth.can('historico_excluir')){showToast('Apenas administrador pode excluir OS',true);return}if(!confirm('Excluir OS '+n+'?'))return;State.osHistory=State.osHistory.filter(function(o){return o.numeroOS!==n});Storage.saveOSHistory();this.render();this.updateStats();Clientes.updateStats();showToast('Excluída');SyncQueue.add('delete','os',{numeroOS:n})},
-  exportCSV:function(){if(!Auth.can('historico_exportar_csv')){showToast('Apenas administrador',true);return}var csv='OS,Data,Cliente,Status,Tipo,Horas,Total\n';State.osHistory.forEach(function(o){csv+=(o.numeroOS||'')+','+(o.dataOS||'')+',"'+(o.cliente||'')+'",'+Utils.formatStatus(o.status)+','+(o.tipoChamado||'')+','+(o.horasTotais||'')+','+(o.totalGeral||'')+'\n'});var b=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='historico_'+dataHojeISO()+'.csv';a.click();showToast('Exportado')},
-  importCSV:function(){if(!Auth.can('historico_importar_csv')){showToast('Apenas administrador',true);return}var inp=document.createElement('input');inp.type='file';inp.accept='.csv';inp.onchange=function(e){var f=e.target.files[0],r=new FileReader();r.onload=function(ev){var lines=ev.target.result.split('\n');for(var i=1;i<lines.length;i++){if(!lines[i].trim())continue;var p=parseCSVLine(lines[i]);if(p[0])State.osHistory.push({numeroOS:p[0]||'OS-'+Date.now()+'-'+i,dataOS:p[1]||'',cliente:(p[2]||'').replace(/"/g,''),status:(p[3]||'').toLowerCase()||'abertura',tipoChamado:(p[4]||'').toLowerCase()||'normal',horasTotais:p[5]||'0h',totalGeral:p[6]||'00:00',descricaoServico:'',pecasAplicadas:'',pendencias:'',relatoCliente:'',marca:'',modelo:'',numSerie:'',horimetro:'',combustivel:'',whatsappCliente:'',cnpj:'',cidadeCliente:'',endereco:'',tecnico:'MARLIFT',recebedor:'',fotosBase64:[],fotoHorimetro:null,fotosPendencias:[],assinaturaTecnico:'',assinaturaCliente:'',checklistData:{}})}Storage.saveOSHistory();Historico.render();Historico.updateStats();Clientes.updateStats();showToast('Importado')};r.readAsText(f,'UTF-8')};inp.click()},
-  clear:function(){if(!Auth.can('historico_limpar')){showToast('Apenas administrador',true);return}if(!confirm('Limpar TODO o histórico de OS?'))return;State.osHistory=[];Storage.saveOSHistory();this.render();this.updateStats();Clientes.updateStats();showToast('Histórico limpo')}
+  delete:function(n){if(!Auth.can('historico_excluir')){showToast('Apenas admin',true);return}if(!confirm('Excluir OS '+n+'?'))return;State.osHistory=State.osHistory.filter(function(o){return o.numeroOS!==n});Storage.saveOSHistory();this.render();this.updateStats();Clientes.updateStats();showToast('Excluída');SyncQueue.add('delete','os',{numeroOS:n})},
+  exportCSV:function(){if(!Auth.can('historico_exportar_csv')){showToast('Apenas admin',true);return}var csv='OS,Data,Cliente,Status,Tipo,Horas,Total\n';State.osHistory.forEach(function(o){csv+=(o.numeroOS||'')+','+(o.dataOS||'')+',"'+(o.cliente||'')+'",'+Utils.formatStatus(o.status)+','+(o.tipoChamado||'')+','+(o.horasTotais||'')+','+(o.totalGeral||'')+'\n'});var b=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='historico_'+dataHojeISO()+'.csv';a.click()},
+  importCSV:function(){if(!Auth.can('historico_importar_csv')){showToast('Apenas admin',true);return}var inp=document.createElement('input');inp.type='file';inp.accept='.csv';inp.onchange=function(e){var f=e.target.files[0],r=new FileReader();r.onload=function(ev){var lines=ev.target.result.split('\n');for(var i=1;i<lines.length;i++){if(!lines[i].trim())continue;var p=parseCSVLine(lines[i]);if(p[0])State.osHistory.push({numeroOS:p[0],dataOS:p[1]||'',cliente:(p[2]||'').replace(/"/g,''),status:(p[3]||'').toLowerCase()||'abertura',tipoChamado:(p[4]||'').toLowerCase()||'normal',horasTotais:p[5]||'0h',totalGeral:p[6]||'00:00',descricaoServico:'',pecasAplicadas:'',pendencias:'',relatoCliente:'',marca:'',modelo:'',numSerie:'',horimetro:'',combustivel:'',whatsappCliente:'',cnpj:'',cidadeCliente:'',endereco:'',tecnico:'MARLIFT',recebedor:'',fotosBase64:[],fotoHorimetro:null,fotosPendencias:[],assinaturaTecnico:'',assinaturaCliente:'',checklistData:{}})}Storage.saveOSHistory();Historico.render();Historico.updateStats();showToast('Importado')};r.readAsText(f,'UTF-8')};inp.click()},
+  clear:function(){if(!Auth.can('historico_limpar')){showToast('Apenas admin',true);return}if(!confirm('Limpar TODO o histórico?'))return;State.osHistory=[];Storage.saveOSHistory();this.render();this.updateStats();showToast('Limpo')}
 };
 
 /* ==================== PERMISSÕES ==================== */
-var Permissoes={
-  padrao:{criar_os:false,editar_os:false,excluir_os:false,mudar_status:false,salvar_os:false,checklist_visualizar:true,checklist_preencher:true,fotos_horimetro:true,fotos_servico:true,fotos_pendencias:true,assinatura_tecnico:true,assinatura_cliente:true,timer_iniciar:true,timer_pausar:true,timer_parar:true,horas_editar:true,gerar_pdf:true,enviar_email:true,enviar_whatsapp:true,sincronizar:false,exportar_csv:false,clientes_cadastrar:false,clientes_editar:false,clientes_excluir:false,historico_visualizar:true,historico_excluir:false,historico_exportar_csv:false,historico_importar_csv:false,historico_limpar:false},
-  carregar:function(){var s=localStorage.getItem('marlift_permissoes_tecnico');if(s)return JSON.parse(s);return JSON.parse(JSON.stringify(this.padrao))},
-  salvar:function(){if(!Auth.can('permissoes_editar')){showToast('Apenas administrador',true);return}var p={};for(var k in this.padrao){var ch=document.getElementById('perm_'+k);if(ch)p[k]=ch.checked}localStorage.setItem('marlift_permissoes_tecnico',JSON.stringify(p));showToast('Permissões salvas');GoogleSheetsSync.syncPermissoes(p).catch(function(){});SyncQueue.add('upsert','permissao',p)},
-  resetarPadrao:function(){if(!Auth.can('permissoes_editar')){showToast('Apenas administrador',true);return}for(var k in this.padrao){var ch=document.getElementById('perm_'+k);if(ch)ch.checked=this.padrao[k]}this.salvar()},
-  carregarNaInterface:function(){var p=this.carregar();for(var k in p){var ch=document.getElementById('perm_'+k);if(ch)ch.checked=p[k]}}
-};
+var Permissoes={padrao:{criar_os:false,editar_os:false,excluir_os:false,mudar_status:false,salvar_os:false,checklist_visualizar:true,checklist_preencher:true,fotos_horimetro:true,fotos_servico:true,fotos_pendencias:true,assinatura_tecnico:true,assinatura_cliente:true,timer_iniciar:true,timer_pausar:true,timer_parar:true,horas_editar:true,gerar_pdf:true,enviar_email:true,enviar_whatsapp:true,sincronizar:false,exportar_csv:false,clientes_cadastrar:false,clientes_editar:false,clientes_excluir:false,historico_visualizar:true,historico_excluir:false,historico_exportar_csv:false,historico_importar_csv:false,historico_limpar:false},carregar:function(){var s=localStorage.getItem('marlift_permissoes_tecnico');if(s)return JSON.parse(s);return JSON.parse(JSON.stringify(this.padrao))},salvar:function(){if(!Auth.can('permissoes_editar')){showToast('Apenas admin',true);return}var p={};for(var k in this.padrao){var ch=document.getElementById('perm_'+k);if(ch)p[k]=ch.checked}localStorage.setItem('marlift_permissoes_tecnico',JSON.stringify(p));showToast('Salvo');GoogleSheetsSync.syncPermissoes(p).catch(function(){});SyncQueue.add('upsert','permissao',p)},resetarPadrao:function(){if(!Auth.can('permissoes_editar'))return;for(var k in this.padrao){var ch=document.getElementById('perm_'+k);if(ch)ch.checked=this.padrao[k]}this.salvar()},carregarNaInterface:function(){var p=this.carregar();for(var k in p){var ch=document.getElementById('perm_'+k);if(ch)ch.checked=p[k]}}};
 
 /* ==================== USER MANAGER ==================== */
-var UserManager={editingId:null,
-  render:function(){var users=Auth.getUsers(),tb=$('userTableBody');if(!tb)return;tb.innerHTML='';users.forEach(function(u){var r=tb.insertRow(),nt=u.nivel==='admin'?'Admin':(u.nivel==='tecnico'?'Técnico':'Visualizador');r.innerHTML='<td class="p-2">'+esc(u.nome)+'</td><td class="p-2">'+esc(u.login)+'</td><td class="p-2">'+nt+'</td><td class="p-2"><i class="fas fa-edit text-blue-400 cursor-pointer mr-2" onclick="UserManager.edit('+u.id+')"></i><i class="fas fa-trash text-red-400 cursor-pointer" onclick="UserManager.delete('+u.id+')"></i></td>'})},
-  addUser:function(){if(!Auth.can('usuarios_criar')){showToast('Apenas administrador',true);return}var n=$('userNome').value.trim(),l=$('userLogin').value.trim(),s=$('userSenha').value,nv=$('userNivel').value;if(!n||!l||!s){showToast('Preencha todos os campos',true);return}var u=Auth.getUsers();if(u.find(function(x){return x.login===l})){showToast('Login já existe',true);return}u.push({id:Date.now(),nome:n,login:l,senha:s,nivel:nv});Auth.saveUsers(u);this.render();this.clearForm();showToast('Adicionado');GoogleSheetsSync.syncUsuarios(u).catch(function(){});SyncQueue.add('upsert','usuario',u)},
-  edit:function(id){if(!Auth.can('usuarios_editar')){showToast('Apenas administrador',true);return}var u=Auth.getUsers().find(function(x){return x.id===id});if(!u)return;this.editingId=id;$('userNome').value=u.nome;$('userLogin').value=u.login;$('userSenha').value='';$('userNivel').value=u.nivel;$('userCancelBtn').style.display='inline-flex';showToast('Editando')},
-  delete:function(id){if(!Auth.can('usuarios_excluir')){showToast('Apenas administrador',true);return}if(Auth.currentUser&&Auth.currentUser.id===id){showToast('Não pode excluir próprio usuário',true);return}if(!confirm('Excluir?'))return;Auth.saveUsers(Auth.getUsers().filter(function(u){return u.id!==id}));this.render();showToast('Excluído');GoogleSheetsSync.syncUsuarios(Auth.getUsers()).catch(function(){});SyncQueue.add('delete','usuario',{id:id})},
-  cancelEdit:function(){this.editingId=null;this.clearForm();$('userCancelBtn').style.display='none'},
-  clearForm:function(){$('userNome').value='';$('userLogin').value='';$('userSenha').value='';$('userNivel').value='tecnico'}
-};
+var UserManager={editingId:null,render:function(){var users=Auth.getUsers(),tb=$('userTableBody');if(!tb)return;tb.innerHTML='';users.forEach(function(u){var r=tb.insertRow(),n=u.nivel==='admin'?'Admin':(u.nivel==='tecnico'?'Técnico':'Visualizador');r.innerHTML='<td class="p-2">'+esc(u.nome)+'</td><td class="p-2">'+esc(u.login)+'</td><td class="p-2">'+n+'</td><td class="p-2"><i class="fas fa-edit text-blue-400 cursor-pointer mr-2" onclick="UserManager.edit('+u.id+')"></i><i class="fas fa-trash text-red-400 cursor-pointer" onclick="UserManager.delete('+u.id+')"></i></td>'})},addUser:function(){if(!Auth.can('usuarios_criar')){showToast('Apenas admin',true);return}var n=$('userNome').value.trim(),l=$('userLogin').value.trim(),s=$('userSenha').value,nv=$('userNivel').value;if(!n||!l||!s){showToast('Preencha tudo',true);return}var u=Auth.getUsers();if(u.find(function(x){return x.login===l})){showToast('Login existe',true);return}u.push({id:Date.now(),nome:n,login:l,senha:s,nivel:nv});Auth.saveUsers(u);this.render();this.clearForm();showToast('Adicionado');GoogleSheetsSync.syncUsuarios(u).catch(function(){})},edit:function(id){if(!Auth.can('usuarios_editar')){showToast('Apenas admin',true);return}var u=Auth.getUsers().find(function(x){return x.id===id});if(!u)return;this.editingId=id;$('userNome').value=u.nome;$('userLogin').value=u.login;$('userSenha').value='';$('userNivel').value=u.nivel;$('userCancelBtn').style.display='inline-flex'},delete:function(id){if(!Auth.can('usuarios_excluir')){showToast('Apenas admin',true);return}if(Auth.currentUser&&Auth.currentUser.id===id){showToast('Não pode excluir si mesmo',true);return}if(!confirm('Excluir?'))return;Auth.saveUsers(Auth.getUsers().filter(function(u){return u.id!==id}));this.render();showToast('Excluído')},cancelEdit:function(){this.editingId=null;this.clearForm();$('userCancelBtn').style.display='none'},clearForm:function(){$('userNome').value='';$('userLogin').value='';$('userSenha').value='';$('userNivel').value='tecnico'}};
 
-/* ==================== AGENDAMENTOS (com validação de sobreposição) ==================== */
+/* ==================== AGENDAMENTOS ==================== */
 var Agendamentos={
   carregar:function(){State.agendamentos=Storage.loadAgendamentos();this.atualizarLista();this.atualizarSelectTecnicos();this.atualizarDatalistClientes();this.carregarOSDisponiveis('')},
-  atualizarSelectTecnicos:function(){var s=$('ag_tecnico');if(!s)return;var u=Auth.getUsers().filter(function(u){return u.nivel==='tecnico'});s.innerHTML='<option value="">Selecione</option>';u.forEach(function(t){s.innerHTML+='<option value="'+esc(t.login)+'">'+esc(t.nome)+'</option>'})},
+  atualizarSelectTecnicos:function(){var s=$('ag_tecnico');if(!s)return;s.innerHTML='<option value="">Selecione</option>';Auth.getUsers().filter(function(u){return u.nivel==='tecnico'}).forEach(function(t){s.innerHTML+='<option value="'+esc(t.login)+'">'+esc(t.nome)+'</option>'})},
   atualizarDatalistClientes:function(){var dl=$('clientesList');if(!dl)return;dl.innerHTML='';State.clients.forEach(function(c){var o=document.createElement('option');o.value=c.nome;dl.appendChild(o)})},
   carregarOSDisponiveis:function(tl){var s=$('ag_os_select');if(!s)return;s.innerHTML='<option value="">Selecione a OS</option>';var od=State.osHistory.filter(function(o){return o.status==='abertura'});if(!od.length){s.innerHTML+='<option value="">Nenhuma OS em abertura</option>';return}od.forEach(function(o){var opt=document.createElement('option');opt.value=o.numeroOS;opt.textContent=o.numeroOS+' — '+esc(o.cliente||'Sem cliente').toUpperCase()+(o.marca?' — '+esc(o.marca):'');s.appendChild(opt)})},
-  verificarSobreposicao:function(tecnico,data,horario,editId){if(!tecnico||!data||!horario)return false;var hr=parseInt(horario.split(':')[0]),mn=parseInt(horario.split(':')[1]||0),novoMin=hr*60+mn;return State.agendamentos.some(function(a){if(a.status==='concluido')return false;if(editId&&String(a.id)===String(editId))return false;if(a.tecnico!==tecnico||a.data!==data||!a.horario)return false;var ah=parseInt(a.horario.split(':')[0]),am=parseInt(a.horario.split(':')[1]||0),aMin=ah*60+am;return Math.abs(novoMin-aMin)<60})},
-  salvar:async function(){if(!Auth.can('agendamentos_criar')){showToast('Apenas administrador',true);return}var cl=$('ag_cliente').value.trim(),osS=$('ag_os_select').value.trim(),dt=$('ag_data').value,hr=$('ag_horario').value,tc=$('ag_tecnico').value,ds=$('ag_descricao').value,ei=$('ag_editId').value;if(!cl||!dt||!tc){showToast('Cliente, data e técnico obrigatórios',true);return}if(!hr){showToast('Horário obrigatório',true);return}if(!osS){showToast('Selecione uma OS',true);return}if(this.verificarSobreposicao(tc,dt,hr,ei)){showToast('Já existe agendamento para este técnico no mesmo horário (±1h)',true);return}var ag;if(ei){var idx=State.agendamentos.findIndex(function(a){return a.id==ei});if(idx!==-1){State.agendamentos[idx]={id:parseInt(ei),cliente:cl,equipamento:osS,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};ag=State.agendamentos[idx];showToast('Atualizado')}}else{ag={id:Date.now(),cliente:cl,equipamento:osS,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};State.agendamentos.push(ag);showToast('Salvo')}Storage.saveAgendamentos();this.limparForm();this.atualizarLista();try{await GoogleSheetsSync.syncSingleAgendamento(ag)}catch(e){SyncQueue.add('upsert','agendamento',ag)}},
+  verificarSobreposicao:function(tc,dt,hr,ei){if(!tc||!dt||!hr)return false;var nm=parseInt(hr.split(':')[0])*60+parseInt((hr.split(':')[1]||'0'));return State.agendamentos.some(function(a){if(a.status==='concluido')return false;if(ei&&String(a.id)===String(ei))return false;if(a.tecnico!==tc||a.data!==dt||!a.horario)return false;var am=parseInt(a.horario.split(':')[0])*60+parseInt((a.horario.split(':')[1]||'0'));return Math.abs(nm-am)<60})},
+  salvar:async function(){if(!Auth.can('agendamentos_criar')){showToast('Apenas admin',true);return}var cl=$('ag_cliente').value.trim(),osS=$('ag_os_select').value.trim(),dt=$('ag_data').value,hr=$('ag_horario').value,tc=$('ag_tecnico').value,ds=$('ag_descricao').value,ei=$('ag_editId').value;if(!cl||!dt||!tc||!hr||!osS){showToast('Preencha todos os campos',true);return}if(this.verificarSobreposicao(tc,dt,hr,ei)){showToast('Sobreposição de horário (±1h)',true);return}var ag;if(ei){var idx=State.agendamentos.findIndex(function(a){return a.id==ei});if(idx!==-1){State.agendamentos[idx]={id:parseInt(ei),cliente:cl,equipamento:osS,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};ag=State.agendamentos[idx]}}else{ag={id:Date.now(),cliente:cl,equipamento:osS,data:dt,horario:hr,tecnico:tc,descricao:ds,status:'pendente'};State.agendamentos.push(ag)}Storage.saveAgendamentos();this.limparForm();this.atualizarLista();showToast('Salvo');try{await GoogleSheetsSync.syncSingleAgendamento(ag)}catch(e){SyncQueue.add('upsert','agendamento',ag)}},
   limparForm:function(){['ag_cliente','ag_descricao'].forEach(function(id){$(id).value=''});$('ag_data').value='';$('ag_horario').value='';$('ag_tecnico').value='';$('ag_editId').value='';this.carregarOSDisponiveis('')},
-  atualizarLista:function(){var c=$('agendamentosLista');if(!c)return;var p=State.agendamentos.filter(function(a){return a.status!=='concluido'}).sort(function(a,b){return(a.data+a.horario).localeCompare(b.data+b.horario)});if(!p.length){c.innerHTML='<div class="text-center p-8 text-[var(--muted)]"><i class="fas fa-calendar-check text-4xl mb-3 opacity-30"></i><p class="text-lg font-semibold">Nenhum agendamento pendente</p></div>';return}var canEdit=Auth.can('agendamentos_editar'),canDel=Auth.can('agendamentos_excluir'),canConc=Auth.can('agendamentos_concluir'),hoje=dataHojeISO(),h='';p.forEach(function(a){var osNum=a.equipamento||'Sem OS',osObj=State.osHistory.find(function(o){return o.numeroOS===osNum}),osInfo=osObj?(' '+esc(osObj.marca||'')+' '+esc(osObj.modelo||'')):'',isHoje=a.data===hoje,isFuturo=a.data>hoje,cardClass=isHoje?'schedule-card-hoje':(isFuturo?'schedule-card-futuro':'schedule-card-passado'),tagClass=isHoje?'schedule-tag-hoje':(isFuturo?'schedule-tag-futuro':'schedule-tag-passado'),tagText=isHoje?'HOJE':(isFuturo?a.data.split('-').reverse().join('/'):a.data);h+='<div class="schedule-card '+cardClass+'"><div style="padding:16px 16px 0 16px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><span class="schedule-tag '+tagClass+'">'+esc(tagText)+'</span><span class="schedule-os-num">'+esc(osNum)+osInfo+'</span></div><div class="schedule-cliente">'+esc(a.cliente)+'</div><div style="display:flex;align-items:baseline;gap:16px;margin:8px 0 4px 0;flex-wrap:wrap"><div class="schedule-hora">'+esc(a.horario)+'</div><div class="schedule-tecnico"><i class="fas fa-user-cog"></i> '+esc(a.tecnico)+'</div></div>';if(a.descricao)h+='<div class="schedule-descricao">'+esc(a.descricao)+'</div>';h+='<div class="schedule-actions"><button onclick="Agendamentos.irParaOS(\''+esc(osNum).replace(/'/g,"\\'")+'\')" class="btn btn-info text-sm py-2 px-3"><i class="fas fa-external-link-alt"></i> OS</button>';if(canConc)h+='<button onclick="Agendamentos.concluir('+a.id+')" class="btn btn-success text-sm py-2 px-3"><i class="fas fa-check"></i> Concluir</button>';if(canEdit)h+='<button onclick="Agendamentos.editar('+a.id+')" class="btn btn-info text-sm py-2 px-3"><i class="fas fa-edit"></i> Editar</button>';if(canDel)h+='<button onclick="Agendamentos.excluir('+a.id+')" class="btn btn-danger text-sm py-2 px-3"><i class="fas fa-trash"></i></button>';h+='</div></div></div>'});c.innerHTML=h},
-  irParaOS:function(num){var o=State.osHistory.find(function(o){return o.numeroOS===num});if(o)Historico.view(num);else showToast('OS não encontrada',true)},
-  editar:function(id){if(!Auth.can('agendamentos_editar')){showToast('Apenas administrador',true);return}var a=State.agendamentos.find(function(a){return a.id===id});if(!a)return;$('ag_cliente').value=a.cliente;$('ag_data').value=a.data;$('ag_horario').value=a.horario;$('ag_tecnico').value=a.tecnico;$('ag_descricao').value=a.descricao||'';$('ag_editId').value=a.id;this.carregarOSDisponiveis(a.tecnico);setTimeout(function(){var sel=$('ag_os_select');if(sel)sel.value=a.equipamento||''},100);showToast('Editando')},
-  concluir:async function(id){if(!Auth.can('agendamentos_concluir')){showToast('Apenas administrador',true);return}var i=State.agendamentos.findIndex(function(a){return a.id===id});if(i!==-1){State.agendamentos[i].status='concluido';Storage.saveAgendamentos();this.atualizarLista();showToast('Concluído');try{await GoogleSheetsSync.syncSingleAgendamento(State.agendamentos[i])}catch(e){SyncQueue.add('upsert','agendamento',State.agendamentos[i])}}},
-  excluir:async function(id){if(!Auth.can('agendamentos_excluir')){showToast('Apenas administrador',true);return}if(!confirm('Excluir?'))return;var r=State.agendamentos.find(function(a){return a.id===id});State.agendamentos=State.agendamentos.filter(function(a){return a.id!==id});Storage.saveAgendamentos();this.atualizarLista();showToast('Excluído');if(r){try{await GoogleSheetsSync.syncSingleAgendamento(Object.assign({},r,{_deleted:true}))}catch(e){SyncQueue.add('delete','agendamento',{id:id})}}},
-  obterAgendamentosDoDia:function(tl){var h=dataHojeISO();return State.agendamentos.filter(function(a){return a.tecnico===tl&&a.data===h&&a.status!=='concluido'})},
-  obterAgendamentosFuturos:function(tl){var h=dataHojeISO(),todos=State.agendamentos.filter(function(a){return a.tecnico===tl&&a.status!=='concluido'&&a.data>=h});return{hoje:todos.filter(function(a){return a.data===h}),futuros:todos.filter(function(a){return a.data>h}),total:todos.length}}
+  atualizarLista:function(){var c=$('agendamentosLista');if(!c)return;var p=State.agendamentos.filter(function(a){return a.status!=='concluido'}).sort(function(a,b){return(a.data+a.horario).localeCompare(b.data+b.horario)});if(!p.length){c.innerHTML='<div class="text-center p-8 text-[var(--muted)]"><i class="fas fa-calendar-check text-4xl mb-3 opacity-30"></i><p>Nenhum agendamento pendente</p></div>';return}var ce=Auth.can('agendamentos_editar'),cd=Auth.can('agendamentos_excluir'),cc=Auth.can('agendamentos_concluir'),hoje=dataHojeISO(),h='';p.forEach(function(a){var osNum=a.equipamento||'Sem OS',oObj=State.osHistory.find(function(o){return o.numeroOS===osNum}),osI=oObj?' '+esc(oObj.marca||'')+' '+esc(oObj.modelo||''):'',isH=a.data===hoje,isF=a.data>hoje,cc2=isH?'schedule-card-hoje':(isF?'schedule-card-futuro':'schedule-card-passado'),tc=isH?'schedule-tag-hoje':(isF?'schedule-tag-futuro':'schedule-tag-passado'),tt=isH?'HOJE':(isF?a.data.split('-').reverse().join('/'):a.data);h+='<div class="schedule-card '+cc2+'"><div style="padding:16px 16px 0"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><span class="schedule-tag '+tc+'">'+esc(tt)+'</span><span class="schedule-os-num">'+esc(osNum)+osI+'</span></div><div class="schedule-cliente">'+esc(a.cliente)+'</div><div style="display:flex;align-items:baseline;gap:16px;margin:8px 0 4px;flex-wrap:wrap"><div class="schedule-hora">'+esc(a.horario)+'</div><div class="schedule-tecnico"><i class="fas fa-user-cog"></i> '+esc(a.tecnico)+'</div></div>'+(a.descricao?'<div class="schedule-descricao">'+esc(a.descricao)+'</div>':'')+'<div class="schedule-actions"><button onclick="Agendamentos.irParaOS(\''+esc(osNum).replace(/'/g,"\\'")+'\')" class="btn btn-info text-sm py-2 px-3"><i class="fas fa-external-link-alt"></i> OS</button>'+(cc?'<button onclick="Agendamentos.concluir('+a.id+')" class="btn btn-success text-sm py-2 px-3"><i class="fas fa-check"></i></button>':'')+(ce?'<button onclick="Agendamentos.editar('+a.id+')" class="btn btn-info text-sm py-2 px-3"><i class="fas fa-edit"></i></button>':'')+(cd?'<button onclick="Agendamentos.excluir('+a.id+')" class="btn btn-danger text-sm py-2 px-3"><i class="fas fa-trash"></i></button>':'')+'</div></div></div>'});c.innerHTML=h},
+  irParaOS:function(n){var o=State.osHistory.find(function(o){return o.numeroOS===n});if(o)Historico.view(n);else showToast('OS não encontrada',true)},
+  editar:function(id){if(!Auth.can('agendamentos_editar'))return;var a=State.agendamentos.find(function(a){return a.id===id});if(!a)return;$('ag_cliente').value=a.cliente;$('ag_data').value=a.data;$('ag_horario').value=a.horario;$('ag_tecnico').value=a.tecnico;$('ag_descricao').value=a.descricao||'';$('ag_editId').value=a.id;this.carregarOSDisponiveis(a.tecnico);setTimeout(function(){var sel=$('ag_os_select');if(sel)sel.value=a.equipamento||''},100)},
+  concluir:async function(id){if(!Auth.can('agendamentos_concluir'))return;var i=State.agagendamentos.findIndex(function(a){return a.id===id});if(i!==-1){State.agendamentos[i].status='concluido';Storage.saveAgendamentos();this.atualizarLista();showToast('Concluído');try{await GoogleSheetsSync.syncSingleAgendamento(State.agendamentos[i])}catch(e){SyncQueue.add('upsert','agendamento',State.agendamentos[i])}}},
+  excluir:async function(id){if(!Auth.can('agendamentos_excluir'))return;if(!confirm('Excluir?'))return;var r=State.agendamentos.find(function(a){return a.id===id});State.agendamentos=State.agendamentos.filter(function(a){return a.id!==id});Storage.saveAgendamentos();this.atualizarLista();showToast('Excluído');if(r)try{await GoogleSheetsSync.syncSingleAgendamento(Object.assign({},r,{_deleted:true}))}catch(e){SyncQueue.add('delete','agendamento',{id:id})}},
+  obterAgendamentosFuturos:function(tl){var h=dataHojeISO(),t=State.agendamentos.filter(function(a){return a.tecnico===tl&&a.status!=='concluido'&&a.data>=h});return{hoje:t.filter(function(a){return a.data===h}),futuros:t.filter(function(a){return a.data>h}),total:t.length}}
 };
 
-/* ==================== JORNADA (com reset diário) ==================== */
+/* ==================== JORNADA ==================== */
 var Jornada={
-  carregar:function(){if(!Auth.currentUser||!Auth.can('jornada_registrar'))return;var s=Storage.loadJornada(Auth.currentUser.login);var hoje=dataHojeISO();if(s&&s.data===hoje){State.jornada=s;var btn=$('btnNovaJornada');if(btn)btn.style.display='inline-flex'}else if(s&&s.data!==hoje&&s.dados&&s.dados.final&&s.dados.final.concluido){State.jornada={etapa:'inicio',dados:{},data:hoje};Storage.saveJornada(Auth.currentUser.login,State.jornada);var btn=$('btnNovaJornada');if(btn)btn.style.display='none';showToast('Nova jornada iniciada (dia novo)')}else if(s&&s.data!==hoje){State.jornada={etapa:'inicio',dados:{},data:hoje};Storage.saveJornada(Auth.currentUser.login,State.jornada);var btn=$('btnNovaJornada');if(btn)btn.style.display='none'}else{State.jornada={etapa:'inicio',dados:{},data:hoje};Storage.saveJornada(Auth.currentUser.login,State.jornada);var btn=$('btnNovaJornada');if(btn)btn.style.display='none'}this.renderizar()},
-  novaJornada:function(){if(!confirm('Iniciar nova jornada? Os dados atuais serão substituídos.'))return;State.jornada={etapa:'inicio',dados:{},data:dataHojeISO()};Storage.saveJornada(Auth.currentUser.login,State.jornada);this.renderizar();showToast('Nova jornada iniciada')},
-  renderizar:function(){var c=$('jornadaSteps'),sd=$('jornadaStatus');if(!c)return;var ag=Agendamentos.obterAgendamentosFuturos(Auth.currentUser.login),h='';if(ag.total>0){h+='<div style="font-size:1.1rem;font-weight:700;color:#fbbf24;margin-bottom:10px"><i class="fas fa-calendar-check" style="margin-right:6px"></i>'+ag.total+' agendamento(s) pendente(s)</div>';if(ag.hoje.length>0){h+='<div style="margin-bottom:12px"><div style="font-size:.8rem;color:var(--success);font-weight:700;margin-bottom:6px"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:4px"></i>HOJE</div>';ag.hoje.forEach(function(a){var osNum=a.equipamento||'',osTag=osNum?' <span style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:6px;font-size:.8rem;font-weight:700">'+esc(osNum)+'</span>':'';h+='<span style="display:inline-block;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#6ee7b7;padding:6px 14px;border-radius:10px;margin:4px;font-size:1rem;font-weight:600"><i class="fas fa-clock" style="color:#10b981;margin-right:6px"></i>'+esc(a.horario)+' HS'+osTag+' — <strong style="color:#f8fafc">'+esc(a.cliente)+'</strong></span>'});h+='</div>'}if(ag.futuros.length>0){h+='<div style="margin-bottom:12px"><div style="font-size:.8rem;color:var(--info);font-weight:700;margin-bottom:6px"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:4px"></i>PRÓXIMOS</div>';ag.futuros.forEach(function(a){var osNum=a.equipamento||'',osTag=osNum?' <span style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:6px;font-size:.75rem;font-weight:700">'+esc(osNum)+'</span>':'';var df=a.data.split('-').reverse().join('/');h+='<div style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:8px 14px;margin:4px;font-size:.95rem;color:#93c5fd"><i class="fas fa-calendar-day" style="color:#3b82f6;margin-right:6px"></i><strong>'+esc(df)+'</strong> — '+esc(a.horario)+' HS'+osTag+' — <strong style="color:#f8fafc">'+esc(a.cliente)+'</strong></div>'});h+='</div>'}}else{h='<div style="font-size:.95rem;color:#6b7280"><i class="fas fa-info-circle" style="margin-right:6px"></i>Nenhum agendamento pendente</div>'}sd.innerHTML=h;var d=State.jornada.dados||{},e1=d.inicio&&dd.inicio.concluido;
+  carregar:function(){
+    if(!Auth.currentUser||!Auth.can('jornada_registrar'))return;
+    var s=Storage.loadJornada(Auth.currentUser.login),hoje=dataHojeISO();
+    if(s&&s.data===hoje){State.jornada=s;$('btnNovaJornada').style.display='inline-flex'}
+    else{State.jornada={etapa:'inicio',dados:{},data:hoje};Storage.saveJornada(Auth.currentUser.login,State.jornada);$('btnNovaJornada').style.display='none'}
+    this.renderizar()
+  },
+  novaJornada:function(){if(!confirm('Iniciar nova jornada?'))return;State.jornada={etapa:'inicio',dados:{},data:dataHojeISO()};Storage.saveJornada(Auth.currentUser.login,State.jornada);this.renderizar();showToast('Nova jornada')},
+  renderizar:function(){
+    var c=$('jornadaSteps'),sd=$('jornadaStatus');if(!c)return;
+    var ag=Agendamentos.obterAgendamentosFuturos(Auth.currentUser.login),h='';
+    if(ag.total>0){
+      h+='<div style="font-size:1.1rem;font-weight:700;color:#fbbf24;margin-bottom:10px"><i class="fas fa-calendar-check" style="margin-right:6px"></i>'+ag.total+' agendamento(s)</div>';
+      if(ag.hoje.length){h+='<div style="margin-bottom:12px"><div style="font-size:.8rem;color:var(--success);font-weight:700;margin-bottom:6px"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:4px"></i>HOJE</div>';ag.hoje.forEach(function(a){var osN=a.equipamento||'',osT=osN?' <span style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:6px;font-size:.8rem;font-weight:700">'+esc(osN)+'</span>':'';h+='<span style="display:inline-block;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#6ee7b7;padding:6px 14px;border-radius:10px;margin:4px;font-size:1rem;font-weight:600"><i class="fas fa-clock" style="color:#10b981;margin-right:6px"></i>'+esc(a.horario)+' HS'+osT+' — <strong style="color:#f8fafc">'+esc(a.cliente)+'</strong></span>'});h+='</div>'}
+      if(ag.futuros.length){h+='<div style="margin-bottom:12px"><div style="font-size:.8rem;color:var(--info);font-weight:700;margin-bottom:6px"><i class="fas fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:4px"></i>PRÓXIMOS</div>';ag.futuros.forEach(function(a){var osN=a.equipamento||'',osT=osN?' <span style="background:var(--accent);color:#fff;padding:2px 8px;border-radius:6px;font-size:.75rem;font-weight:700">'+esc(osN)+'</span>':'';h+='<div style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:8px 14px;margin:4px;font-size:.95rem;color:#93c5fd"><i class="fas fa-calendar-day" style="color:#3b82f6;margin-right:6px"></i><strong>'+esc(a.data.split('-').reverse().join('/'))+'</strong> — '+esc(a.horario)+' HS'+osT+' — <strong style="color:#f8fafc">'+esc(a.cliente)+'</strong></div>'});h+='</div>'}
+    }else{h='<div style="font-size:.95rem;color:#6b7280"><i class="fas fa-info-circle" style="margin-right:6px"></i>Nenhum agendamento pendente</div>'}
+    sd.innerHTML=h;
+    var d=State.jornada.dados||{},e1=d.inicio&&d.inicio.concluido;
+    /* Etapa 1: Início */
     h='<div class="journey-step '+(e1?'completed':'')+'"><h3><i class="fas fa-play-circle"></i> 1. Início do Trabalho</h3>';
     if(!e1){
       h+='<div class="grid grid-cols-2 gap-3"><div><label class="text-xs text-[var(--muted)]">Placa *</label><input type="text" id="jornada_placa_inicio" class="form-input" value="'+esc(d.inicio?d.inicio.placa:'')+'" placeholder="ABC-1234" style="border-color:var(--danger)"></div><div><label class="text-xs text-[var(--muted)]">KM Inicial *</label><input type="number" id="jornada_km_inicio" class="form-input" value="'+(d.inicio?d.inicio.km:'')+'" placeholder="0" style="border-color:var(--danger)"></div></div>';
@@ -711,13 +797,12 @@ var Jornada={
       h+='<div class="mt-3"><label class="text-xs text-[var(--muted)]">Foto *</label><input type="file" id="jornada_foto_inicio" accept="image/*" capture="environment" class="form-input" style="border-color:var(--danger)"></div>';
       h+='<button onclick="Jornada.salvarEtapa(\'inicio\')" class="btn btn-primary mt-3"><i class="fas fa-save"></i> Registrar Início</button>'
     }else{
-      h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> Registrado em '+esc(d.inicio.dataHora)+' — Placa: <strong>'+esc(d.inicio.placa)+'</strong> — KM: <strong>'+esc(d.inicio.km)+'</strong>';
+      h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> '+esc(d.inicio.dataHora)+' — <strong>'+esc(d.inicio.placa)+'</strong> — KM: <strong>'+esc(d.inicio.km)+'</strong>';
       if(d.inicio.localizacao)h+=' — <i class="fas fa-map-pin"></i> '+esc(d.inicio.localizacao);
-      h+='</div>';
-      if(d.inicio.foto)h+='<div class="mt-2"><img src="'+d.inicio.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>'
+      h+='</div>';if(d.inicio.foto)h+='<div class="mt-2"><img src="'+d.inicio.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>'
     }
     h+='</div>';
-
+    /* Etapa 2: Chegada */
     var e2=d.chegada&&d.chegada.concluido;
     h+='<div class="journey-step '+(e2?'completed':'')+'"><h3><i class="fas fa-flag-checkered"></i> 2. Chegada ao Cliente</h3>';
     if(!e2&&e1){
@@ -725,15 +810,12 @@ var Jornada={
       h+='<div class="mt-3"><label class="text-xs text-[var(--muted)]">Foto *</label><input type="file" id="jornada_foto_chegada" accept="image/*" capture="environment" class="form-input" style="border-color:var(--danger)"></div>';
       h+='<button onclick="Jornada.salvarEtapa(\'chegada\')" class="btn btn-primary mt-3"><i class="fas fa-save"></i> Registrar Chegada</button>'
     }else if(e2){
-      h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> Registrado em '+esc(d.chegada.dataHora);
+      h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> '+esc(d.chegada.dataHora);
       if(d.chegada.localizacao)h+=' — <i class="fas fa-map-pin"></i> '+esc(d.chegada.localizacao);
-      h+='</div>';
-      if(d.chegada.foto)h+='<div class="mt-2"><img src="'+d.chegada.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>'
-    }else{
-      h+='<div class="text-[var(--warning)] text-sm"><i class="fas fa-hourglass-half"></i> Aguarde registrar início.</div>'
-    }
+      h+='</div>';if(d.chegada.foto)h+='<div class="mt-2"><img src="'+d.chegada.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>'
+    }else{h+='<div class="text-[var(--warning)] text-sm"><i class="fas fa-hourglass-half"></i> Aguarde registrar início.</div>'}
     h+='</div>';
-
+    /* Etapa 3: Finalização */
     var e3=d.final&&d.final.concluido;
     h+='<div class="journey-step '+(e3?'completed':'')+'"><h3><i class="fas fa-stop-circle"></i> 3. Finalização (Retorno)</h3>';
     if(!e3&&e2){
@@ -742,61 +824,50 @@ var Jornada={
       h+='<div class="mt-3"><label class="text-xs text-[var(--muted)]">Foto *</label><input type="file" id="jornada_foto_final" accept="image/*" capture="environment" class="form-input" style="border-color:var(--danger)"></div>';
       h+='<button onclick="Jornada.salvarEtapa(\'final\')" class="btn btn-primary mt-3"><i class="fas fa-save"></i> Registrar Finalização</button>'
     }else if(e3){
-      h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> Finalizado em '+esc(d.final.dataHora)+' — Placa: <strong>'+esc(d.final.placa)+'</strong> — KM: <strong>'+esc(d.final.km)+'</strong>';
+      h+='<div class="text-green-400 text-sm"><i class="fas fa-check-circle"></i> '+esc(d.final.dataHora)+' — <strong>'+esc(d.final.placa)+'</strong> — KM: <strong>'+esc(d.final.km)+'</strong>';
       if(d.final.localizacao)h+=' — <i class="fas fa-map-pin"></i> '+esc(d.final.localizacao);
-      h+='</div>';
-      if(d.final.foto)h+='<div class="mt-2"><img src="'+d.final.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>'
-    }else{
-      h+='<div class="text-[var(--warning)] text-sm"><i class="fas fa-hourglass-half"></i> Aguarde registrar chegada.</div>'
-    }
+      h+='</div>';if(d.final.foto)h+='<div class="mt-2"><img src="'+d.final.foto+'" style="max-width:150px;border-radius:8px;border:1px solid var(--border)"></div>'
+    }else{h+='<div class="text-[var(--warning)] text-sm"><i class="fas fa-hourglass-half"></i> Aguarde registrar chegada.</div>'}
     h+='</div>';
-
-    if(e2&&!e3){
-      h+='<div class="journey-step"><h3><i class="fas fa-laptop-code"></i> 4. Executar Serviço</h3><p class="text-sm text-[var(--muted)]">A OS atribuída será exibida pelo administrador.</p></div>'
-    }
+    if(e2&&!e3)h+='<div class="journey-step"><h3><i class="fas fa-laptop-code"></i> 4. Executar Serviço</h3><p class="text-sm text-[var(--muted)]">A OS será exibida pelo administrador.</p></div>';
     c.innerHTML=h
   },
-
   obterLocalizacao:function(et){
-    if(!navigator.geolocation){showToast('Geolocalização não suportada',true);return}
+    if(!navigator.geolocation){showToast('GPS não suportado',true);return}
     showToast('Obtendo localização...');
     navigator.geolocation.getCurrentPosition(function(p){
       var t=p.coords.latitude.toFixed(6)+', '+p.coords.longitude.toFixed(6);
-      var s=$('localizacao_'+et+'_texto');
-      if(s)s.innerHTML=esc(t);
+      var s=$('localizacao_'+et+'_texto');if(s)s.innerHTML=esc(t);
       if(!State.jornada.dados[et])State.jornada.dados[et]={};
       State.jornada.dados[et].localizacao=t;
-      Storage.saveJornada(Auth.currentUser.login,State.jornada);
-      showToast('Localização obtida')
+      Storage.saveJornada(Auth.currentUser.login,State.jornada);showToast('Localização obtida')
     },function(e){showToast('Erro GPS: '+e.message,true)})
   },
-
   salvarEtapa:async function(et){
     if(!Auth.can('jornada_registrar')){showToast('Sem permissão',true);return}
-    var de={},fotoBase64=null;
+    var de={},foto=null;
     if(et==='inicio'){
       var pl=$('jornada_placa_inicio').value.trim(),km=$('jornada_km_inicio').value.trim(),lo=(State.jornada.dados.inicio||{}).localizacao||'',fi=$('jornada_foto_inicio');
       if(!pl){showToast('Preencha a PLACA',true);return}if(!km){showToast('Preencha o KM',true);return}if(!lo){showToast('Obtenha a LOCALIZAÇÃO',true);return}if(!fi||!fi.files||!fi.files.length){showToast('Tire a FOTO',true);return}
-      fotoBase64=await Fotos.compressFile(fi.files[0]);
-      de={placa:pl,km:km,localizacao:lo,foto:fotoBase64,dataHora:agoraBr(),concluido:true};
+      foto=await Fotos.compressFile(fi.files[0]);
+      de={placa:pl,km:km,localizacao:lo,foto:foto,dataHora:agoraBr(),concluido:true};
       State.jornada.dados.inicio=de;State.jornada.etapa='chegada'
     }else if(et==='chegada'){
       var lo=(State.jornada.dados.chegada||{}).localizacao||'',fc=$('jornada_foto_chegada');
       if(!lo){showToast('Obtenha a LOCALIZAÇÃO',true);return}if(!fc||!fc.files||!fc.files.length){showToast('Tire a FOTO',true);return}
-      fotoBase64=await Fotos.compressFile(fc.files[0]);
-      de={localizacao:lo,foto:fotoBase64,dataHora:agoraBr(),concluido:true};
+      foto=await Fotos.compressFile(fc.files[0]);
+      de={localizacao:lo,foto:foto,dataHora:agoraBr(),concluido:true};
       State.jornada.dados.chegada=de;State.jornada.etapa='trabalhando'
     }else if(et==='final'){
       var pl=$('jornada_placa_final').value.trim(),km=$('jornada_km_final').value.trim(),lo=(State.jornada.dados.final||{}).localizacao||'',ff=$('jornada_foto_final');
       if(!pl){showToast('Preencha a PLACA',true);return}if(!km){showToast('Preencha o KM',true);return}if(!lo){showToast('Obtenha a LOCALIZAÇÃO',true);return}if(!ff||!ff.files||!ff.files.length){showToast('Tire a FOTO',true);return}
-      fotoBase64=await Fotos.compressFile(ff.files[0]);
-      de={placa:pl,km:km,localizacao:lo,foto:fotoBase64,dataHora:agoraBr(),concluido:true};
+      foto=await Fotos.compressFile(ff.files[0]);
+      de={placa:pl,km:km,localizacao:lo,foto:foto,dataHora:agoraBr(),concluido:true};
       State.jornada.dados.final=de;State.jornada.etapa='finalizado'
     }
     Storage.saveJornada(Auth.currentUser.login,State.jornada);
-    this.renderizar();
-    showToast('Etapa '+et+' registrada!');
-    var syncData={id:Date.now(),tecnico:Auth.currentUser.login,data:hojeBr(),etapa:et,placa:de.placa||'',km:de.km||'',localizacao:de.localizacao||'',foto:fotoBase64||'',dataHora:de.dataHora||''};
+    this.renderizar();showToast('Etapa '+et+' registrada!');
+    var syncData={id:Date.now(),tecnico:Auth.currentUser.login,data:hojeBr(),etapa:et,placa:de.placa||'',km:de.km||'',localizacao:de.localizacao||'',foto:foto||'',dataHora:de.dataHora||''};
     try{await GoogleSheetsSync.syncJornada(syncData)}catch(e){SyncQueue.add('upsert','jornada',syncData)}
   }
 };
@@ -807,83 +878,21 @@ var Fotos={
     return new Promise(function(resolve,reject){
       var r=new FileReader();
       r.onload=function(ev){
-        var img=new Image();
-        img.src=ev.target.result;
-        img.onload=function(){
-          var cv=document.createElement('canvas'),ra=Math.min(800/img.width,600/img.height),nw=Math.max(1,img.width*ra),nh=Math.max(1,img.height*ra);
-          cv.width=nw;cv.height=nh;
-          var cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,nw,nh);cx.drawImage(img,0,0,nw,nh);
-          resolve(cv.toDataURL('image/jpeg',0.7))
-        };
+        var img=new Image();img.src=ev.target.result;
+        img.onload=function(){var cv=document.createElement('canvas'),ra=Math.min(800/img.width,600/img.height),nw=Math.max(1,img.width*ra),nh=Math.max(1,img.height*ra);cv.width=nw;cv.height=nh;var cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,nw,nh);cx.drawImage(img,0,0,nw,nh);resolve(cv.toDataURL('image/jpeg',0.7))};
         img.onerror=reject
-      };
-      r.readAsDataURL(file)
+      };r.readAsDataURL(file)
     })
   },
-
   init:function(){
     var self=this;
     var fi=$('fotoHorimetroInput');
-    if(fi){
-      if(!Auth.can('fotos_horimetro')){fi.disabled=true;fi.title='Sem permissão'}
-      fi.addEventListener('change',function(e){
-        if(!Auth.can('fotos_horimetro')){showToast('Sem permissão',true);e.target.value='';return}
-        var f=e.target.files[0];
-        if(f&&f.type.startsWith('image/')){
-          var r=new FileReader();
-          r.onload=async function(ev){
-            try{State.fotoHorimetro=await self.compress(ev.target.result);var p=$('fotoHorimetroPreview');if(p)p.innerHTML='<div class="photo-item"><img src="'+State.fotoHorimetro+'"><div class="photo-remove" onclick="Fotos.removeHorimetro()">x</div></div>';State.hasUnsavedChanges=true;showToast('Foto carregada')}catch(err){showToast('Erro ao processar foto',true)}
-          };
-          r.readAsDataURL(f)
-        }
-      })
-    }
+    if(fi){if(!Auth.can('fotos_horimetro')){fi.disabled=true;fi.title='Sem permissão'}fi.addEventListener('change',function(e){if(!Auth.can('fotos_horimetro'))return;var f=e.target.files[0];if(f&&f.type.startsWith('image/')){var r=new FileReader();r.onload=async function(ev){try{State.fotoHorimetro=await self.compress(ev.target.result);var p=$('fotoHorimetroPreview');if(p)p.innerHTML='<div class="photo-item"><img src="'+State.fotoHorimetro+'"><div class="photo-remove" onclick="Fotos.removeHorimetro()">x</div></div>';State.hasUnsavedChanges=true;showToast('Foto carregada')}catch(err){showToast('Erro',true)}};r.readAsDataURL(f)}})}
     var fs=$('fotosServico');
-    if(fs){
-      if(!Auth.can('fotos_servico')){fs.disabled=true;fs.title='Sem permissão'}
-      fs.addEventListener('change',async function(e){
-        if(!Auth.can('fotos_servico')){showToast('Sem permissão',true);e.target.value='';return}
-        var files=Array.from(e.target.files);
-        if(State.fotosServico.length+files.length>Config.maxFotos){showToast('Máximo '+Config.maxFotos+' fotos',true);return}
-        var p=$('fotosPreview');
-        for(var i=0;i<files.length;i++){
-          var f=files[i];if(!f.type.startsWith('image/'))continue;
-          await new Promise(function(resolve){
-            var r=new FileReader();
-            r.onload=async function(ev){
-              try{var c=await self.compress(ev.target.result);State.fotosServico.push(c);if(p){var d=document.createElement('div');d.className='photo-item';d.innerHTML='<img src="'+c+'"><div class="photo-remove" onclick="Fotos.removeServico(this)">x</div>';p.appendChild(d)}}catch(err){}
-              resolve()
-            };
-            r.readAsDataURL(f)
-          })
-        }
-        fs.value='';State.hasUnsavedChanges=true
-      })
-    }
+    if(fs){if(!Auth.can('fotos_servico')){fs.disabled=true;fs.title='Sem permissão'}fs.addEventListener('change',async function(e){if(!Auth.can('fotos_servico'))return;var files=Array.from(e.target.files);if(State.fotosServico.length+files.length>Config.maxFotos){showToast('Máximo '+Config.maxFotos,true);return}var p=$('fotosPreview');for(var i=0;i<files.length;i++){var f=files[i];if(!f.type.startsWith('image/'))continue;await new Promise(function(res){var r=new FileReader();r.onload=async function(ev){try{var c=await self.compress(ev.target.result);State.fotosServico.push(c);if(p){var d=document.createElement('div');d.className='photo-item';d.innerHTML='<img src="'+c+'"><div class="photo-remove" onclick="Fotos.removeServico(this)">x</div>';p.appendChild(d)}}catch(e){}res()};r.readAsDataURL(f)})}fs.value='';State.hasUnsavedChanges=true})}
     var fp=$('fotosPendenciasInput');
-    if(fp){
-      if(!Auth.can('fotos_pendencias')){fp.disabled=true;fp.title='Sem permissão'}
-      fp.addEventListener('change',async function(e){
-        if(!Auth.can('fotos_pendencias')){showToast('Sem permissão',true);e.target.value='';return}
-        var files=Array.from(e.target.files);
-        if(State.fotosPendencias.length+files.length>Config.maxFotos){showToast('Máximo '+Config.maxFotos+' fotos',true);return}
-        var p=$('fotosPendenciasPreview');
-        for(var i=0;i<files.length;i++){
-          var f=files[i];if(!f.type.startsWith('image/'))continue;
-          await new Promise(function(resolve){
-            var r=new FileReader();
-            r.onload=async function(ev){
-              try{var c=await self.compress(ev.target.result);State.fotosPendencias.push(c);if(p){var d=document.createElement('div');d.className='photo-item';d.innerHTML='<img src="'+c+'"><div class="photo-remove" onclick="Fotos.removePendencia(this)">x</div>';p.appendChild(d)}}catch(err){}
-              resolve()
-            };
-            r.readAsDataURL(f)
-          })
-        }
-        fp.value='';State.hasUnsavedChanges=true
-      })
-    }
+    if(fp){if(!Auth.can('fotos_pendencias')){fp.disabled=true;fp.title='Sem permissão'}fp.addEventListener('change',async function(e){if(!Auth.can('fotos_pendencias'))return;var files=Array.from(e.target.files);if(State.fotosPendencias.length+files.length>Config.maxFotos){showToast('Máximo '+Config.maxFotos,true);return}var p=$('fotosPendenciasPreview');for(var i=0;i<files.length;i++){var f=files[i];if(!f.type.startsWith('image/'))continue;await new Promise(function(res){var r=new FileReader();r.onload=async function(ev){try{var c=await self.compress(ev.target.result);State.fotosPendencias.push(c);if(p){var d=document.createElement('div');d.className='photo-item';d.innerHTML='<img src="'+c+'"><div class="photo-remove" onclick="Fotos.removePendencia(this)">x</div>';p.appendChild(d)}}catch(e){}res()};r.readAsDataURL(f)})}fp.value='';State.hasUnsavedChanges=true})}
   },
-
   removeHorimetro:function(){if(!Auth.can('fotos_horimetro'))return;State.fotoHorimetro=null;var i=$('fotoHorimetroInput');if(i)i.value='';var p=$('fotoHorimetroPreview');if(p)p.innerHTML=''},
   removeServico:function(el){if(!Auth.can('fotos_servico'))return;var c=el.parentNode.parentNode,idx=Array.from(c.children).indexOf(el.parentNode);if(idx!==-1){State.fotosServico.splice(idx,1);el.parentNode.remove()}},
   removePendencia:function(el){if(!Auth.can('fotos_pendencias'))return;var c=el.parentNode.parentNode,idx=Array.from(c.children).indexOf(el.parentNode);if(idx!==-1){State.fotosPendencias.splice(idx,1);el.parentNode.remove()}}
@@ -893,12 +902,12 @@ var Fotos={
 var App={
   init:function(){
     Storage.loadCounter();Clientes.load();Historico.load();Agendamentos.carregar();
-    this.populateMarcas();Checklist.render();Signature.init();Fotos.init();Horas.initListeners();Utils.setDefaultDate();this.setupTabs();this.setupMarcaSelect();this.setupSearch();this.setupAgendamentoOS();
+    this.populateMarcas();Checklist.render();Signature.init();Fotos.init();Horas.initListeners();Utils.setDefaultDate();
+    this.setupTabs();this.setupMarcaSelect();this.setupSearch();this.setupAgendamentoOS();
     State.currentStatus='abertura';this.updateUI();UserManager.render();
     var pc=$('permissoesContainer');
     if(pc&&Auth.can('permissoes_editar')){
-      var h='';
-      for(var k in Permissoes.padrao)h+='<div class="permission-item"><label><input type="checkbox" id="perm_'+k+'"> '+esc(k.replace(/_/g,' ').toUpperCase())+'</label></div>';
+      var h='';for(var k in Permissoes.padrao)h+='<div class="permission-item"><label><input type="checkbox" id="perm_'+k+'"> '+esc(k.replace(/_/g,' ').toUpperCase())+'</label></div>';
       pc.innerHTML=h;Permissoes.carregarNaInterface()
     }
     if(Auth.can('sincronizar')){
@@ -911,12 +920,9 @@ var App={
     window.addEventListener('offline',function(){SyncUI.set('Offline','offline')})
   },
 
-  setupAgendamentoOS:function(){var selTec=$('ag_tecnico');if(selTec)selTec.addEventListener('change',function(){Agendamentos.carregarOSDisponiveis(selTec.value)})},
-
+  setupAgendamentoOS:function(){var s=$('ag_tecnico');if(s)s.addEventListener('change',function(){Agendamentos.carregarOSDisponiveis(s.value)})},
   populateMarcas:function(){var s=$('marcaSelect');if(!s)return;s.innerHTML='<option value="">Selecione</option>';Config.marcas.forEach(function(m){if(m!=='OUTRA')s.innerHTML+='<option value="'+m+'">'+m+'</option>'});s.innerHTML+='<option value="OUTRA">OUTRA</option>'},
-
   setupMarcaSelect:function(){var s=$('marcaSelect'),d=$('marcaOutraDiv'),i=$('marcaOutra');if(s&&d&&i){s.addEventListener('change',function(){d.style.display=s.value==='OUTRA'?'block':'none';Utils.setVal('marca',s.value==='OUTRA'?i.value.toUpperCase():s.value)});i.addEventListener('input',function(){Utils.setVal('marca',i.value.toUpperCase())})}},
-
   setupTabs:function(){
     var c=$('tabsContainer');if(!c)return;
     c.addEventListener('click',function(e){
@@ -924,142 +930,92 @@ var App={
       var tid=t.getAttribute('data-tab');if(!tid)return;
       document.querySelectorAll('.tab-button').forEach(function(x){x.classList.remove('active')});
       document.querySelectorAll('.tab-content').forEach(function(x){x.classList.remove('active')});
-      t.classList.add('active');
-      var tc=document.getElementById(tid);if(tc)tc.classList.add('active');
-      /* Re-inicializar canvas de assinatura quando a tab OS fica visível */
-      if(tid==='tab-os'){setTimeout(function(){Signature.setupCanvas('tec');Signature.setupCanvas('cli')},50)}
+      t.classList.add('active');var tc=document.getElementById(tid);if(tc)tc.classList.add('active');
+      if(tid==='tab-os')setTimeout(function(){Signature.setupCanvas('tec');Signature.setupCanvas('cli')},50)
     })
   },
-
   setupSearch:function(){
     var hs=$('historicoSearch');if(hs)hs.addEventListener('input',function(){Historico.render()});
     var tf=$('historicoFiltroTipo');if(tf)tf.addEventListener('change',function(){Historico.render()});
     var sf=$('historicoFiltroStatus');if(sf)sf.addEventListener('change',function(){Historico.render()});
     var si=$('cad_searchInput');if(si)si.addEventListener('input',function(e){var q=e.target.value.toLowerCase(),orig=State.clients;State.clients=orig.filter(function(c){return(c.nome&&c.nome.toLowerCase().indexOf(q)!==-1)||(c.cidade&&c.cidade.toLowerCase().indexOf(q)!==-1)});Clientes.renderTable();State.clients=orig})
   },
-
   updateUI:function(){
-    var a=State.currentStatus==='abertura',ex=State.currentStatus==='execucao',fi=State.currentStatus==='finalizacao',fe=State.currentStatus==='fechada',ap=State.currentStatus==='aprovada';
-    var canChange=Auth.can('mudar_status');
-    var map={btnIniciarExecucao:{show:canChange,disable:!a},btnFinalizar:{show:canChange,disable:!ex},btnFecharOS:{show:canChange,disable:!fi},btnAprovar:{show:canChange,disable:!fe}};
-    for(var k in map){var el=$(k);if(el){el.disabled=map[k].disable;el.style.display=map[k].show?'inline-flex':'none'}}
-    var bp=$('btnPreviaPDF');if(bp)bp.disabled=!ap;
-    var be=$('btnEnviarEmail');if(be)be.disabled=!ap;
-    ['descricaoServico','pecasAplicadas','pendencias','horasExtras','adicionalNoturno','modelo','numSerie','horimetro'].forEach(function(id){var el=$(id);if(el)el.disabled=fe||ap});
-    var ms=$('marcaSelect');if(ms)ms.disabled=fe||ap;
-    var bg=$('statusBadge');if(bg){var cfg={abertura:{text:'EM ABERTURA',cls:'status-abertura'},execucao:{text:'EM EXECUÇÃO',cls:'status-execucao'},finalizacao:{text:'FINALIZANDO',cls:'status-finalizacao'},fechada:{text:'FECHADA',cls:'status-fechada'},aprovada:{text:'APROVADA',cls:'status-aprovada'}}[State.currentStatus];bg.textContent=cfg.text;bg.className='status-badge '+cfg.cls}
+    var st=State.currentStatus,canCh=Auth.can('mudar_status');
+    var map={btnIniciarExecucao:{s:canCh,d:st!=='abertura'},btnFinalizar:{s:canCh,d:st!=='execucao'},btnFecharOS:{s:canCh,d:st!=='finalizacao'},btnAprovar:{s:canCh,d:st!=='fechada'}};
+    for(var k in map){var el=$(k);if(el){el.disabled=map[k].d;el.style.display=map[k].s?'inline-flex':'none'}}
+    $('btnPreviaPDF').disabled=st!=='aprovada';$('btnEnviarEmail').disabled=st!=='aprovada';
+    ['descricaoServico','pecasAplicadas','pendencias','horasExtras','adicionalNoturno','modelo','numSerie','horimetro'].forEach(function(id){var el=$(id);if(el)el.disabled=st==='fechada'||st==='aprovada'});
+    var ms=$('marcaSelect');if(ms)ms.disabled=st==='fechada'||st==='aprovada';
+    var bg=$('statusBadge'),cfg={abertura:{t:'EM ABERTURA',c:'status-abertura'},execucao:{t:'EM EXECUÇÃO',c:'status-execucao'},finalizacao:{t:'FINALIZANDO',c:'status-finalizacao'},fechada:{t:'FECHADA',c:'status-fechada'},aprovada:{t:'APROVADA',c:'status-aprovada'}}[st];
+    if(bg){bg.textContent=cfg.t;bg.className='status-badge '+cfg.c}
     var steps=['abertura','execucao','finalizacao','fechada','aprovada'];
-    document.querySelectorAll('.step').forEach(function(st,idx){st.classList.remove('active','completed','locked');if(steps[idx]===State.currentStatus)st.classList.add('active');else if(steps.indexOf(State.currentStatus)>idx)st.classList.add(steps[idx]==='fechada'&&State.currentStatus==='aprovada'?'locked':'completed')})
+    document.querySelectorAll('.step').forEach(function(el,i){el.classList.remove('active','completed','locked');if(steps[i]===st)el.classList.add('active');else if(steps.indexOf(st)>i)el.classList.add(steps[i]==='fechada'&&st==='aprovada'?'locked':'completed')})
   },
-
-  coletarDados:function(){
-    var d={};
-    document.querySelectorAll('#tab-os input,#tab-os select,#tab-os textarea').forEach(function(el){if(el.id&&el.type!=='file')d[el.id]=el.value});
-    Object.assign(d,Checklist.getChecklistData());
-    var ms=$('marcaSelect').value,mo=$('marcaOutra').value;
-    d.marca=ms==='OUTRA'?mo.toUpperCase():ms;
-    return d
-  },
-
+  coletarDados:function(){var d={};document.querySelectorAll('#tab-os input,#tab-os select,#tab-os textarea').forEach(function(el){if(el.id&&el.type!=='file')d[el.id]=el.value});Object.assign(d,Checklist.getChecklistData());var ms=$('marcaSelect').value,mo=$('marcaOutra').value;d.marca=ms==='OUTRA'?mo.toUpperCase():ms;return d},
   salvar:async function(){
-    if(!Auth.can('salvar_os')){showToast('Sem permissão para salvar OS',true);return false}
+    if(!Auth.can('salvar_os')){showToast('Sem permissão',true);return false}
     Signature.save('tec');Signature.save('cli');
-    var d=this.coletarDados();
-    d.status=State.currentStatus;d.fotosBase64=State.fotosServico;d.fotoHorimetro=State.fotoHorimetro;d.fotosPendencias=State.fotosPendencias;
+    var d=this.coletarDados();d.status=State.currentStatus;d.fotosBase64=State.fotosServico;d.fotoHorimetro=State.fotoHorimetro;d.fotosPendencias=State.fotosPendencias;
     d.assinaturaTecnico=Utils.getVal('assinaturaTecnicoData');d.assinaturaCliente=Utils.getVal('assinaturaClienteData');d.checklistData=Checklist.getChecklistData();
     Horas.calcular();d.horasTotais=Utils.getVal('horasTotais');d.totalGeral=Utils.getVal('totalGeral');
     if(!d.numeroOS)d.numeroOS=Utils.generateOSNumber();
-    try{
-      var idx=State.osHistory.findIndex(function(o){return o.numeroOS===d.numeroOS});
-      if(idx>=0)State.osHistory[idx]=d;else State.osHistory.unshift(d);
-      Storage.saveOSHistory();State.hasUnsavedChanges=false;Historico.updateStats();Clientes.updateStats();
-      await GoogleSheetsSync.syncSingleOS(d);
-      SyncQueue.add('upsert','os',d);
-      return true
-    }catch(e){showToast('Erro ao salvar',true);return false}
+    try{var idx=State.osHistory.findIndex(function(o){return o.numeroOS===d.numeroOS});if(idx>=0)State.osHistory[idx]=d;else State.osHistory.unshift(d);Storage.saveOSHistory();State.hasUnsavedChanges=false;Historico.updateStats();Clientes.updateStats();await GoogleSheetsSync.syncSingleOS(d);SyncQueue.add('upsert','os',d);return true}catch(e){showToast('Erro ao salvar',true);return false}
   },
-
-  salvarOSManual:async function(){if(!Auth.can('salvar_os')){showToast('Sem permissão para salvar OS',true);return}var ok=await this.salvar();if(ok){showToast('OS salva');Historico.render()}},
-
+  salvarOSManual:async function(){if(!Auth.can('salvar_os'))return;var ok=await this.salvar();if(ok){showToast('OS salva');Historico.render()}},
   mudarStatus:async function(ns){
-    if(!Auth.can('mudar_status')){showToast('Sem permissão para mudar status',true);return}
-    if(ns==='abertura'){if(!Utils.getVal('numeroOS')){showToast('Clique em Nova OS primeiro',true);return}if(!Utils.getVal('cliente').trim()){showToast('Cliente obrigatório',true);return}}
+    if(!Auth.can('mudar_status')){showToast('Sem permissão',true);return}
+    if(ns==='abertura'){if(!Utils.getVal('numeroOS')){showToast('Clique em Nova OS',true);return}if(!Utils.getVal('cliente').trim()){showToast('Cliente obrigatório',true);return}}
     if(ns==='execucao'&&State.currentStatus!=='abertura'){showToast('Precisa estar em ABERTURA',true);return}
     if(ns==='finalizacao'&&State.currentStatus!=='execucao'){showToast('Precisa estar em EXECUÇÃO',true);return}
     if(ns==='fechada'&&State.currentStatus!=='finalizacao'){showToast('Precisa estar FINALIZANDO',true);return}
     if(ns==='aprovada'){if(State.currentStatus!=='fechada'){showToast('Precisa estar FECHADA',true);return}if(!Utils.getVal('assinaturaClienteData')){showToast('Cliente deve assinar',true);return}if(!Utils.getVal('recebedor').trim()){showToast('Nome do recebedor',true);return}}
-    State.currentStatus=ns;
-    if(ns==='finalizacao'||ns==='fechada')Horas.calcular();
-    var ok=await this.salvar();
-    if(ok){this.updateUI();Historico.render();showToast('Status: '+Utils.formatStatus(ns))}
+    State.currentStatus=ns;if(ns==='finalizacao'||ns==='fechada')Horas.calcular();
+    var ok=await this.salvar();if(ok){this.updateUI();Historico.render();showToast('Status: '+Utils.formatStatus(ns))}
   },
-
-  iniciarExecucao:function(){if(!Auth.can('mudar_status')){showToast('Sem permissão',true);return}if(State.currentStatus!=='abertura')return;this.mudarStatus('execucao');Timer.control('start');showToast('Execução iniciada')},
-
-  finalizarServico:function(){if(!Auth.can('mudar_status')){showToast('Sem permissão',true);return}if(State.currentStatus!=='execucao')return;var h=Utils.getVal('horimetro');if(!h){showToast('Horímetro obrigatório',true);return}if(!Utils.validarHorimetro(h)){showToast('Horímetro inválido (ex: 1250 ou 1250h)',true);return}Timer.control('stop');Horas.calcular();this.mudarStatus('finalizacao');showToast('Serviço finalizado')},
-
-  fecharOS:function(){if(!Auth.can('mudar_status')){showToast('Sem permissão',true);return}if(State.currentStatus!=='finalizacao')return;if(!Utils.getVal('descricaoServico').trim()){showToast('Descreva o serviço',true);return}var h=Utils.getVal('horimetro');if(!h||!Utils.validarHorimetro(h)){showToast('Horímetro inválido',true);return}Horas.calcular();if(!confirm('Fechar OS? Dados não poderão ser alterados.'))return;this.mudarStatus('fechada');showToast('OS fechada')},
-
+  iniciarExecucao:function(){if(!Auth.can('mudar_status')||State.currentStatus!=='abertura')return;this.mudarStatus('execucao');Timer.control('start');showToast('Execução iniciada')},
+  finalizarServico:function(){if(!Auth.can('mudar_status')||State.currentStatus!=='execucao')return;var h=Utils.getVal('horimetro');if(!h||!Utils.validarHorimetro(h)){showToast('Horímetro inválido',true);return}Timer.control('stop');Horas.calcular();this.mudarStatus('finalizacao')},
+  fecharOS:function(){if(!Auth.can('mudar_status')||State.currentStatus!=='finalizacao')return;if(!Utils.getVal('descricaoServico').trim()){showToast('Descreva o serviço',true);return}var h=Utils.getVal('horimetro');if(!h||!Utils.validarHorimetro(h)){showToast('Horímetro inválido',true);return}Horas.calcular();if(!confirm('Fechar OS?'))return;this.mudarStatus('fechada')},
   novaOS:function(){
-    if(!Auth.can('criar_os')){showToast('Sem permissão para criar OS',true);return}
-    if(State.hasUnsavedChanges&&!confirm('Alterações não salvas. Criar nova OS?'))return;
+    if(!Auth.can('criar_os')){showToast('Sem permissão',true);return}
+    if(State.hasUnsavedChanges&&!confirm('Alterações não salvas. Nova OS?'))return;
     State.currentStatus='abertura';State.fotosServico=[];State.fotoHorimetro=null;State.fotosPendencias=[];State.hasUnsavedChanges=false;
     document.querySelectorAll('#tab-os input,#tab-os select,#tab-os textarea').forEach(function(el){if(el.id&&el.type!=='file')el.value=''});
-    Utils.setDefaultDate();
-    document.querySelectorAll('input[data-check="true"]').forEach(function(cb){cb.checked=false});Checklist.updateProgress();
+    Utils.setDefaultDate();document.querySelectorAll('input[data-check="true"]').forEach(function(cb){cb.checked=false});Checklist.updateProgress();
     $('fotosPreview').innerHTML='';$('fotoHorimetroPreview').innerHTML='';$('fotosPendenciasPreview').innerHTML='';
     $('fotosServico').value='';$('fotoHorimetroInput').value='';$('fotosPendenciasInput').value='';
-    Signature.clear('tec');Signature.clear('cli');
-    Timer.reset();Timer.seconds=0;Timer.running=false;Timer.paused=false;State.timerStartRealTime=0;State.timerPausedAccum=0;if(Timer.interval)clearInterval(Timer.interval);
-    var osNum=Utils.generateOSNumber();$('numeroOS').value=osNum;
-    this.updateUI();showToast('Nova OS criada: '+osNum);
+    Signature.clear('tec');Signature.clear('cli');Timer.reset();Timer.running=false;Timer.paused=false;State.timerStartRealTime=0;State.timerPausedAccum=0;if(Timer.interval)clearInterval(Timer.interval);
+    var osNum=Utils.generateOSNumber();$('numeroOS').value=osNum;this.updateUI();showToast('Nova OS: '+osNum);
     document.querySelector('.tab-button[data-tab="tab-clientes"]').click()
   },
-
   getResumoEmail:function(){
-    var t=Utils.getVal('tipoChamado')||'normal',st=Utils.formatStatus(State.currentStatus),ht=Utils.getVal('horasTotais')||'0h',mk=Utils.getVal('marca')||'Não informada',md=Utils.getVal('modelo')||'Não informado';
-    var ds=Utils.getVal('descricaoServico')||'Não informado',pc=Utils.getVal('pecasAplicadas')||'Nenhuma',pd=Utils.getVal('pendencias')||'Nenhuma',rl=Utils.getVal('relatoCliente')||'Não informado';
     var cn=Utils.getVal('cliente'),dt=Utils.getVal('dataOS')||hojeBr(),no=Utils.getVal('numeroOS')||'OS-'+Date.now();
-    return'MARLIFT EMPILHADEIRAS\n======================\nOS: '+no+'\nData: '+dt+'\nCliente: '+cn+'\nEmpilhadeira: '+mk+' '+md+'\nTempo: '+ht+'\nStatus: '+st+'\nRelato:\n'+rl+'\n\nServiço Realizado:\n'+ds+'\n\nPeças:\n'+pc+'\n\nPendências:\n'+pd+'\n======================\nMARLIFT Empilhadeiras'
+    return'MARLIFT EMPILHADEIRAS\n======================\nOS: '+no+'\nData: '+dt+'\nCliente: '+cn+'\nEmpilhadeira: '+(Utils.getVal('marca')||'N/I')+' '+(Utils.getVal('modelo')||'')+'\nTempo: '+(Utils.getVal('horasTotais')||'0h')+'\nStatus: '+Utils.formatStatus(State.currentStatus)+'\nRelato:\n'+(Utils.getVal('relatoCliente')||'N/I')+'\n\nServiço:\n'+(Utils.getVal('descricaoServico')||'N/I')+'\n\nPeças:\n'+(Utils.getVal('pecasAplicadas')||'Nenhuma')+'\n\nPendências:\n'+(Utils.getVal('pendencias')||'Nenhuma')+'\n======================\nMARLIFT Empilhadeiras'
   },
-
   enviarEmailComResumo:function(){
-    if(!Auth.can('enviar_email')){showToast('Sem permissão',true);return}
-    if(State.currentStatus!=='aprovada'){showToast('Somente OS aprovadas',true);return}
+    if(!Auth.can('enviar_email'))return;if(State.currentStatus!=='aprovada'){showToast('Somente OS aprovadas',true);return}
     var cn=Utils.getVal('cliente'),ce=State.clients.find(function(c){return c.nome===cn}),em=ce?ce.email:'';
-    if(!em){em=prompt('Digite o e-mail do cliente:');if(!em||!em.includes('@')){showToast('E-mail inválido',true);return}}
-    window.location.href='mailto:'+encodeURIComponent(em)+'?subject='+encodeURIComponent('MARLIFT - OS '+Utils.getVal('numeroOS'))+'&body='+encodeURIComponent(this.getResumoEmail());showToast('Abrindo e-mail')
+    if(!em){em=prompt('E-mail do cliente:');if(!em||!em.includes('@')){showToast('Inválido',true);return}}
+    window.location.href='mailto:'+encodeURIComponent(em)+'?subject='+encodeURIComponent('MARLIFT - OS '+Utils.getVal('numeroOS'))+'&body='+encodeURIComponent(this.getResumoEmail())
   },
-
-  gerarPreviaPDF:function(){if(!Auth.can('gerar_pdf')){showToast('Sem permissão',true);return}if(State.currentStatus!=='aprovada'){showToast('Somente OS aprovadas',true);return}var w=window.open();w.document.write(this.gerarRelatorioHTML());w.document.close();setTimeout(function(){w.print()},500)},
-
+  gerarPreviaPDF:function(){if(!Auth.can('gerar_pdf'))return;if(State.currentStatus!=='aprovada'){showToast('Somente OS aprovadas',true);return}var w=window.open();w.document.write(this.gerarRelatorioHTML());w.document.close();setTimeout(function(){w.print()},500)},
   gerarRelatorioHTML:function(){
     var ed=Utils.getVal('endereco'),ml=ed?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(ed):'';
     var mh=ed?'<div style="margin-top:8px"><a href="'+ml+'" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#f97316;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:bold">Ver localização</a></div>':'';
-    var fh=State.fotosServico.length?'<div><h3>Fotos do Serviço</h3><div style="display:flex;flex-wrap:wrap;gap:10px">'+State.fotosServico.map(function(s){return'<img src="'+s+'" style="max-width:200px;border-radius:8px">'}).join('')+'</div></div>':'';
+    var fh=State.fotosServico.length?'<div><h3>Fotos</h3><div style="display:flex;flex-wrap:wrap;gap:10px">'+State.fotosServico.map(function(s){return'<img src="'+s+'" style="max-width:200px;border-radius:8px">'}).join('')+'</div></div>':'';
     var hi=State.fotoHorimetro?'<div><h3>Horímetro</h3><img src="'+State.fotoHorimetro+'" style="max-width:180px;border-radius:8px"></div>':'';
-    var ci=[];document.querySelectorAll('input[data-check="true"]').forEach(function(cb){if(cb.checked)ci.push(cb.parentElement.innerText.trim())});
-    var ch=ci.length?'<div><h3>Itens Verificados</h3><ul><li>'+ci.map(function(x){return esc(x)}).join('</li><li>')+'</li></ul></div>':'';
-    var cn=Utils.getVal('cliente'),ce=State.clients.find(function(c){return c.nome===cn}),ec2=ce?ce.email:'Não informado';
-    var hc=Utils.getVal('horasTotais')||'0h',tg=Utils.getVal('totalGeral')||'00:00';
-    return'<!DOCTYPE html><html><head><title>Relatório_'+esc(Utils.getVal('numeroOS'))+'</title><meta charset="UTF-8"><style>body{font-family:Arial;padding:30px;max-width:900px;margin:auto}h1{color:#f97316}h3{color:#333;border-bottom:1px solid #ddd;padding-bottom:5px;margin-top:20px}</style></head><body><h1>MARLIFT EMPILHADEIRAS</h1><h2>RELATÓRIO - OS '+esc(Utils.getVal('numeroOS'))+'</h2><p>Data: '+agoraBr()+'</p><h3>Dados do Cliente</h3><p><strong>Cliente:</strong> '+esc(Utils.getVal('cliente'))+'<br><strong>CNPJ:</strong> '+esc(Utils.getVal('cnpj'))+'<br><strong>E-mail:</strong> '+esc(ec2)+'<br><strong>Endereço:</strong> '+esc(Utils.getVal('endereco'))+' - '+esc(Utils.getVal('cidadeCliente'))+'</p>'+mh+'<h3>Equipamento</h3><p><strong>Marca:</strong> '+esc(Utils.getVal('marca'))+' | <strong>Modelo:</strong> '+esc(Utils.getVal('modelo'))+' | <strong>Série:</strong> '+esc(Utils.getVal('numSerie'))+' | <strong>Horímetro:</strong> '+esc(Utils.getVal('horimetro'))+'h</p>'+hi+'<h3>Serviço Executado</h3><p><strong>Diagnóstico:</strong><br>'+esc(Utils.getVal('descricaoServico')).replace(/\n/g,'<br>')+'<br><strong>Peças:</strong><br>'+esc(Utils.getVal('pecasAplicadas')).replace(/\n/g,'<br>')+'<br><strong>Pendências:</strong><br>'+esc(Utils.getVal('pendencias')).replace(/\n/g,'<br>')+'</p>'+ch+fh+'<h3>Horas</h3><p><strong>Cobradas:</strong> '+esc(hc)+' | <strong>Total:</strong> '+esc(tg)+'</p><h3>Assinaturas</h3><div style="display:flex;gap:40px"><div><strong>Técnico:</strong> '+esc(Utils.getVal('tecnico'))+'<br>'+(Utils.getVal('assinaturaTecnicoData')?'<img src="'+Utils.getVal('assinaturaTecnicoData')+'" style="max-width:200px;border:1px solid #ccc">':'Não assinado')+'</div><div><strong>Cliente:</strong> '+esc(Utils.getVal('recebedor'))+'<br>'+(Utils.getVal('assinaturaClienteData')?'<img src="'+Utils.getVal('assinaturaClienteData')+'" style="max-width:200px;border:1px solid #ccc">':'Não assinado')+'</div></div><p style="margin-top:30px;text-align:center;color:#999;font-size:12px">Documento gerado eletronicamente - MARLIFT Empilhadeiras</p></body></html>'
+    var ci=[];document.querySelectorAll('input[data-check="true"]').forEach(function(cb){if(cb.checked)ci.push(esc(cb.parentElement.innerText.trim()))});
+    var ch=ci.length?'<div><h3>Itens Verificados</h3><ul><li>'+ci.join('</li><li>')+'</li></ul></div>':'';
+    var cn=Utils.getVal('cliente'),ce=State.clients.find(function(c){return c.nome===cn}),ec2=ce&&ce.email?ce.email:'Não informado';
+    return'<!DOCTYPE html><html><head><title>Relatório_'+esc(Utils.getVal('numeroOS'))+'</title><meta charset="UTF-8"><style>body{font-family:Arial;padding:30px;max-width:900px;margin:auto}h1{color:#f97316}h3{color:#333;border-bottom:1px solid #ddd;padding-bottom:5px;margin-top:20px}</style></head><body><h1>MARLIFT EMPILHADEIRAS</h1><h2>RELATÓRIO - OS '+esc(Utils.getVal('numeroOS'))+'</h2><p>Data: '+agoraBr()+'</p><h3>Dados do Cliente</h3><p><strong>Cliente:</strong> '+esc(cn)+'<br><strong>CNPJ:</strong> '+esc(Utils.getVal('cnpj'))+'<br><strong>E-mail:</strong> '+esc(ec2)+'<br><strong>Endereço:</strong> '+esc(Utils.getVal('endereco'))+' - '+esc(Utils.getVal('cidadeCliente'))+'</p>'+mh+'<h3>Equipamento</h3><p><strong>Marca:</strong> '+esc(Utils.getVal('marca'))+' | <strong>Modelo:</strong> '+esc(Utils.getVal('modelo'))+' | <strong>Série:</strong> '+esc(Utils.getVal('numSerie'))+' | <strong>Horímetro:</strong> '+esc(Utils.getVal('horimetro'))+'h</p>'+hi+'<h3>Serviço Executado</h3><p><strong>Diagnóstico:</strong><br>'+esc(Utils.getVal('descricaoServico')).replace(/\n/g,'<br>')+'<br><strong>Peças:</strong><br>'+esc(Utils.getVal('pecasAplicadas')).replace(/\n/g,'<br>')+'<br><strong>Pendências:</strong><br>'+esc(Utils.getVal('pendencias')).replace(/\n/g,'<br>')+'</p>'+ch+fh+'<h3>Horas</h3><p><strong>Cobradas:</strong> '+esc(Utils.getVal('horasTotais'))+' | <strong>Total:</strong> '+esc(Utils.getVal('totalGeral'))+'</p><h3>Assinaturas</h3><div style="display:flex;gap:40px"><div><strong>Técnico:</strong> '+esc(Utils.getVal('tecnico'))+'<br>'+(Utils.getVal('assinaturaTecnicoData')?'<img src="'+Utils.getVal('assinaturaTecnicoData')+'" style="max-width:200px;border:1px solid #ccc">':'Não assinado')+'</div><div><strong>Cliente:</strong> '+esc(Utils.getVal('recebedor'))+'<br>'+(Utils.getVal('assinaturaClienteData')?'<img src="'+Utils.getVal('assinaturaClienteData')+'" style="max-width:200px;border:1px solid #ccc">':'Não assinado')+'</div></div><p style="margin-top:30px;text-align:center;color:#999;font-size:12px">Documento gerado eletronicamente - MARLIFT Empilhadeiras</p></body></html>'
   },
-
   abrirMapa:function(){var e=Utils.getVal('endereco');if(e)window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(e));else showToast('Informe o endereço',true)},
-
-  sendWhatsAppMessage:function(){if(!Auth.can('enviar_whatsapp')){showToast('Sem permissão',true);return}var n=prompt('WhatsApp com DDD:',Utils.getVal('whatsappCliente'));if(!n)return;window.open('https://wa.me/'+n.replace(/\D/g,'')+'?text='+encodeURIComponent(this.getResumoEmail()))},
-
+  sendWhatsAppMessage:function(){if(!Auth.can('enviar_whatsapp'))return;var n=prompt('WhatsApp com DDD:',Utils.getVal('whatsappCliente'));if(!n)return;window.open('https://wa.me/'+n.replace(/\D/g,'')+'?text='+encodeURIComponent(this.getResumoEmail()))},
   fecharModalEquip:function(){$('equipModal').style.display='none'},
-
   mostrarModalEquipamentos:function(cl){
     var md=$('equipModal'),el=$('equipList');el.innerHTML='';
-    if(cl.equipamentos&&cl.equipamentos.length>0){
-      cl.equipamentos.forEach(function(eq){
-        var d=document.createElement('div');d.className='equip-option';
-        d.innerHTML='<div><strong><i class="fas fa-forklift"></i> '+esc(eq.marca||'N/A')+' '+esc(eq.modelo||'')+'</strong></div><div class="text-sm text-[var(--muted)]">Série: '+esc(eq.serie||'N/A')+' | Qtd: '+(eq.qtd||1)+'</div>';
-        d.onclick=function(){App.carregarEquipamento(eq,cl);md.style.display='none'};
-        el.appendChild(d)
-      })
+    if(cl.equipamentos&&cl.equipamentos.length){
+      cl.equipamentos.forEach(function(eq){var d=document.createElement('div');d.className='equip-option';d.innerHTML='<div><strong><i class="fas fa-forklift"></i> '+esc(eq.marca||'N/A')+' '+esc(eq.modelo||'')+'</strong></div><div class="text-sm text-[var(--muted)]">Série: '+esc(eq.serie||'N/A')+' | Qtd: '+(eq.qtd||1)+'</div>';d.onclick=function(){App.carregarEquipamento(eq,cl);md.style.display='none'};el.appendChild(d)})
     }else{
       el.innerHTML='<div class="text-center py-4 text-[var(--muted)]">Nenhum equipamento.</div>';
       var b=document.createElement('button');b.className='btn btn-primary w-full mt-2';b.innerHTML='Carregar cliente';
@@ -1068,14 +1024,11 @@ var App={
     }
     md.style.display='flex'
   },
-
   carregarEquipamento:function(eq,cl){
     Utils.setVal('cliente',cl.nome);Utils.setVal('cnpj',cl.cnpj);Utils.setVal('cidadeCliente',cl.cidade);Utils.setVal('endereco',cl.endereco);Utils.setVal('whatsappCliente',cl.whatsapp);
-    var ms=$('marcaSelect');
-    if(ms){var mk=eq.marca||'';if(Config.marcas.indexOf(mk)!==-1){ms.value=mk;$('marcaOutraDiv').style.display='none'}else if(mk){ms.value='OUTRA';Utils.setVal('marcaOutra',mk);$('marcaOutraDiv').style.display='block'}}
+    var ms=$('marcaSelect');if(ms){var mk=eq.marca||'';if(Config.marcas.indexOf(mk)!==-1){ms.value=mk;$('marcaOutraDiv').style.display='none'}else if(mk){ms.value='OUTRA';Utils.setVal('marcaOutra',mk);$('marcaOutraDiv').style.display='block'}}
     Utils.setVal('modelo',eq.modelo||'');Utils.setVal('numSerie',eq.serie||'');if(eq.combustivel)Utils.setVal('combustivel',eq.combustivel);
-    showToast('Equipamento carregado');
-    document.querySelector('.tab-button[data-tab="tab-os"]').click()
+    showToast('Equipamento carregado');document.querySelector('.tab-button[data-tab="tab-os"]').click()
   }
 };
 
@@ -1095,7 +1048,6 @@ function adicionarCampoEquipamento(marca,modelo,serie,qtd,combustivel){
 
 /* ==================== INICIALIZAÇÃO ==================== */
 document.addEventListener('DOMContentLoaded',function(){
-  /* Sync inicial SOMENTE após login bem-sucedido */
   if(!Auth.checkSession()){
     $('loginScreen').style.display='flex';
     $('appContainer').style.display='none';
