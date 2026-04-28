@@ -154,13 +154,13 @@
 <div id="loginScreen" class="login-container">
   <div class="login-card">
     <div class="login-logo"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div>
-    <h1 class="font-display text-3xl text-center text-[var(--accent)] mb-2">MARLIFT</h1>
+    <h1 class="font-display text-3xl text-center text-[var(--accent)] mb-2">MARLIFT EMPILHADEIRAS</h1>
     <p class="text-center text-[var(--muted)] text-sm mb-6">Sistema de Ordem de Serviço</p>
     <div class="space-y-4">
-      <div><label class="block text-xs text-[var(--muted)] mb-1">Usuário</label><input type="text" id="loginUsername" class="form-input" placeholder="admin ou técnico" autocomplete="off" autofocus></div>
-      <div><label class="block text-xs text-[var(--muted)] mb-1">Senha</label><input type="password" id="loginPassword" class="form-input" placeholder="admin123 ou 123456" onkeypress="if(event.key==='Enter')Auth.login()"></div>
+      <div><label class="block text-xs text-[var(--muted)] mb-1">👨🏻‍🔧 Usuário</label><input type="text" id="loginUsername" class="form-input" placeholder="admin ou técnico" autocomplete="off" autofocus></div>
+      <div><label class="block text-xs text-[var(--muted)] mb-1">🔐 Senha</label><input type="password" id="loginPassword" class="form-input" placeholder="admin123 ou 123456" onkeypress="if(event.key==='Enter')Auth.login()"></div>
       <button onclick="Auth.login()" class="btn btn-primary w-full"><i class="fas fa-sign-in-alt"></i> Entrar</button>
-      <a href="javascript:void(0)" onclick="Auth.recoverPassword()" class="btn btn-whatsapp w-full text-sm no-underline"><i class="fab fa-whatsapp text-lg"></i> Esqueci minha senha</a>
+      <a href="javascript:void(0)" onclick="Auth.recoverPassword()" class="btn btn-whatsapp w-full text-sm no-underline"><i class="fab fa-whatsapp text-lg"></i> Esqueci minha senha 🔑</a>
       <div id="loginErrorMessage" class="login-error"></div>
     </div>
     <div class="mt-6 text-center text-xs text-[var(--muted)]"><p>Site: <strong class="text-[var(--accent)]">www.MARLIFT.com.br</strong></p><p class="mt-1">Suporte Técnico <strong>(98)98824-8877</strong></p></div>
@@ -566,7 +566,7 @@ var Auth={
     if(!login){login=prompt('Digite seu usuário para solicitar recuperação:');if(!login||!login.trim())return;login=login.trim()}
     var u=this.getUsers().find(function(x){return x.login===login});
     if(!u){alert('Usuário "'+login+'" não encontrado.\nVerifique e tente novamente.');return}
-    var msg=encodeURIComponent('Olá! *Esqueci minha senha* 🔑\n\nUsuário: '+login+'\n\nPor favor, precisiso da recuperação de acesso.');
+    var msg=encodeURIComponent('Olá! *Esqueci minha senha* 🔑 \n\n 👨🏻‍🔧 Usuário: *'+login+'* \n\nPor favor, precisiso da recuperação do acesso *Sistema de O.S.*');
     window.open('https://wa.me/'+Config.whatsAdmin+'?text='+msg,'_blank');
   },
   checkSession:function(){var s=localStorage.getItem('marlift_current_user');if(s){this.currentUser=JSON.parse(s);$('loginScreen').style.display='none';$('appContainer').style.display='block';$('currentUserName').innerHTML=esc(this.currentUser.nome);this.updatePermissions();this.startInactivityTimer();return true}return false},
