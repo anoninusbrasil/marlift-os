@@ -501,19 +501,66 @@ var GoogleSheetsSync={
     try{
       SyncUI.set('Baixando...','syncing');var response=await fetch(this.webAppUrl+'?_t='+Date.now());var data=await response.json();
       if(!data.success)throw new Error(data.error||'Erro');
-      var mud=[],ign=[];
-      if(this.hasValidData(data.clientes,'nome')){var cv=data.clientes.filter(function(c){return(c.nome||'').trim()!==''});if(cv.length){State.clients=cv.map(function(c){return{id:c.id||Date.now(),nome:(c.nome||'').trim(),cnpj:(c.cnpj||'').trim(),endereco:(c.endereco||'').trim(),cidade:(c.cidade||'').trim(),telefone:(c.telefone||'').trim(),whatsapp:(c.whatsapp||'').trim(),email:(c.email||'').trim(),responsavel_nome:(c.responsavel_nome||'').trim(),responsavel_telefone:(c.responsavel_telefone||'').trim(),equipamentos:function(){try{var e=c.equipamentos;if(typeof e==='string'){var p=JSON.parse(e);if(Array.isArray(p)&&p.length)return p.filter(function(q){return q.marca}).map(function(q){return{marca:(q.marca||'').trim(),modelo:(q.modelo||'').trim(),serie:(q.serie||'').trim(),qtd:q.qtd||1,combustivel:(q.combustivel||'').trim()}});return[]}if(Array.isArray(e))return e.filter(function(q){return q.marca})}catch(x){}return[]}()}});Storage.saveClients();mud.push('Clientes ('+State.clients.length+')')}else ign.push('Clientes (vazios)')}else ign.push('Clientes (sem dados)');
-      if(this.hasValidData(data.os,'numeroos')){var ov=data.os.filter(function(o){return(o.numeroos||'').trim()!==''});if(ov.length){State.osHistory=ov.map(function(o){return{numeroOS:(o.numeroos||'').trim(),dataOS:normalizeDate(o.dataos||''),cliente:(o.cliente||'').trim(),status:(o.status||'abertura').toLowerCase().trim(),tipoChamado:(o.tipochamado||'normal').toLowerCase().trim(),horasTotais:o.horastotais||'0h',totalGeral:o.totalgeral||'00:00',descricaoServico:o.descricaoservico||'',pecasAplicadas:o.pecasaplicadas||'',pendencias:o.pendencias||'',relatoCliente:o.relatocliente||'',marca:o.marca||'',modelo:o.modelo||'',numSerie:o.numserie||'',horimetro:o.horimetro||'',combustivel:o.combustivel||'',whatsappCliente:o.whatsappcliente||'',cnpj:o.cnpj||'',cidadeCliente:o.cidadecliente||'',endereco:o.endereco||'',tecnico:o.tecnico||'MARLIFT',recebedor:o.recebedor||'',fotosBase64:function(){try{var f=o.fotosbase64;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),fotoHorimetro:o.fotohorimetro||null,fotosPendencias:function(){try{var f=o.fotospendencias;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),assinaturaTecnico:o.assinaturatecnico||'',assinaturaCliente:o.assinaturacliente||'',checklistData:function(){try{var c=o.checklistdata;if(typeof c==='string')return JSON.parse(c);if(typeof c==='object'&&c!==null&&!Array.isArray(c))return c}catch(e){}return{}}()}});Storage.saveOSHistory();mud.push('OS ('+State.osHistory.length+')')}else ign.push('OS (vazios)')}else ign.push('OS (sem dados)');
-      if(this.hasValidData(data.agendamentos,'cliente')){var av=data.agendamentos.filter(function(a){return(a.cliente||'').trim()!==''});if(av.length){State.agendamentos=av.map(function(a){return{id:a.id||Date.now(),cliente:(a.cliente||'').trim(),equipamento:(a.equipamento||'').trim(),data:normalizeDate(a.data||''),horario:extractTimeFromDate(a.horario||''),tecnico:(a.tecnico||'').trim(),descricao:(a.descricao||'').trim(),status:(a.status||'pendente').toLowerCase().trim()}});Storage.saveAgendamentos();mud.push('Agendamentos')}else ign.push('Agendamentos (vazios)')}else ign.push('Agendamentos (sem dados)');
-      if(this.hasValidPermissions(data.permissoes)){localStorage.setItem('marlift_permissoes_tecnico',JSON.stringify(data.permissoes));Auth.permissoes.tecnico=data.permissoes;mud.push('Permissoes')}else ign.push('Permissoes (sem dados)');
-      if(this.hasValidData(data.usuarios,'login')){var uv=data.usuarios.filter(function(u){return(u.login||'').trim()!==''});if(uv.length){Auth.saveUsers(uv);mud.push('Usuarios')}else ign.push('Usuarios (vazios)')}else ign.push('Usuarios (sem dados)');
+      var mud=[],ign=[],agendamentosMudaram=false;
+
+      // AGENDAMENTOS: SEMPRE baixar (tecnico precisa ver na jornada)
+      if(this.hasValidData(data.agendamentos,'cliente')){
+        var av=data.agendamentos.filter(function(a){return(a.cliente||'').trim()!==''});
+        if(av.length){
+          State.agendamentos=av.map(function(a){return{id:a.id||Date.now(),cliente:(a.cliente||'').trim(),equipamento:(a.equipamento||'').trim(),data:normalizeDate(a.data||''),horario:extractTimeFromDate(a.horario||''),tecnico:(a.tecnico||'').trim(),descricao:(a.descricao||'').trim(),status:(a.status||'pendente').toLowerCase().trim()}});
+          Storage.saveAgendamentos();agendamentosMudaram=true;mud.push('Agendamentos ('+State.agendamentos.length+')')
+        }else ign.push('Agendamentos (vazios)')
+      }else ign.push('Agendamentos (sem dados)');
+
+      // CLIENTES: apenas se pode visualizar
+      if(Auth.can('clientes_visualizar')){
+        if(this.hasValidData(data.clientes,'nome')){
+          var cv=data.clientes.filter(function(c){return(c.nome||'').trim()!==''});
+          if(cv.length){State.clients=cv.map(function(c){return{id:c.id||Date.now(),nome:(c.nome||'').trim(),cnpj:(c.cnpj||'').trim(),endereco:(c.endereco||'').trim(),cidade:(c.cidade||'').trim(),telefone:(c.telefone||'').trim(),whatsapp:(c.whatsapp||'').trim(),email:(c.email||'').trim(),responsavel_nome:(c.responsavel_nome||'').trim(),responsavel_telefone:(c.responsavel_telefone||'').trim(),equipamentos:function(){try{var e=c.equipamentos;if(typeof e==='string'){var p=JSON.parse(e);if(Array.isArray(p)&&p.length)return p.filter(function(q){return q.marca}).map(function(q){return{marca:(q.marca||'').trim(),modelo:(q.modelo||'').trim(),serie:(q.serie||'').trim(),qtd:q.qtd||1,combustivel:(q.combustivel||'').trim()}});return[]}if(Array.isArray(e))return e.filter(function(q){return q.marca})}catch(x){}return[]}()}});Storage.saveClients();mud.push('Clientes ('+State.clients.length+')')}else ign.push('Clientes (vazios)')
+        }else ign.push('Clientes (sem dados)')
+      }
+
+      // OS: apenas se pode visualizar historico
+      if(Auth.can('historico_visualizar')){
+        if(this.hasValidData(data.os,'numeroos')){
+          var ov=data.os.filter(function(o){return(o.numeroos||'').trim()!==''});
+          if(ov.length){State.osHistory=ov.map(function(o){return{numeroOS:(o.numeroos||'').trim(),dataOS:normalizeDate(o.dataos||''),cliente:(o.cliente||'').trim(),status:(o.status||'abertura').toLowerCase().trim(),tipoChamado:(o.tipochamado||'normal').toLowerCase().trim(),horasTotais:o.horastotais||'0h',totalGeral:o.totalgeral||'00:00',descricaoServico:o.descricaoservico||'',pecasAplicadas:o.pecasaplicadas||'',pendencias:o.pendencias||'',relatoCliente:o.relatocliente||'',marca:o.marca||'',modelo:o.modelo||'',numSerie:o.numserie||'',horimetro:o.horimetro||'',combustivel:o.combustivel||'',whatsappCliente:o.whatsappcliente||'',cnpj:o.cnpj||'',cidadeCliente:o.cidadecliente||'',endereco:o.endereco||'',tecnico:o.tecnico||'MARLIFT',recebedor:o.recebedor||'',fotosBase64:function(){try{var f=o.fotosbase64;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),fotoHorimetro:o.fotohorimetro||null,fotosPendencias:function(){try{var f=o.fotospendencias;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),assinaturaTecnico:o.assinaturatecnico||'',assinaturaCliente:o.assinaturacliente||'',checklistData:function(){try{var c=o.checklistdata;if(typeof c==='string')return JSON.parse(c);if(typeof c==='object'&&c!==null&&!Array.isArray(c))return c}catch(e){}return{}}()}});Storage.saveOSHistory();mud.push('OS ('+State.osHistory.length+')')}else ign.push('OS (vazios)')
+        }else ign.push('OS (sem dados)')
+      }
+
+      // PERMISSOES: apenas se pode editar
+      if(Auth.can('permissoes_editar')){
+        if(this.hasValidPermissions(data.permissoes)){localStorage.setItem('marlift_permissoes_tecnico',JSON.stringify(data.permissoes));Auth.permissoes.tecnico=data.permissoes;mud.push('Permissoes')}else ign.push('Permissoes (sem dados)')
+      }
+
+      // USUARIOS: apenas se pode visualizar
+      if(Auth.can('usuarios_visualizar')){
+        if(this.hasValidData(data.usuarios,'login')){var uv=data.usuarios.filter(function(u){return(u.login||'').trim()!==''});if(uv.length){Auth.saveUsers(uv);mud.push('Usuarios')}else ign.push('Usuarios (vazios)')}else ign.push('Usuarios (sem dados)')
+      }
+
+      // ONLINE: sempre
       if(data.onlineUsers&&Array.isArray(data.onlineUsers)){State.onlineUsers=data.onlineUsers;OnlineUsers.render()}
-      if(mud.length>0){Clientes.renderTable();Clientes.updateStats();Historico.render();Historico.updateStats();Agendamentos.atualizarLista();Agendamentos.atualizarSelectTecnicos();if(Permissoes.carregarNaInterface)Permissoes.carregarNaInterface();UserManager.render();Auth.updatePermissions()}
+
+      // Re-renderizar conforme permissoes
+      if(mud.length>0){
+        if(Auth.can('clientes_visualizar')){Clientes.renderTable();Clientes.updateStats()}
+        if(Auth.can('historico_visualizar')){Historico.render();Historico.updateStats()}
+        Agendamentos.atualizarLista();
+        if(Auth.can('agendamentos_visualizar'))Agendamentos.atualizarSelectTecnicos();
+        if(Auth.can('permissoes_editar')&&Permissoes.carregarNaInterface)Permissoes.carregarNaInterface();
+        if(Auth.can('usuarios_visualizar'))UserManager.render();
+        Auth.updatePermissions()
+      }
+
+      // RE-RENDERIZAR JORNADA DO TECNICO quando agendamentos mudam
+      if(agendamentosMudaram&&Auth.isTecnico()&&Auth.can('jornada_registrar')){
+        Jornada.carregar()
+      }
+
       var msg='';if(mud.length)msg='Sync: '+mud.join(', ');if(ign.length)msg+=(msg?'\n':'')+'Locais: '+ign.join(', ');if(!msg)msg='Nenhuma alteracao';showToast(msg);SyncUI.set('OK','ok')
     }catch(err){console.error('[SYNC]',err);SyncUI.set('Erro','error');showToast('Erro: '+err.message,true)}
     finally{if(b){b.classList.remove('btn-loading');b.disabled=!Auth.can('baixar_dados')}}
-  }
-};
+  }};
 var OnlineUsers={
   _timer:null,_open:false,
   start:function(){this.fetch();var self=this;this._timer=setInterval(function(){self.fetch()},45*1000);document.addEventListener('click',function(e){var w=$('onlineWidget');if(w&&!w.contains(e.target)){self.closeDropdown()}})},
@@ -538,7 +585,7 @@ var Auth={
   currentUser:null,inactivityTimer:null,
   permissoes:{
     admin:{criar_os:true,editar_os:true,excluir_os:true,mudar_status:true,salvar_os:true,checklist_visualizar:true,checklist_preencher:true,fotos_horimetro:true,fotos_servico:true,fotos_pendencias:true,assinatura_tecnico:true,assinatura_cliente:true,timer_controle:true,horas_editar:true,gerar_pdf:true,enviar_email:true,enviar_whatsapp:true,sincronizar:true,limpar_fila:true,baixar_dados:true,heartbeat:true,clientes_cadastrar:true,clientes_editar:true,clientes_excluir:true,clientes_exportar_csv:true,clientes_importar_csv:true,clientes_visualizar:true,historico_visualizar:true,historico_excluir:true,historico_exportar_csv:true,historico_importar_csv:true,historico_limpar:true,agendamentos_criar:true,agendamentos_editar:true,agendamentos_excluir:true,agendamentos_concluir:true,agendamentos_visualizar:true,usuarios_criar:true,usuarios_editar:true,usuarios_excluir:true,usuarios_visualizar:true,permissoes_editar:true,jornada_registrar:false},
-    tecnico:{criar_os:false,editar_os:true,excluir_os:false,mudar_status:true,salvar_os:true,checklist_visualizar:true,checklist_preencher:true,fotos_horimetro:true,fotos_servico:true,fotos_pendencias:true,assinatura_tecnico:true,assinatura_cliente:true,timer_controle:true,horas_editar:true,gerar_pdf:true,enviar_email:true,enviar_whatsapp:true,sincronizar:false,limpar_fila:false,baixar_dados:false,heartbeat:true,clientes_cadastrar:false,clientes_editar:false,clientes_excluir:false,clientes_exportar_csv:false,clientes_importar_csv:false,clientes_visualizar:true,historico_visualizar:true,historico_excluir:false,historico_exportar_csv:false,historico_importar_csv:false,historico_limpar:false,agendamentos_criar:false,agendamentos_editar:false,agendamentos_excluir:false,agendamentos_concluir:false,agendamentos_visualizar:false,usuarios_criar:false,usuarios_editar:false,usuarios_excluir:false,usuarios_visualizar:false,permissoes_editar:false,jornada_registrar:true},
+    tecnico:{criar_os:false,editar_os:true,excluir_os:false,mudar_status:true,salvar_os:true,checklist_visualizar:true,checklist_preencher:true,fotos_horimetro:true,fotos_servico:true,fotos_pendencias:true,assinatura_tecnico:true,assinatura_cliente:true,timer_controle:true,horas_editar:true,gerar_pdf:true,enviar_email:true,enviar_whatsapp:true,sincronizar:true,limpar_fila:true,baixar_dados:true,heartbeat:true,clientes_cadastrar:false,clientes_editar:false,clientes_excluir:false,clientes_exportar_csv:false,clientes_importar_csv:false,clientes_visualizar:true,historico_visualizar:true,historico_excluir:false,historico_exportar_csv:false,historico_importar_csv:false,historico_limpar:false,agendamentos_criar:false,agendamentos_editar:false,agendamentos_excluir:false,agendamentos_concluir:false,agendamentos_visualizar:false,usuarios_criar:false,usuarios_editar:false,usuarios_excluir:false,usuarios_visualizar:false,permissoes_editar:false,jornada_registrar:true},
     visualizador:{criar_os:false,editar_os:true,excluir_os:false,mudar_status:true,salvar_os:true,checklist_visualizar:true,checklist_preencher:true,fotos_horimetro:true,fotos_servico:true,fotos_pendencias:true,assinatura_tecnico:true,assinatura_cliente:true,timer_controle:false,horas_editar:false,gerar_pdf:true,enviar_email:true,enviar_whatsapp:true,sincronizar:true,limpar_fila:true,baixar_dados:true,heartbeat:false,clientes_cadastrar:false,clientes_editar:false,clientes_excluir:false,clientes_exportar_csv:false,clientes_importar_csv:false,clientes_visualizar:true,historico_visualizar:true,historico_excluir:false,historico_exportar_csv:false,historico_importar_csv:false,historico_limpar:false,agendamentos_criar:false,agendamentos_editar:false,agendamentos_excluir:false,agendamentos_concluir:false,agendamentos_visualizar:true,usuarios_criar:false,usuarios_editar:false,usuarios_excluir:false,usuarios_visualizar:false,permissoes_editar:false,jornada_registrar:false}
   },
   can:function(p){if(!this.currentUser)return false;var n=this.currentUser.nivel||'visualizador',pm=this.permissoes[n];return pm&&pm[p]===true},
@@ -834,10 +881,11 @@ var App={
     // CORRECAO PRINCIPAL: Carregar jornada no reload para tecnico
     if(Auth.isTecnico()&&Auth.can('jornada_registrar')){
       Jornada.carregar();
+      // Clicar na aba apos 2s (tempo do fetch retornar com agendamentos)
       setTimeout(function(){
         var tb=document.querySelector('.tab-button[data-tab="tab-jornada"]');
         if(tb)tb.click();
-      },300);
+      },2000);
     }
 
     State.currentStatus='abertura';this.updateUI();UserManager.render();
