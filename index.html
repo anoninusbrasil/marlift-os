@@ -770,7 +770,6 @@ var Agendamentos={
       h+='<div style="display:flex;align-items:baseline;gap:16px;margin:8px 0 4px;flex-wrap:wrap"><div class="schedule-hora">'+esc(a.horario)+'</div><div class="schedule-tecnico"><i class="fas fa-user-cog"></i> '+esc(a.tecnico)+'</div></div>';
       if(a.descricao)h+='<div class="schedule-descricao">'+esc(a.descricao)+'</div>';
       h+='<div class="schedule-actions">';
-      if(osNum&&osNum!=='Sem OS')h+='<button onclick="Agendamentos.irParaOS(\''+esc(osNum).replace(/'/g,"\\'")+'\')" class="btn btn-info text-sm py-2 px-3"><i class="fas fa-external-link-alt"></i> Abrir OS</button>';
       if(cc)h+='<button onclick="Agendamentos.concluir('+a.id+')" class="btn btn-success text-sm py-2 px-3"><i class="fas fa-check"></i></button>';
       if(ce)h+='<button onclick="Agendamentos.editar('+a.id+')" class="btn btn-info text-sm py-2 px-3"><i class="fas fa-edit"></i></button>';
       if(cd)h+='<button onclick="Agendamentos.excluir('+a.id+')" class="btn btn-danger text-sm py-2 px-3"><i class="fas fa-trash"></i></button>';
