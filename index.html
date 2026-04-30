@@ -147,6 +147,19 @@
     @media(max-width:768px){.step{font-size:0;padding:8px 2px;gap:0}.step .step-text{display:none}.step .step-icon{font-size:14px}.timer-display{font-size:1.5rem}.btn{padding:8px 12px;font-size:11px}.photo-item{width:80px;height:80px}.stat-value{font-size:1.1rem}.toolbar{gap:6px}.toolbar .btn{font-size:10px;padding:6px 8px}.top-bar{flex-direction:column;text-align:center}.user-area{margin-top:5px}.tab-button{padding:8px 12px;font-size:11px}.schedule-cliente{font-size:1.05rem}.schedule-hora{font-size:1.4rem}.online-dropdown{width:260px;right:-40px}}
     @media(max-width:480px){.stats-grid{grid-template-columns:repeat(2,1fr)}.table-os th,.table-os td{padding:6px 4px;font-size:10px}.schedule-actions .btn{flex:1;min-width:0;justify-content:center;padding:10px 6px;font-size:11px}.online-badge span.online-label-text{display:none}}
     @media print{.no-print{display:none!important}body{background:#fff;color:#000}}
+    /* === HEADER AUTO-HIDE MOBILE === */
+header.no-print{
+  transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s ease;
+  transform:translateY(0);opacity:1;
+}
+header.no-print.header-hidden{
+  transform:translateY(-100%);opacity:0;pointer-events:none;
+}
+.header-pull-indicator{
+  display:none;position:fixed;top:0;left:50%;transform:translateX(-50%);width:40px;height:4px;background:var(--accent);border-radius:0 0 4px 4px;z-index:60;opacity:.6;transition:opacity .3s;
+}
+.header-pull-indicator.visible{display:block}
+@media(min-width:769px){header.no-print.header-hidden{transform:translateY(0);opacity:1;pointer-events:auto}.header-pull-indicator{display:none!important}}
   </style>
 </head>
 <body>
@@ -1044,6 +1057,50 @@ document.addEventListener('DOMContentLoaded',function(){
     App.init()
   }
 });
+</script>
+<div class="header-pull-indicator" id="headerPullIndicator"></div>
+<script>
+/* === HEADER AUTO-HIDE MOBILE === */
+(function(){
+  var header=null,indicator=null,lastScrollY=0,ticking=false,isMobile=false,hidden=false,scrollThreshold=8,TOUCH_ZONE=18;
+  function checkMobile(){isMobile=window.innerWidth<=768}
+  function init(){
+    header=document.querySelector('header.no-print');
+    indicator=$('headerPullIndicator');
+    if(!header)return;
+    checkMobile();
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',function(){checkMobile();if(!isMobile&&hidden)show()});
+    if(indicator)indicator.addEventListener('click',function(){if(hidden)show()});
+    document.addEventListener('touchstart',function(e){
+      if(!hidden||!isMobile)return;
+      if(e.touches[0].clientY<TOUCH_ZONE)show()
+    },{passive:true})
+  }
+  function onScroll(){if(!isMobile)return;if(!ticking){requestAnimationFrame(function(){handleScroll();ticking=false});ticking=true}}
+  function handleScroll(){
+    var sy=window.scrollY;
+    if(sy<60){if(hidden)show();lastScrollY=sy;return}
+    var diff=sy-lastScrollY;
+    if(diff>scrollThreshold){if(!hidden)hide()}
+    else if(diff<-scrollThreshold){if(hidden)show()}
+    lastScrollY=sy
+  }
+  function hide(){
+    if(hidden||!header)return;
+    hidden=true;
+    header.classList.add('header-hidden');
+    if(indicator)indicator.classList.add('visible')
+  }
+  function show(){
+    if(!hidden||!header)return;
+    hidden=false;
+    header.classList.remove('header-hidden');
+    if(indicator)indicator.classList.remove('visible')
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);
+  else init()
+})();
 </script>
 </body>
 </html>
