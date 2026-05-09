@@ -355,7 +355,7 @@
       <div class="top-bar">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-[var(--accent)] to-[var(--accent-light)] rounded-xl flex items-center justify-center shadow-lg"><svg class="w-5 h-5 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div>
-          <div><h1 class="font-display text-xl md:text-2xl tracking-wide"><span class="logo-lift">LIFT</span> <span class="logo-os">OS</span></h1><p class="text-xs text-[var(--muted)]">Sistema de O.S - v10.1 (Preventiva Sync)</p></div>
+          <div><h1 class="font-display text-xl md:text-2xl tracking-wide"><span class="logo-lift">LIFT</span> <span class="logo-os">OS</span></h1><p class="text-xs text-[var(--muted)]">Sistema de O.S - PRO</p></div>
         </div>
         <div class="flex items-center gap-3 flex-wrap justify-center">
           <div class="theme-switch" id="themeToggleBtn" title="Alternar tema claro/escuro">
@@ -882,7 +882,7 @@ var SyncQueue={
   _pt:null,
   scheduleProcess:function(){if(this._pt)return;var self=this;this._pt=setTimeout(function(){self._pt=null;self.process()},1500)},
   async process(){if(!navigator.onLine){SyncUI.set('Offline','error');return}var q=this.getQueue();if(!q.length){SyncUI.set('Pronto','ok');return}SyncUI.set('Sync ('+q.length+')','syncing');var ok=[];for(var i=0;i<q.length;i++){var it=q[i];if(it.retries>=Config.maxSyncRetries)continue;try{var r=false;if(it.entity==='cliente')r=await GoogleSheetsSync.syncSingleCliente(it.data);else if(it.entity==='os')r=await GoogleSheetsSync.syncSingleOS(it.data);else if(it.entity==='agendamento')r=await GoogleSheetsSync.syncSingleAgendamento(it.data);else if(it.entity==='usuario')r=await GoogleSheetsSync.syncUsuarios(it.data);else if(it.entity==='permissao')r=await GoogleSheetsSync.syncPermissoes(it.data);else if(it.entity==='jornada')r=await GoogleSheetsSync.syncJornada(it.data);else if(it.entity==='peca')r=await GoogleSheetsSync.syncPeca(it.data);else if(it.entity==='movimento')r=await GoogleSheetsSync.syncMovimento(it.data);else if(it.entity==='orcamento')r=await GoogleSheetsSync.syncOrcamento(it.data);else if(it.entity==='notificacao')r=await GoogleSheetsSync.syncNotificacao(it.data);
-else if(it.entity==='preventiva')r=await GoogleSheetsSync.syncPreventiva(it.data);}catch(e){it.retries++}}var nq=q.filter(function(_,i){return ok.indexOf(i)===-1});localStorage.setItem(this.key,JSON.stringify(nq));if(!nq.length){this.clearQueue();SyncUI.set('OK','ok')}else{SyncUI.set('Fila: '+nq.length,'');this.scheduleProcess()}},
+else if(it.entity==='preventiva')r=await GoogleSheetsSync.syncPreventiva(it.data);else if(it.action==='delete' && it.entity==='preventiva') r=await GoogleSheetsSync.syncDeletePreventiva(it.data);}catch(e){it.retries++}}var nq=q.filter(function(_,i){return ok.indexOf(i)===-1});localStorage.setItem(this.key,JSON.stringify(nq));if(!nq.length){this.clearQueue();SyncUI.set('OK','ok')}else{SyncUI.set('Fila: '+nq.length,'');this.scheduleProcess()}},
   forceSync:async function(){if(!Auth.isAdmin()){showToast('Apenas admin',true);return}var b=$('btnSync');if(b){b.classList.add('btn-loading');b.disabled=true}try{await this.process();await GoogleSheetsSync.fetchFromSheet()}finally{if(b){b.classList.remove('btn-loading');b.disabled=!Auth.can('sincronizar')}}}
 };
 
@@ -901,7 +901,9 @@ var GoogleSheetsSync={
   async syncMovimento(m){return await this.postData('syncMovimento',m)},
   async syncOrcamento(o){return await this.postData('syncOrcamento',o)},
   async syncNotificacao(n){return await this.postData('syncNotificacao',n)},
-  async syncPreventiva(r){ return await this.postData('syncPreventiva', r); },  // <-- nova função para preventiva
+  async syncPreventiva(r){ return await this.postData('syncPreventiva', r); },
+  async syncDeletePreventiva(data){ return await this.postData('deletePreventiva', data); },
+  // <-- nova função para preventiva
   async fetchOnlineUsers(){try{var r=await fetch(this.webAppUrl+'?action=onlineUsers&_t='+Date.now());var d=await r.json();if(d.success&&Array.isArray(d.users)){State.onlineUsers=d.users;OnlineUsers.render();return true}return false}catch(e){return false}},
   async fetchFromSheet(){
     var b=$('btnDownload');if(b){b.classList.add('btn-loading');b.disabled=true}
