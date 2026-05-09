@@ -123,8 +123,6 @@
     .top-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:15px}
     .user-area{display:flex;align-items:center;gap:12px;background:var(--bg-secondary);padding:6px 16px;border-radius:40px;border:1px solid var(--border)}
     .toolbar{background:var(--card);border-radius:12px;padding:10px 16px;margin-bottom:20px;border:1px solid var(--border);display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
-    
-    /* ========== LOGIN CORRIGIDO PARA TEMA CLARO/ESCURO ========== */
     .login-container {
       min-height: 100vh;
       display: flex;
@@ -194,8 +192,6 @@
       font-size: 13px;
       display: none;
     }
-    /* ======================================================== */
-
     .permission-item{background:var(--bg-secondary);border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border)}
     .permission-item label{cursor:pointer;font-weight:500;display:flex;align-items:center;gap:10px}
     .permission-item input{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}
@@ -255,8 +251,8 @@
      .notif-dropdown {
   position: absolute;
   top: calc(100% + 8px);
-  left: 50%; /* Move o lado esquerdo do dropdown para o meio do elemento pai */
-  transform: translateX(-50%); /* Puxa o dropdown de volta 50% do seu próprio tamanho, centralizando-o */
+  left: 50%;
+  transform: translateX(-50%);
   width: 360px;
   max-height: 450px;
   background: var(--card);
@@ -308,7 +304,6 @@
     .calc-box-row.destaque-row .calc-box-value{color:var(--accent);font-size:1.15rem}
     .theme-switch{background:var(--bg-secondary);border:1px solid var(--border);border-radius:30px;padding:5px 10px;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;transition:all .2s;color:var(--fg)}
     .theme-switch:hover{border-color:var(--accent);background:var(--card)}
-    /* Modal de escolha entre OS e Orçamento */
     .choice-modal .choice-buttons{display:flex;gap:16px;justify-content:center;margin:20px 0}
     .choice-modal .choice-btn{flex:1;padding:16px;border-radius:12px;font-weight:700;font-size:1.1rem;display:flex;flex-direction:column;align-items:center;gap:12px;transition:all .2s;cursor:pointer;background:var(--bg-secondary);border:1px solid var(--border)}
     .choice-modal .choice-btn:hover{transform:translateY(-3px);border-color:var(--accent);background:var(--card)}
@@ -343,7 +338,6 @@
 
 <div id="equipModal" class="modal"><div class="modal-content"><div class="modal-title"><i class="fas fa-forklift"></i> Selecione o Equipamento</div><div id="equipList"></div><button onclick="App.fecharModalEquip()" class="btn btn-secondary w-full mt-3">Cancelar</button></div></div>
 
-<!-- Modal para escolher entre OS e Orçamento -->
 <div id="choiceModal" class="modal choice-modal"><div class="modal-content" style="max-width:400px"><div class="modal-title" style="text-align:center"><i class="fas fa-question-circle"></i> O que deseja fazer?</div><div class="choice-buttons"><div class="choice-btn" onclick="App.escolherOpcao('os')"><i class="fas fa-clipboard-list"></i><span>Ordem de Serviço</span><small style="font-size:11px;color:var(--muted)">Criar nova OS</small></div><div class="choice-btn" onclick="App.escolherOpcao('orcamento')"><i class="fas fa-file-invoice-dollar"></i><span>Orçamento</span><small style="font-size:11px;color:var(--muted)">Criar orçamento</small></div></div><button onclick="App.fecharModalEscolha()" class="btn btn-secondary w-full mt-2">Cancelar</button></div></div>
 
 <div id="orcDetalheModal" class="modal"><div class="modal-content"><div id="orcDetalheConteudo"></div><button onclick="document.getElementById('orcDetalheModal').style.display='none'" class="btn btn-secondary w-full mt-3">Fechar</button></div></div>
@@ -361,7 +355,7 @@
       <div class="top-bar">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-[var(--accent)] to-[var(--accent-light)] rounded-xl flex items-center justify-center shadow-lg"><svg class="w-5 h-5 md:w-7 md:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div>
-          <div><h1 class="font-display text-xl md:text-2xl tracking-wide"><span class="logo-lift">LIFT</span> <span class="logo-os">OS</span></h1><p class="text-xs text-[var(--muted)]">Sistema de O.S - v10.0</p></div>
+          <div><h1 class="font-display text-xl md:text-2xl tracking-wide"><span class="logo-lift">LIFT</span> <span class="logo-os">OS</span></h1><p class="text-xs text-[var(--muted)]">Sistema de O.S - v10.1 (Preventiva Sync)</p></div>
         </div>
         <div class="flex items-center gap-3 flex-wrap justify-center">
           <div class="theme-switch" id="themeToggleBtn" title="Alternar tema claro/escuro">
@@ -431,7 +425,7 @@
       <button class="tab-button" data-tab="tab-preventivas" id="tabPreventivasBtn" style="display:none">Preventivas</button>
     </div>
 
-    <!-- TAB ORÇAMENTO -->
+    <!-- TAB ORÇAMENTO (mantido original) -->
     <div id="tab-orcamento" class="tab-content">
       <div class="stats-grid no-print">
         <div class="stat-card"><div class="stat-value" id="statOrcTotal">0</div><div class="stat-label">Total Orçamentos</div></div>
@@ -505,7 +499,7 @@
       </div>
     </div>
 
-    <!-- TAB ESTOQUE -->
+    <!-- TAB ESTOQUE (mantido) -->
     <div id="tab-estoque" class="tab-content">
       <div class="stats-grid no-print">
         <div class="stat-card"><div class="stat-value" id="statEstTotalPecas">0</div><div class="stat-label">Total Peças</div></div>
@@ -573,7 +567,7 @@
       </div>
     </div>
 
-    <!-- TAB OS -->
+    <!-- TAB OS (mantido) -->
     <div id="tab-os" class="tab-content active">
       <div class="checklist-card p-4 md:p-5 mb-5">
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4"><h2 class="font-display text-xl">Informações da O.S</h2><div><span class="status-badge" id="statusBadge">EM ABERTURA</span><span class="status-badge ml-2" id="orcVinculadoBadge" style="display:none;background:rgba(245,158,11,.2);color:#fbbf24"><i class="fas fa-file-invoice-dollar"></i> <span id="orcVinculadoNum"></span></span></div></div>
@@ -643,13 +637,13 @@
       </div>
     </div>
 
-    <!-- TAB CHECKLIST -->
+    <!-- TAB CHECKLIST (mantido) -->
     <div id="tab-checklist" class="tab-content">
       <div class="checklist-card p-4 mb-5"><div class="flex justify-between items-center flex-wrap"><span class="font-semibold">Progresso do Checklist</span><span id="progressText" class="font-mono text-[var(--accent)] text-lg">0%</span></div><div class="progress-bar mt-2"><div id="progressFill" class="progress-fill" style="width:0%"></div></div></div>
       <div id="checklistSections"></div>
     </div>
 
-    <!-- TAB CLIENTES -->
+    <!-- TAB CLIENTES (mantido) -->
     <div id="tab-clientes" class="tab-content">
       <div class="stats-grid no-print">
         <div class="stat-card"><div class="stat-value" id="statTotalClientes">0</div><div class="stat-label">Total Clientes</div></div>
@@ -682,7 +676,7 @@
       </div>
     </div>
 
-    <!-- TAB HISTÓRICO -->
+    <!-- TAB HISTÓRICO (mantido) -->
     <div id="tab-historico" class="tab-content">
       <div class="stats-grid no-print">
         <div class="stat-card"><div class="stat-value" id="statTotalOS">0</div><div class="stat-label">Total de OS</div></div>
@@ -708,7 +702,7 @@
       </div>
     </div>
 
-    <!-- TAB AGENDAMENTOS -->
+    <!-- TAB AGENDAMENTOS (mantido) -->
     <div id="tab-agendamentos" class="tab-content">
       <div class="checklist-card p-4 md:p-5 mb-5">
         <h2 class="font-display text-xl mb-3"><i class="fas fa-calendar-alt"></i> Gerenciar Agendamentos</h2>
@@ -726,7 +720,7 @@
       <div id="agendamentosLista"></div>
     </div>
 
-    <!-- TAB JORNADA -->
+    <!-- TAB JORNADA (mantido) -->
     <div id="tab-jornada" class="tab-content">
       <div class="checklist-card p-4 md:p-5 mb-5">
         <div class="flex justify-between items-center flex-wrap gap-3 mb-4">
@@ -738,7 +732,7 @@
       </div>
     </div>
 
-    <!-- TAB PERMISSÕES -->
+    <!-- TAB PERMISSÕES (mantido) -->
     <div id="tab-permissoes" class="tab-content">
       <div class="checklist-card p-4 md:p-5">
         <h2 class="font-display text-xl mb-3"><i class="fas fa-lock"></i> Permissões - Técnico</h2>
@@ -747,7 +741,7 @@
       </div>
     </div>
 
-    <!-- TAB USUÁRIOS -->
+    <!-- TAB USUÁRIOS (mantido) -->
     <div id="tab-usuarios" class="tab-content">
       <div class="checklist-card p-4 md:p-5">
         <h2 class="font-display text-xl mb-3"><i class="fas fa-users"></i> Gerenciar Usuários</h2>
@@ -761,43 +755,44 @@
         <div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-[var(--bg-secondary)]"><tr><th class="p-2">Nome</th><th class="p-2">Login</th><th class="p-2">Nível</th><th class="p-2">Ações</th></tr></thead><tbody id="userTableBody"></tbody></table></div>
       </div>
     </div>
-    <!-- TAB PREVENTIVAS -->
-<div id="tab-preventivas" class="tab-content">
-  <div class="checklist-card p-4 md:p-5 mb-5">
-    <h2 class="font-display text-xl mb-4"><i class="fas fa-cog"></i> Regras de Manutenção Preventiva</h2>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-      <input type="text" id="prev_descricao" class="form-input" placeholder="Descrição (ex: Troca de óleo)">
-      <input type="number" id="prev_intervalo" class="form-input" placeholder="Intervalo (horas)">
-      <select id="prev_marca" class="form-input"><option value="">Todas as marcas</option></select>
-      <input type="text" id="prev_modelo" class="form-input" placeholder="Modelo específico (opcional)">
-    </div>
-    <input type="hidden" id="prev_editId" value="">
-    <div class="flex gap-3 flex-wrap">
-      <button onclick="Preventivas.salvarRegra()" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Regra</button>
-      <button id="btnPrevCancelar" onclick="Preventivas.cancelarEdicao()" class="btn btn-secondary" style="display:none">Cancelar</button>
-    </div>
-  </div>
 
-  <div class="checklist-card p-4 md:p-5 mb-5">
-    <h2 class="font-display text-xl mb-3"><i class="fas fa-list"></i> Regras Cadastradas</h2>
-    <div class="overflow-x-auto">
-      <table class="table-os">
-        <thead><tr><th>Descrição</th><th>Intervalo</th><th>Marca</th><th>Modelo</th><th>Ações</th></tr></thead>
-        <tbody id="prevRegrasBody"></tbody>
-      </table>
-    </div>
-  </div>
+    <!-- TAB PREVENTIVAS (com sincronização ativa) -->
+    <div id="tab-preventivas" class="tab-content">
+      <div class="checklist-card p-4 md:p-5 mb-5">
+        <h2 class="font-display text-xl mb-4"><i class="fas fa-cog"></i> Regras de Manutenção Preventiva</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+          <input type="text" id="prev_descricao" class="form-input" placeholder="Ex: Troca de óleo">
+          <input type="number" id="prev_intervalo" class="form-input" placeholder="Intervalo (horas)">
+          <select id="prev_marca" class="form-input"><option value="">Todas as marcas</option></select>
+          <input type="text" id="prev_modelo" class="form-input" placeholder="Modelo específico (opcional)">
+        </div>
+        <input type="hidden" id="prev_editId" value="">
+        <div class="flex gap-3 flex-wrap">
+          <button onclick="Preventivas.salvarRegra()" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Regra</button>
+          <button id="btnPrevCancelar" onclick="Preventivas.cancelarEdicao()" class="btn btn-secondary" style="display:none">Cancelar</button>
+        </div>
+      </div>
 
-  <div class="checklist-card p-4 md:p-5">
-    <h2 class="font-display text-xl mb-3"><i class="fas fa-chart-line"></i> Previsão de Próximas Manutenções</h2>
-    <div class="overflow-x-auto">
-      <table class="table-os" id="prevPrevisaoTable">
-        <thead><tr><th>Cliente</th><th>Equipamento</th><th>Horímetro Atual</th><th>Serviço</th><th>Próxima (h)</th><th>Status</th></tr></thead>
-        <tbody id="prevPrevisaoBody"></tbody>
-      </table>
+      <div class="checklist-card p-4 md:p-5 mb-5">
+        <h2 class="font-display text-xl mb-3"><i class="fas fa-list"></i> Regras Cadastradas</h2>
+        <div class="overflow-x-auto">
+          <table class="table-os">
+            <thead><tr><th>Descrição</th><th>Intervalo</th><th>Marca</th><th>Modelo</th><th>Ações</th></tr></thead>
+            <tbody id="prevRegrasBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="checklist-card p-4 md:p-5">
+        <h2 class="font-display text-xl mb-3"><i class="fas fa-chart-line"></i> Previsão de Próximas Manutenções</h2>
+        <div class="overflow-x-auto">
+          <table class="table-os" id="prevPrevisaoTable">
+            <thead><tr><th>Cliente</th><th>Equipamento</th><th>Horímetro Atual</th><th>Serviço</th><th>Próxima (h)</th><th>Status</th></tr></thead>
+            <tbody id="prevPrevisaoBody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
   </main>
 
   <div id="toastCenter" class="toast-center"><i class="fas fa-check-circle text-green-500 text-xl"></i><span id="toastMessage">Operação realizada</span></div>
@@ -854,7 +849,7 @@ var State={
   onlineUsers:[],_initDone:false,
   pecas:[],movimentosEstoque:[],orcamentos:[],notificacoes:[],lastSeenOSIds:[],
   selectedClientForOs:null, selectedEquipForOs:null,
-  preventivasRegras: []
+  regrasPreventivas:[]  // <-- array para regras de preventiva
 };
 
 var Storage={
@@ -872,8 +867,8 @@ var Storage={
   saveOrcamentos:function(){this.save('orcamentos',State.orcamentos)},loadOrcamentos:function(){State.orcamentos=this.load('orcamentos')||[]},
   saveNotificacoes:function(){this.save('notificacoes',State.notificacoes)},loadNotificacoes:function(){State.notificacoes=this.load('notificacoes')||[]},
   saveLastSeen:function(){this.save('last_seen_os',State.lastSeenOSIds)},loadLastSeen:function(){State.lastSeenOSIds=this.load('last_seen_os')||[]},
-  savePreventivas: function() { this.save('preventivas_regras', State.preventivasRegras); },
-      loadPreventivas: function(){ State.preventivasRegras = this.load('preventivas_regras')||[]}
+  saveRegrasPreventivas: function() { this.save('regras_preventivas', State.regrasPreventivas); },
+  loadRegrasPreventivas: function() { State.regrasPreventivas = this.load('regras_preventivas') || []; }
 };
 
 var SyncUI={set:function(m,c){var s=$('syncStatusText');if(s)s.textContent=m;var d=$('hbDot');if(d)d.className='hb-dot '+(c||'');var ss=$('syncStatus');if(ss)ss.className='sync-status'+(c?' '+c:'')}};
@@ -886,12 +881,13 @@ var SyncQueue={
   limparFila:function(){if(!Auth.isAdmin()){showToast('Apenas administrador',true);return}var q=this.getQueue(),t=q.length;if(!t){showToast('Fila vazia');return}if(!confirm('Limpar '+t+' item(ns)?'))return;this.clearQueue();SyncUI.set('Pronto','ok');showToast('Fila limpa: '+t)},
   _pt:null,
   scheduleProcess:function(){if(this._pt)return;var self=this;this._pt=setTimeout(function(){self._pt=null;self.process()},1500)},
-  async process(){if(!navigator.onLine){SyncUI.set('Offline','error');return}var q=this.getQueue();if(!q.length){SyncUI.set('Pronto','ok');return}SyncUI.set('Sync ('+q.length+')','syncing');var ok=[];for(var i=0;i<q.length;i++){var it=q[i];if(it.retries>=Config.maxSyncRetries)continue;try{var r=false;if(it.entity==='cliente')r=await GoogleSheetsSync.syncSingleCliente(it.data);else if(it.entity==='os')r=await GoogleSheetsSync.syncSingleOS(it.data);else if(it.entity==='agendamento')r=await GoogleSheetsSync.syncSingleAgendamento(it.data);else if(it.entity==='usuario')r=await GoogleSheetsSync.syncUsuarios(it.data);else if(it.entity==='permissao')r=await GoogleSheetsSync.syncPermissoes(it.data);else if(it.entity==='jornada')r=await GoogleSheetsSync.syncJornada(it.data);else if(it.entity==='peca')r=await GoogleSheetsSync.syncPeca(it.data);else if(it.entity==='movimento')r=await GoogleSheetsSync.syncMovimento(it.data);else if(it.entity==='orcamento')r=await GoogleSheetsSync.syncOrcamento(it.data);else if(it.entity==='notificacao')r=await GoogleSheetsSync.syncNotificacao(it.data);if(r)ok.push(i);else it.retries++}catch(e){it.retries++}}var nq=q.filter(function(_,i){return ok.indexOf(i)===-1});localStorage.setItem(this.key,JSON.stringify(nq));if(!nq.length){this.clearQueue();SyncUI.set('OK','ok')}else{SyncUI.set('Fila: '+nq.length,'');this.scheduleProcess()}},
+  async process(){if(!navigator.onLine){SyncUI.set('Offline','error');return}var q=this.getQueue();if(!q.length){SyncUI.set('Pronto','ok');return}SyncUI.set('Sync ('+q.length+')','syncing');var ok=[];for(var i=0;i<q.length;i++){var it=q[i];if(it.retries>=Config.maxSyncRetries)continue;try{var r=false;if(it.entity==='cliente')r=await GoogleSheetsSync.syncSingleCliente(it.data);else if(it.entity==='os')r=await GoogleSheetsSync.syncSingleOS(it.data);else if(it.entity==='agendamento')r=await GoogleSheetsSync.syncSingleAgendamento(it.data);else if(it.entity==='usuario')r=await GoogleSheetsSync.syncUsuarios(it.data);else if(it.entity==='permissao')r=await GoogleSheetsSync.syncPermissoes(it.data);else if(it.entity==='jornada')r=await GoogleSheetsSync.syncJornada(it.data);else if(it.entity==='peca')r=await GoogleSheetsSync.syncPeca(it.data);else if(it.entity==='movimento')r=await GoogleSheetsSync.syncMovimento(it.data);else if(it.entity==='orcamento')r=await GoogleSheetsSync.syncOrcamento(it.data);else if(it.entity==='notificacao')r=await GoogleSheetsSync.syncNotificacao(it.data);
+else if(it.entity==='preventiva')r=await GoogleSheetsSync.syncPreventiva(it.data);}catch(e){it.retries++}}var nq=q.filter(function(_,i){return ok.indexOf(i)===-1});localStorage.setItem(this.key,JSON.stringify(nq));if(!nq.length){this.clearQueue();SyncUI.set('OK','ok')}else{SyncUI.set('Fila: '+nq.length,'');this.scheduleProcess()}},
   forceSync:async function(){if(!Auth.isAdmin()){showToast('Apenas admin',true);return}var b=$('btnSync');if(b){b.classList.add('btn-loading');b.disabled=true}try{await this.process();await GoogleSheetsSync.fetchFromSheet()}finally{if(b){b.classList.remove('btn-loading');b.disabled=!Auth.can('sincronizar')}}}
 };
 
 var GoogleSheetsSync={
-  webAppUrl:'https://script.google.com/macros/s/AKfycbzpdVuPW9kUZFJzEHf2MY6EpoFKmNYoEerW7tp1m64PxMZSNQlLCpB2KB4s_TADEejh/exec',
+  webAppUrl:'https://script.google.com/macros/s/AKfycbw55tZbKhnO67rsXZ8W-ZozkrduJVJitUaIbRHJGWWtQSz9viCK6L4OLIZiCvHTCp8Z/exec',
   hasValidData:function(a,r){if(!a||!Array.isArray(a)||!a.length)return false;if(r)return a.some(function(i){if(typeof i!=='object'||i===null)return false;var v=i[r];return v!==null&&v!==undefined&&String(v).trim()!==''});return a.some(function(i){if(typeof i!=='object'||i===null)return false;return Object.values(i).some(function(v){if(v===null||v===undefined)return false;if(typeof v==='string'&&!v.trim())return false;if(Array.isArray(v)&&!v.length)return false;return true})})},
   hasValidPermissions:function(o){if(!o||typeof o!=='object'||Array.isArray(o))return false;return Object.keys(o).some(function(k){return o[k]===true})},
   async postData(a,d){try{var r=await fetch(this.webAppUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:a,data:d}),redirect:'follow'});var t=await r.text();try{return JSON.parse(t).success===true}catch(e){return false}}catch(e){return false}},
@@ -905,27 +901,52 @@ var GoogleSheetsSync={
   async syncMovimento(m){return await this.postData('syncMovimento',m)},
   async syncOrcamento(o){return await this.postData('syncOrcamento',o)},
   async syncNotificacao(n){return await this.postData('syncNotificacao',n)},
+  async syncPreventiva(r){ return await this.postData('syncPreventiva', r); },  // <-- nova função para preventiva
   async fetchOnlineUsers(){try{var r=await fetch(this.webAppUrl+'?action=onlineUsers&_t='+Date.now());var d=await r.json();if(d.success&&Array.isArray(d.users)){State.onlineUsers=d.users;OnlineUsers.render();return true}return false}catch(e){return false}},
   async fetchFromSheet(){
     var b=$('btnDownload');if(b){b.classList.add('btn-loading');b.disabled=true}
     try{
       SyncUI.set('Baixando...','syncing');var response=await fetch(this.webAppUrl+'?_t='+Date.now());var data=await response.json();
       if(!data.success)throw new Error(data.error||'Erro');
-      var mud=[],ign=[],agendamentosMudaram=false,pecasMudaram=false,movimentosMudaram=false,orcamentosMudaram=false;
-      if(this.hasValidData(data.agendamentos,'cliente')){var av=data.agendamentos.filter(function(a){return(a.cliente||'').trim()!==''});if(av.length){State.agendamentos=av.map(function(a){return{id:a.id||Date.now(),cliente:(a.cliente||'').trim(),equipamento:(a.equipamento||'').trim(),data:normalizeDate(a.data||''),horario:extractTimeFromDate(a.horario||''),tecnico:(a.tecnico||'').trim(),descricao:(a.descricao||'').trim(),status:(a.status||'pendente').toLowerCase().trim()}});Storage.saveAgendamentos();agendamentosMudaram=true;mud.push('Agendamentos')}else ign.push('Agendamentos (vazios)')}else ign.push('Agendamentos');
+      var mud=[],ign=[];
+      if(this.hasValidData(data.agendamentos,'cliente')){var av=data.agendamentos.filter(function(a){return(a.cliente||'').trim()!==''});if(av.length){State.agendamentos=av.map(function(a){return{id:a.id||Date.now(),cliente:(a.cliente||'').trim(),equipamento:(a.equipamento||'').trim(),data:normalizeDate(a.data||''),horario:extractTimeFromDate(a.horario||''),tecnico:(a.tecnico||'').trim(),descricao:(a.descricao||'').trim(),status:(a.status||'pendente').toLowerCase().trim()}});Storage.saveAgendamentos();mud.push('Agendamentos')}else ign.push('Agendamentos (vazios)')}else ign.push('Agendamentos');
       if(Auth.can('clientes_visualizar')){if(this.hasValidData(data.clientes,'nome')){var cv=data.clientes.filter(function(c){return(c.nome||'').trim()!==''});if(cv.length){State.clients=cv.map(function(c){return{id:c.id||Date.now(),nome:(c.nome||'').trim(),cnpj:(c.cnpj||'').trim(),endereco:(c.endereco||'').trim(),cidade:(c.cidade||'').trim(),telefone:(c.telefone||'').trim(),whatsapp:(c.whatsapp||'').trim(),email:(c.email||'').trim(),responsavel_nome:(c.responsavel_nome||'').trim(),responsavel_telefone:(c.responsavel_telefone||'').trim(),equipamentos:function(){try{var e=c.equipamentos;if(typeof e==='string'){var p=JSON.parse(e);if(Array.isArray(p)&&p.length)return p.filter(function(q){return q.marca}).map(function(q){return{marca:(q.marca||'').trim(),modelo:(q.modelo||'').trim(),serie:(q.serie||'').trim(),qtd:q.qtd||1,combustivel:(q.combustivel||'').trim()}});return[]}if(Array.isArray(e))return e.filter(function(q){return q.marca})}catch(x){}return[]}()}});Storage.saveClients();mud.push('Clientes')}else ign.push('Clientes (vazios)')}else ign.push('Clientes')}
       if(Auth.can('historico_visualizar')){if(this.hasValidData(data.os,'numeroos')){var ov=data.os.filter(function(o){return(o.numeroos||'').trim()!==''});if(ov.length){var novosIds=ov.map(function(o){return o.numeroos});Notificacoes.detectarNovasOS(novosIds,ov);State.osHistory=ov.map(function(o){return{numeroOS:(o.numeroos||'').trim(),dataOS:normalizeDate(o.dataos||''),cliente:(o.cliente||'').trim(),status:(o.status||'abertura').toLowerCase().trim(),tipoChamado:(o.tipochamado||'normal').toLowerCase().trim(),horasTotais:o.horastotais||'0h',totalGeral:o.totalgeral||'00:00',descricaoServico:o.descricaoservico||'',pecasAplicadas:o.pecasaplicadas||'',pendencias:o.pendencias||'',relatoCliente:o.relatocliente||'',marca:o.marca||'',modelo:o.modelo||'',numSerie:o.numserie||'',horimetro:o.horimetro||'',combustivel:o.combustivel||'',whatsappCliente:o.whatsappcliente||'',cnpj:o.cnpj||'',cidadeCliente:o.cidadecliente||'',endereco:o.endereco||'',tecnico:o.tecnico||'LIFTOS',recebedor:o.recebedor||'',orcamentoVinculado:o.orcamentovinculado||'',fotosBase64:function(){try{var f=o.fotosbase64;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),fotoHorimetro:o.fotohorimetro||null,fotosPendencias:function(){try{var f=o.fotospendencias;if(typeof f==='string'){var p=JSON.parse(f);return Array.isArray(p)?p:[]}if(Array.isArray(f))return f}catch(e){}return[]}(),assinaturaTecnico:o.assinaturatecnico||'',assinaturaCliente:o.assinaturacliente||'',checklistData:function(){try{var c=o.checklistdata;if(typeof c==='string')return JSON.parse(c);if(typeof c==='object'&&c!==null&&!Array.isArray(c))return c}catch(e){}return{}}()}});Storage.saveOSHistory();mud.push('OS')}else ign.push('OS (vazios)')}else ign.push('OS')}
-      if(this.hasValidData(data.pecas,'codigo')){var pv=data.pecas.filter(function(p){return(p.codigo||'').trim()!==''});if(pv.length){State.pecas=pv.map(function(p){return{id:p.id||Date.now(),codigo:(p.codigo||'').trim(),descricao:(p.descricao||'').trim(),categoria:(p.categoria||'outro').toLowerCase(),unidade:(p.unidade||'un').toLowerCase(),quantidade:parseInt(p.quantidade)||0,minimo:parseInt(p.minimo)||2,preco_custo:parseFloat(p.precocusto)||0,margem:parseFloat(p.margem)||0,preco_venda:parseFloat(p.precovenda)||0,aplicacao:(p.aplicacao||'').trim()}});Storage.savePecas();pecasMudaram=true;mud.push('Peças')}else ign.push('Peças (vazios)')}else ign.push('Peças');
-      if(this.hasValidData(data.movimentosEstoque,'peca_codigo')){var mv=data.movimentosEstoque.filter(function(m){return(m.peca_codigo||'').trim()!==''});if(mv.length){State.movimentosEstoque=mv.map(function(m){return{id:m.id||Date.now(),tipo:(m.tipo||'entrada').toLowerCase(),peca_codigo:(m.peca_codigo||'').trim(),peca_descricao:(m.peca_descricao||'').trim(),quantidade:parseInt(m.quantidade)||0,os_vinculada:(m.os_vinculada||'').trim(),observacao:(m.observacao||'').trim(),data_hora:m.datahora||agoraBr()}});Storage.saveMovimentos();movimentosMudaram=true;mud.push('Movimentos')}else ign.push('Movimentos (vazios)')}else ign.push('Movimentos');
-      if(this.hasValidData(data.orcamentos,'numero')){var ov2=data.orcamentos.filter(function(o){return(o.numero||'').trim()!==''});if(ov2.length){State.orcamentos=ov2.map(function(o){return{id:o.id||Date.now(),numero:(o.numero||'').trim(),data:normalizeDate(o.data||''),validade:normalizeDate(o.validade||''),cliente:(o.cliente||'').trim(),equipamento:(o.equipamento||'').trim(),serie_horimetro:(o.serie_horimetro||'').trim(),tecnico:(o.tecnico||'').trim(),descricao:(o.descricao||'').trim(),itens:function(){try{var i=o.itens;if(typeof i==='string')return JSON.parse(i);if(Array.isArray(i))return i}catch(e){}return[]}(),desconto:parseFloat(o.desconto)||0,subtotal:parseFloat(o.subtotal)||0,valor_desconto:parseFloat(o.valordesconto)||0,total:parseFloat(o.total)||0,status:(o.status||'rascunho').toLowerCase(),assinatura:o.assinatura||'',assinante:(o.assinante||'').trim(),assinante_cpf:(o.assinante_cpf||'').trim(),observacoes:(o.observacoes||'').trim(),os_gerada:(o.os_gerada||'').trim()}});Storage.saveOrcamentos();orcamentosMudaram=true;mud.push('Orçamentos')}else ign.push('Orçamentos (vazios)')}else ign.push('Orçamentos');
+      if(this.hasValidData(data.pecas,'codigo')){var pv=data.pecas.filter(function(p){return(p.codigo||'').trim()!==''});if(pv.length){State.pecas=pv.map(function(p){return{id:p.id||Date.now(),codigo:(p.codigo||'').trim(),descricao:(p.descricao||'').trim(),categoria:(p.categoria||'outro').toLowerCase(),unidade:(p.unidade||'un').toLowerCase(),quantidade:parseInt(p.quantidade)||0,minimo:parseInt(p.minimo)||2,preco_custo:parseFloat(p.precocusto)||0,margem:parseFloat(p.margem)||0,preco_venda:parseFloat(p.precovenda)||0,aplicacao:(p.aplicacao||'').trim()}});Storage.savePecas();mud.push('Peças')}else ign.push('Peças (vazios)')}else ign.push('Peças');
+      if(this.hasValidData(data.movimentosEstoque,'peca_codigo')){var mv=data.movimentosEstoque.filter(function(m){return(m.peca_codigo||'').trim()!==''});if(mv.length){State.movimentosEstoque=mv.map(function(m){return{id:m.id||Date.now(),tipo:(m.tipo||'entrada').toLowerCase(),peca_codigo:(m.peca_codigo||'').trim(),peca_descricao:(m.peca_descricao||'').trim(),quantidade:parseInt(m.quantidade)||0,os_vinculada:(m.os_vinculada||'').trim(),observacao:(m.observacao||'').trim(),data_hora:m.datahora||agoraBr()}});Storage.saveMovimentos();mud.push('Movimentos')}else ign.push('Movimentos (vazios)')}else ign.push('Movimentos');
+      if(this.hasValidData(data.orcamentos,'numero')){var ov2=data.orcamentos.filter(function(o){return(o.numero||'').trim()!==''});if(ov2.length){State.orcamentos=ov2.map(function(o){return{id:o.id||Date.now(),numero:(o.numero||'').trim(),data:normalizeDate(o.data||''),validade:normalizeDate(o.validade||''),cliente:(o.cliente||'').trim(),equipamento:(o.equipamento||'').trim(),serie_horimetro:(o.serie_horimetro||'').trim(),tecnico:(o.tecnico||'').trim(),descricao:(o.descricao||'').trim(),itens:function(){try{var i=o.itens;if(typeof i==='string')return JSON.parse(i);if(Array.isArray(i))return i}catch(e){}return[]}(),desconto:parseFloat(o.desconto)||0,subtotal:parseFloat(o.subtotal)||0,valor_desconto:parseFloat(o.valordesconto)||0,total:parseFloat(o.total)||0,status:(o.status||'rascunho').toLowerCase(),assinatura:o.assinatura||'',assinante:(o.assinante||'').trim(),assinante_cpf:(o.assinante_cpf||'').trim(),observacoes:(o.observacoes||'').trim(),os_gerada:(o.os_gerada||'').trim()}});Storage.saveOrcamentos();mud.push('Orçamentos')}else ign.push('Orçamentos (vazios)')}else ign.push('Orçamentos');
       if(data.notificacoes&&Array.isArray(data.notificacoes)&&data.notificacoes.length){data.notificacoes.forEach(function(n){Notificacoes.adicionar({id:n.id,titulo:n.titulo||'',descricao:n.descricao||'',tipo:n.tipo||'os',os_numero:n.os_numero||'',orc_numero:n.orc_numero||'',timestamp:n.timestamp||Date.now(),lida:n.lida||false})})}
+      // ========== Sincronização das regras preventivas ==========
+      if(this.hasValidData(data.preventivas, 'descricao')) {
+        var pv = data.preventivas.filter(function(p){ return p.descricao && p.descricao.trim() !== '' });
+        if(pv.length) {
+          State.regrasPreventivas = pv.map(function(p){
+            return {
+              id: p.id || Date.now(),
+              descricao: p.descricao.trim(),
+              intervalo: parseInt(p.intervalo) || 0,
+              marca: (p.marca || '').trim(),
+              modelo: (p.modelo || '').trim()
+            };
+          });
+          Storage.saveRegrasPreventivas();
+          mud.push('Preventivas');
+        } else { ign.push('Preventivas (vazias)'); }
+      } else { ign.push('Preventivas'); }
+      // ========================================================
       if(Auth.can('permissoes_editar')){if(this.hasValidPermissions(data.permissoes)){localStorage.setItem('LIFTOS_permissoes_tecnico',JSON.stringify(data.permissoes));Auth.permissoes.tecnico=data.permissoes;mud.push('Permissões')}else ign.push('Permissões')}
       if(Auth.can('usuarios_visualizar')){if(this.hasValidData(data.usuarios,'login')){var uv=data.usuarios.filter(function(u){return(u.login||'').trim()!==''});if(uv.length){Auth.saveUsers(uv);mud.push('Usuários')}else ign.push('Usuários (vazios)')}else ign.push('Usuários')}
       if(data.onlineUsers&&Array.isArray(data.onlineUsers)){State.onlineUsers=data.onlineUsers;OnlineUsers.render()}
       if(mud.length>0){if(Auth.can('clientes_visualizar')){Clientes.renderTable();Clientes.updateStats()}if(Auth.can('historico_visualizar')){Historico.render();Historico.updateStats()}Agendamentos.atualizarLista();if(Auth.can('agendamentos_visualizar'))Agendamentos.atualizarSelectTecnicos();if(Auth.can('permissoes_editar')&&Permissoes.carregarNaInterface)Permissoes.carregarNaInterface();if(Auth.can('usuarios_visualizar'))UserManager.render();Auth.updatePermissions()}
-      if(pecasMudaram||movimentosMudaram){Estoque.renderPecas();Estoque.renderMovimentos();Estoque.updateStats();Estoque.preencherSelectPecas();Estoque.preencherOSList()}
-      if(orcamentosMudaram){Orcamento.renderLista();Orcamento.updateStats();Orcamento.preencherClientesOrc()}
-      if(agendamentosMudaram&&Auth.isTecnico()&&Auth.can('jornada_registrar'))Jornada.carregar();
+      if(State.regrasPreventivas.length || mud.includes('Preventivas')) {
+        if(typeof Preventivas !== 'undefined') {
+          Preventivas.renderRegras();
+          Preventivas.calcularProximas();
+        }
+      }
+      Estoque.renderPecas();Estoque.renderMovimentos();Estoque.updateStats();Estoque.preencherSelectPecas();Estoque.preencherOSList();
+      Orcamento.renderLista();Orcamento.updateStats();Orcamento.preencherClientesOrc();
+      if(Auth.isTecnico()&&Auth.can('jornada_registrar'))Jornada.carregar();
       Notificacoes.render();var msg='';if(mud.length)msg='Sync: '+mud.join(', ');if(ign.length)msg+=(msg?'\n':'')+'Locais: '+ign.join(', ');if(!msg)msg='Nenhuma alteração';showToast(msg);SyncUI.set('OK','ok')
     }catch(err){console.error('[SYNC]',err);SyncUI.set('Erro','error');showToast('Erro: '+err.message,true)}
     finally{if(b){b.classList.remove('btn-loading');b.disabled=!Auth.can('baixar_dados')}}
@@ -1022,9 +1043,7 @@ var Heartbeat={_timer:null,_lastPing:0,_pending:false,_status:'offline',
 
 var Auth={currentUser:null,inactivityTimer:null,
   permissoes:{
-    admin:{criar_os:true,editar_os:true,excluir_os:true,mudar_status:true,salvar_os:true,checklist_visualizar:true,checklist_preencher:true,fotos_horimetro:true,fotos_servico:true,fotos_pendencias:true,assinatura_tecnico:true,assinatura_cliente:true,timer_controle:true,horas_editar:true,gerar_pdf:true,enviar_email:true,enviar_whatsapp:true,sincronizar:true,limpar_fila:true,baixar_dados:true,heartbeat:true,clientes_cadastrar:true,clientes_editar:true,clientes_excluir:true,clientes_exportar_csv:true,clientes_importar_csv:true,clientes_visualizar:true,historico_visualizar:true,historico_excluir:true,historico_exportar_csv:true,historico_importar_csv:true,historico_limpar:true,agendamentos_criar:true,agendamentos_editar:true,agendamentos_excluir:true,agendamentos_concluir:true,agendamentos_visualizar:true,usuarios_criar:true,usuarios_editar:true,usuarios_excluir:true,usuarios_visualizar:true,permissoes_editar:true,jornada_registrar:false,estoque_cadastrar:true,estoque_editar:true,estoque_excluir:true,estoque_movimentar:true,orcamento_criar:true,orcamento_editar:true,orcamento_excluir:true,orcamento_aprovar:true,orcamento_visualizar:true
-        ,preventivas_visualizar: true
-        ,preventivas_editar: true},
+    admin:{criar_os:true,editar_os:true,excluir_os:true,mudar_status:true,salvar_os:true,checklist_visualizar:true,checklist_preencher:true,fotos_horimetro:true,fotos_servico:true,fotos_pendencias:true,assinatura_tecnico:true,assinatura_cliente:true,timer_controle:true,horas_editar:true,gerar_pdf:true,enviar_email:true,enviar_whatsapp:true,sincronizar:true,limpar_fila:true,baixar_dados:true,heartbeat:true,clientes_cadastrar:true,clientes_editar:true,clientes_excluir:true,clientes_exportar_csv:true,clientes_importar_csv:true,clientes_visualizar:true,historico_visualizar:true,historico_excluir:true,historico_exportar_csv:true,historico_importar_csv:true,historico_limpar:true,agendamentos_criar:true,agendamentos_editar:true,agendamentos_excluir:true,agendamentos_concluir:true,agendamentos_visualizar:true,usuarios_criar:true,usuarios_editar:true,usuarios_excluir:true,usuarios_visualizar:true,permissoes_editar:true,jornada_registrar:false,estoque_cadastrar:true,estoque_editar:true,estoque_excluir:true,estoque_movimentar:true,orcamento_criar:true,orcamento_editar:true,orcamento_excluir:true,orcamento_aprovar:true,orcamento_visualizar:true,preventivas_visualizar: true,preventivas_editar: true},
     tecnico:{criar_os:false,editar_os:true,excluir_os:false,mudar_status:true,salvar_os:true,checklist_visualizar:true,checklist_preencher:true,fotos_horimetro:true,fotos_servico:true,fotos_pendencias:true,assinatura_tecnico:true,assinatura_cliente:true,timer_controle:true,horas_editar:true,gerar_pdf:true,enviar_email:true,enviar_whatsapp:true,sincronizar:true,limpar_fila:true,baixar_dados:true,heartbeat:true,clientes_cadastrar:false,clientes_editar:false,clientes_excluir:false,clientes_exportar_csv:false,clientes_importar_csv:false,clientes_visualizar:true,historico_visualizar:true,historico_excluir:false,historico_exportar_csv:false,historico_importar_csv:false,historico_limpar:false,agendamentos_criar:false,agendamentos_editar:false,agendamentos_excluir:false,agendamentos_concluir:false,agendamentos_visualizar:false,usuarios_criar:false,usuarios_editar:false,usuarios_excluir:false,usuarios_visualizar:false,permissoes_editar:false,jornada_registrar:true,estoque_cadastrar:false,estoque_editar:false,estoque_excluir:false,estoque_movimentar:true,orcamento_criar:true,orcamento_editar:true,orcamento_excluir:false,orcamento_aprovar:false,orcamento_visualizar:true},
     visualizador:{criar_os:false,editar_os:true,excluir_os:false,mudar_status:true,salvar_os:true,checklist_visualizar:true,checklist_preencher:true,fotos_horimetro:true,fotos_servico:true,fotos_pendencias:true,assinatura_tecnico:true,assinatura_cliente:true,timer_controle:false,horas_editar:false,gerar_pdf:true,enviar_email:true,enviar_whatsapp:true,sincronizar:true,limpar_fila:true,baixar_dados:true,heartbeat:false,clientes_cadastrar:false,clientes_editar:false,clientes_excluir:false,clientes_exportar_csv:false,clientes_importar_csv:false,clientes_visualizar:true,historico_visualizar:true,historico_excluir:false,historico_exportar_csv:false,historico_importar_csv:false,historico_limpar:false,agendamentos_criar:false,agendamentos_editar:false,agendamentos_excluir:false,agendamentos_concluir:false,agendamentos_visualizar:true,usuarios_criar:false,usuarios_editar:false,usuarios_excluir:false,usuarios_visualizar:false,permissoes_editar:false,jornada_registrar:false,estoque_cadastrar:false,estoque_editar:false,estoque_excluir:false,estoque_movimentar:false,orcamento_criar:false,orcamento_editar:false,orcamento_excluir:false,orcamento_aprovar:false,orcamento_visualizar:true}
   },
@@ -1042,9 +1061,7 @@ var Auth={currentUser:null,inactivityTimer:null,
   updatePermissions:function(){
     if(!this.currentUser)return;var a=this.isAdmin(),t=this.isTecnico(),badge=$('currentUserNivel');
     if(badge){if(a){badge.textContent='ADMIN';badge.style.background='rgba(249,115,22,.2)';badge.style.color='#fb923c'}else if(t){badge.textContent='TÉCNICO';badge.style.background='rgba(59,130,246,.2)';badge.style.color='#60a5fa'}else{badge.textContent='VISUALIZADOR';badge.style.background='rgba(107,114,128,.2)';badge.style.color='#9ca3af'}}
-    var tabs={tabOrcamentoBtn:'orcamento_visualizar',tabEstoqueBtn:'estoque_cadastrar',tabAgendamentosBtn:'agendamentos_visualizar',tabJornadaBtn:'jornada_registrar',tabPermissoesBtn:'permissoes_editar',tabUsuariosBtn:'usuarios_visualizar'
-        ,tabPreventivasBtn:'preventivas_visualizar'
-    };
+    var tabs={tabOrcamentoBtn:'orcamento_visualizar',tabEstoqueBtn:'estoque_cadastrar',tabAgendamentosBtn:'agendamentos_visualizar',tabJornadaBtn:'jornada_registrar',tabPermissoesBtn:'permissoes_editar',tabUsuariosBtn:'usuarios_visualizar',tabPreventivasBtn:'preventivas_visualizar'};
     for(var k in tabs){var el=$(k);if(el)el.style.display=this.can(tabs[k])?'inline-flex':'none'}
     var estTab=$('tabEstoqueBtn');if(estTab)estTab.style.display=this.can('estoque_cadastrar')||this.can('estoque_movimentar')||this.can('estoque_editar')?'inline-flex':'none';
     var btns={btnNovaOS:'criar_os',btnSync:'sincronizar',btnDownload:'baixar_dados'};for(var k2 in btns){var e2=$(k2);if(e2){e2.disabled=!this.can(btns[k2])}}
@@ -1095,7 +1112,7 @@ var Checklist={total:0,checked:0,
   loadChecklistData:function(d){if(!d)return;document.querySelectorAll('input[data-check="true"]').forEach(function(cb){if(d[cb.id]!==undefined)cb.checked=d[cb.id]});document.querySelectorAll('#checklistSections select').forEach(function(s){if(d[s.id]!==undefined)s.value=d[s.id]});this.updateProgress()}
 };
 
-  var Clientes={load:function(){Storage.loadClients();this.renderTable();this.updateStats()},
+var Clientes={load:function(){Storage.loadClients();this.renderTable();this.updateStats()},
   updateStats:function(){var tc=State.clients.length,tm=0,cc=new Set(),to=0,oa=0,op=0;State.clients.forEach(function(c){tm+=(c.equipamentos||[]).length});State.osHistory.forEach(function(o){if(o.cliente){cc.add(o.cliente);to++}if('abertura execucao finalizacao'.indexOf(o.status)!==-1)oa++;if(o.status==='aprovada')op++});$('statTotalClientes').innerText=tc;$('statTotalMarcas').innerText=tm;$('statClientesComOS').innerText=cc.size;$('statTotalOSClientes').innerText=to;$('statOSAbertasCliente').innerText=oa;$('statOSAprovadasCliente').innerText=op},
   renderTable:function(data){var list=data||State.clients;var tb=$('cad_tableBody');if(!tb)return;tb.innerHTML='';if(!list.length){tb.innerHTML='<tr><td colspan="4" class="text-center p-4 text-[var(--muted)]">Nenhum cliente</td></tr>';return}var ce=Auth.can('clientes_editar'),cd=Auth.can('clientes_excluir');list.forEach(function(c){var r=tb.insertRow(),ml=(c.equipamentos||[]).map(function(e){return esc(e.marca)}).join(', '),a='<button onclick="Clientes.selecionarCliente('+c.id+')" class="btn btn-primary text-xs py-1 px-2"><i class="fas fa-arrow-right"></i> Selecionar</button>';if(ce)a+=' <i class="fas fa-edit text-blue-400 cursor-pointer ml-2" onclick="Clientes.edit('+c.id+')"></i>';if(cd)a+=' <i class="fas fa-trash text-red-400 cursor-pointer ml-2" onclick="Clientes.delete('+c.id+')"></i>';r.innerHTML='<td class="p-2 font-medium">'+esc(c.nome)+'</td><td class="p-2">'+esc(c.cidade)+'</td><td class="p-2 text-xs">'+(ml||'-')+'</td><td class="p-2">'+a+'</td>'})},
   selecionarCliente:function(id){var c=State.clients.find(function(x){return x.id===id});if(!c)return;State.selectedClientForOs=c;if(c.equipamentos && c.equipamentos.length){this.mostrarModalEquipamentos(c);}else{this.mostrarModalEscolhaOSouOrcamento();}},
@@ -1179,7 +1196,8 @@ var Utils={
 };
 
 var App={
-  init:function(){if(State._initDone)return;State._initDone=true;Storage.loadCounter();Storage.loadOrcCounter();Storage.loadPecaCounter();Storage.loadPecas();Storage.loadMovimentos();Storage.loadOrcamentos();Storage.loadLastSeen();Clientes.load();Historico.load();Agendamentos.carregar();this.populateMarcas();Checklist.render();Signature.init();Fotos.init();Horas.initListeners();Utils.setDefaultDate();this.setupTabs();this.setupMarcaSelect();this.setupSearch();this.setupAgendamentoOS();this.setupEstoqueListeners();Timer.restoreTimer();Notificacoes.init();SignatureOrc.init();if(Auth.isTecnico()&&Auth.can('jornada_registrar')){Jornada.carregar();setTimeout(function(){var tb=document.querySelector('.tab-button[data-tab="tab-jornada"]');if(tb)tb.click()},2000)}State.currentStatus='abertura';this.updateUI();UserManager.render();Estoque.renderPecas();Estoque.renderMovimentos();Estoque.updateStats();Estoque.preencherSelectPecas();Estoque.preencherOSList();Orcamento.preencherClientesOrc();Orcamento.novo();Orcamento.renderLista();Orcamento.updateStats();var pc=$('permissoesContainer');if(pc&&Auth.can('permissoes_editar')){var h='';for(var k in Permissoes.padrao)h+='<div class="permission-item"><label><input type="checkbox" id="perm_'+k+'"> '+esc(k.replace(/_/g,' ').toUpperCase())+'</label></div>';pc.innerHTML=h;Permissoes.carregarNaInterface()}if(Auth.can('sincronizar')){window.addEventListener('online',function(){showToast('Conexao restaurada');SyncQueue.scheduleProcess()});setTimeout(function(){GoogleSheetsSync.fetchFromSheet()},1500)}if(Auth.can('heartbeat'))Heartbeat.start();SyncUI.set(navigator.onLine?'Online':'Offline',navigator.onLine?'ok':'offline');window.addEventListener('online',function(){SyncUI.set('Online','ok')});window.addEventListener('offline',function(){SyncUI.set('Offline','offline')});ThemeManager.init();Preventivas.init();},
+  init:function(){if(State._initDone)return;State._initDone=true;Storage.loadCounter();Storage.loadOrcCounter();Storage.loadPecaCounter();Storage.loadPecas();Storage.loadMovimentos();Storage.loadOrcamentos();Storage.loadLastSeen();Storage.loadRegrasPreventivas(); // carrega regras locais
+    Clientes.load();Historico.load();Agendamentos.carregar();this.populateMarcas();Checklist.render();Signature.init();Fotos.init();Horas.initListeners();Utils.setDefaultDate();this.setupTabs();this.setupMarcaSelect();this.setupSearch();this.setupAgendamentoOS();this.setupEstoqueListeners();Timer.restoreTimer();Notificacoes.init();SignatureOrc.init();if(Auth.isTecnico()&&Auth.can('jornada_registrar')){Jornada.carregar();setTimeout(function(){var tb=document.querySelector('.tab-button[data-tab="tab-jornada"]');if(tb)tb.click()},2000)}State.currentStatus='abertura';this.updateUI();UserManager.render();Estoque.renderPecas();Estoque.renderMovimentos();Estoque.updateStats();Estoque.preencherSelectPecas();Estoque.preencherOSList();Orcamento.preencherClientesOrc();Orcamento.novo();Orcamento.renderLista();Orcamento.updateStats();var pc=$('permissoesContainer');if(pc&&Auth.can('permissoes_editar')){var h='';for(var k in Permissoes.padrao)h+='<div class="permission-item"><label><input type="checkbox" id="perm_'+k+'"> '+esc(k.replace(/_/g,' ').toUpperCase())+'</label></div>';pc.innerHTML=h;Permissoes.carregarNaInterface()}if(Auth.can('sincronizar')){window.addEventListener('online',function(){showToast('Conexao restaurada');SyncQueue.scheduleProcess()});setTimeout(function(){GoogleSheetsSync.fetchFromSheet()},1500)}if(Auth.can('heartbeat'))Heartbeat.start();SyncUI.set(navigator.onLine?'Online':'Offline',navigator.onLine?'ok':'offline');window.addEventListener('online',function(){SyncUI.set('Online','ok')});window.addEventListener('offline',function(){SyncUI.set('Offline','offline')});ThemeManager.init();Preventivas.init();},
   setupEstoqueListeners:function(){var sel=$('mov_peca');if(sel)sel.addEventListener('change',function(){Estoque.mostrarEstoqueAtual()});var custo=$('est_preco_custo'),margem=$('est_margem'),venda=$('est_preco_venda');if(custo)custo.addEventListener('input',function(){Estoque.calcFromCusto()});if(margem)margem.addEventListener('input',function(){Estoque.calcFromMargem()});if(venda)venda.addEventListener('input',function(){Estoque.calcFromVenda()});document.addEventListener('click',function(e){var box=$('calcBox');if(!box||!box.classList.contains('show'))return;var form=$('estoqueFormCard');if(form&&form.contains(e.target))return;if(box.contains(e.target))return;Estoque.hideCalcBox();});},
   setupAgendamentoOS:function(){var s=$('ag_tecnico');if(s)s.addEventListener('change',function(){Agendamentos.carregarOSDisponiveis(s.value)})},
   populateMarcas:function(){var s=$('marcaSelect');if(!s)return;s.innerHTML='<option value="">Selecione</option>';Config.marcas.forEach(function(m){if(m!=='OUTRA')s.innerHTML+='<option value="'+m+'">'+m+'</option>'});s.innerHTML+='<option value="OUTRA">OUTRA</option>'},
@@ -1209,15 +1227,8 @@ var App={
 };
 
 // ==========================================
-// MÓDULO: PREVENTIVAS (Manutenção por Horímetro)
+// MÓDULO: PREVENTIVAS (com sincronização)
 // ==========================================
-
-// 1. Atualizar o State e Storage
-State.regrasPreventivas = [];
-Storage.saveRegrasPreventivas = function(){ this.save('regras_preventivas', State.regrasPreventivas) };
-Storage.loadRegrasPreventivas = function(){ State.regrasPreventivas = this.load('regras_preventivas') || [] };
-
-// Função auxiliar para extrair números do horímetro (ex: "1250h" vira 1250)
 function parseHorimetroNum(h) { 
   if(!h) return 0; 
   return parseInt(String(h).replace(/[^0-9]/g, '')) || 0; 
@@ -1241,6 +1252,7 @@ var Preventivas = {
   },
 
   salvarRegra: async function() {
+    if(!Auth.can('preventivas_editar')) { showToast('Apenas admin pode editar regras preventivas', true); return; }
     var desc = Utils.getVal('prev_descricao').trim();
     var intervalo = parseInt(Utils.getVal('prev_intervalo'));
     if(!desc || !intervalo || intervalo <= 0) {
@@ -1269,10 +1281,11 @@ var Preventivas = {
     this.renderRegras();
     this.calcularProximas();
     showToast('Regra salva!');
-    // SyncQueue.add('upsert','regra_preventiva', regra); // Descomente se criar a sheet no Google
+    SyncQueue.add('upsert', 'preventiva', regra);
   },
 
   editarRegra: function(id) {
+    if(!Auth.can('preventivas_editar')) { showToast('Apenas admin', true); return; }
     var r = State.regrasPreventivas.find(function(x){ return x.id === id });
     if(!r) return;
     Utils.setVal('prev_editId', r.id);
@@ -1293,11 +1306,13 @@ var Preventivas = {
   },
 
   excluirRegra: function(id) {
+    if(!Auth.can('preventivas_editar')) { showToast('Apenas admin', true); return; }
     if(!confirm('Excluir regra?')) return;
     State.regrasPreventivas = State.regrasPreventivas.filter(function(r){ return r.id !== id });
     Storage.saveRegrasPreventivas();
     this.renderRegras();
     this.calcularProximas();
+    SyncQueue.add('delete', 'preventiva', {id: id});
   },
 
   renderRegras: function() {
@@ -1308,13 +1323,14 @@ var Preventivas = {
       tb.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-[var(--muted)]">Nenhuma regra cadastrada</td></tr>';
       return;
     }
+    var podeEditar = Auth.can('preventivas_editar');
     State.regrasPreventivas.forEach(function(r) {
       var row = tb.insertRow();
       row.innerHTML = '<td class="font-medium">'+esc(r.descricao)+'</td>'+
                       '<td class="font-mono font-bold">'+r.intervalo+'h</td>'+
                       '<td>'+(r.marca||'Todas')+'</td>'+
                       '<td>'+(r.modelo||'Todos')+'</td>'+
-                      '<td><i class="fas fa-edit text-blue-400 cursor-pointer mr-2" onclick="Preventivas.editarRegra('+r.id+')"></i> <i class="fas fa-trash text-red-400 cursor-pointer" onclick="Preventivas.excluirRegra('+r.id+')"></i></td>';
+                      '<td>'+(podeEditar?'<i class="fas fa-edit text-blue-400 cursor-pointer mr-2" onclick="Preventivas.editarRegra('+r.id+')"></i> <i class="fas fa-trash text-red-400 cursor-pointer" onclick="Preventivas.excluirRegra('+r.id+')"></i>':'')+'</td>';
     });
   },
 
@@ -1328,7 +1344,7 @@ var Preventivas = {
       return;
     }
 
-    // 1. Agrupar os equipamentos por Cliente + Marca + Modelo e pegar o MAIOR horímetro
+    // Agrupar equipamentos a partir das OS
     var equipamentos = {};
     State.osHistory.forEach(function(os) {
       if(!os.marca && !os.modelo) return;
@@ -1345,18 +1361,16 @@ var Preventivas = {
       }
     });
 
-    // 2. Cruzar equipamentos com as regras
     var previsoes = [];
     for(var key in equipamentos) {
       var eq = equipamentos[key];
-      if(eq.horas === 0) continue; // Ignora se nunca teve horímetro lançado
+      if(eq.horas === 0) continue;
 
       State.regrasPreventivas.forEach(function(regra) {
         var serveMarca = !regra.marca || regra.marca === eq.marca;
         var serveModelo = !regra.modelo || regra.modelo.toLowerCase() === eq.modelo.toLowerCase();
         
         if(serveMarca && serveModelo) {
-          // Calcula quando foi a última prevenção (assumindo que começou do 0 ou baseado em múltiplos)
           var ultimaPrevencao = Math.floor(eq.horas / regra.intervalo) * regra.intervalo;
           var proximaPrevencao = ultimaPrevencao + regra.intervalo;
           var horasRestantes = proximaPrevencao - eq.horas;
@@ -1383,13 +1397,11 @@ var Preventivas = {
       });
     }
 
-    // 3. Renderizar tabela
     if(!previsoes.length) {
       tb.innerHTML = '<tr><td colspan="6" class="text-center p-4 text-[var(--muted)]">Nenhum equipamento com horímetro encontrado para as regras cadastradas</td></tr>';
       return;
     }
 
-    // Ordenar: Vencidas primeiro, depois Crítico, depois OK
     previsoes.sort(function(a, b) {
       if(a.statusCls === 'stock-zero') return -1;
       if(b.statusCls === 'stock-zero') return 1;
@@ -1418,7 +1430,6 @@ document.addEventListener('DOMContentLoaded',function(){
     $('appContainer').style.display='none';
     SyncUI.set('Offline','offline')
   }else{
-    Preventivas.init();
     App.init()
   }
 });
@@ -1476,22 +1487,6 @@ document.addEventListener('DOMContentLoaded',function(){
     });
   }
 })();
-// ==========================================
-// AJUSTE FINAL PARA GARANTIR RENDERIZAÇÃO
-// ==========================================
-(function(){
-  // Aguarda o App.init() terminar e força a atualização da preventiva
-  var originalInit = App.init;
-  App.init = function() {
-    originalInit.apply(this, arguments);
-    // Pequeno delay para garantir que os dados da planilha já foram carregados
-    setTimeout(function() {
-      if(typeof Preventivas !== 'undefined' && Preventivas.calcularProximas) {
-        Preventivas.calcularProximas();
-      }
-    }, 2000);
-  };
-})()
 </script>
 </body>
 </html>
